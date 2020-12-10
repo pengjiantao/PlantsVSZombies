@@ -43,6 +43,20 @@ else()
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    game.cpp
+    game.h
+    plant.cpp
+    plant.h
+    player.cpp
+    player.h
+    PlantVSZombie.cpp
+    PlantVSZombie.h
+    screen.cpp
+    screen.h
+    toolfunc.cpp
+    toolfunc.h
+    swfunix.cpp
+    swfunix.h
     ${TS_FILES}
   )
 endif()
