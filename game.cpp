@@ -5,11 +5,10 @@
 #include"toolfunc.h"
 #include<fstream>
 using namespace std;
-/*显示实例化：plant locate*/
-template struct locate<int, int>;
 
-/*显式实例化：zombie locate*/
+template struct locate<int, int>;
 template struct locate<int,float>;
+
 game::game():user()
 {
 	log("a game object be created");
@@ -43,7 +42,7 @@ game::game():user()
 	menu_pointer = 0;
 	yard_pointer.width = 0;
 	yard_pointer.high = 0;
-	//cout << screen::size_info.screen_high << " " << screen::size_info.screen_width << endl;
+
 	yard = new yard_node*[screen::size_info.screen_high];
 	for (int i = 0; i < screen::size_info.screen_high; i++)
 		yard[i] = new yard_node[screen::size_info.screen_width];
@@ -125,7 +124,7 @@ void game::game_init()
 	path = config_path + "info.txt";
 	infile.open(path, ios::in);
 	command = "";
-	while (!infile.eof() && command != "ZOMBIENUM")
+    while (!infile.eof() && command != "zombie_num_")
 		infile >> command;
 	for (int i = 0; !infile.eof() && i < 10; i++)
 	{
@@ -140,8 +139,6 @@ void game::game_fresh()
 {
 	ULONGLONG this_time = GetTickCount64();
 	double time_diff = this_time - count_clock.time_of_last_frame;
-	//cout << time_diff << endl;
-	screen::flash_store(plant_list,store_pointer);
 	if (time_diff > 100)
 		errlog("game_fresh:the frame rate is too slow!");
 	bool finish = true;
@@ -174,7 +171,6 @@ void game::game_fresh()
 						}
 					}
 				}
-			screen::flash_node({ i,j }, yard);
 		}
 	if (finish == true && zombie_info::ALL_ZOMBIE == true)
 	{
@@ -198,7 +194,6 @@ void game::game_fresh()
 
 void game::break_log()
 {
-	system("cls");
 	cout << "GENERATING BLOCK FILE..." << endl;
 	string path = config_path + "block.txt";
 	fstream outfile;
@@ -351,9 +346,8 @@ void game::break_log()
 bool game::game_start()
 {
 	log("a game start now!");
-	screen::init_game_screen(plant_list, user.getMoney());
+    screen::init_game_screen();
 	screen::putMessage("游戏开始！");
-	screen::flash_node({ 0,0 }, yard);
 	game_mode = running_mode;
 	game_state = running;
 	click_location = store;
@@ -390,7 +384,6 @@ bool game::game_start()
 		}
 		if (game_mode == running_mode)
 			game_fresh();
-		//game_exit();
 	}
 	if (exit_flag) {
 		log("exit_flag be true,game will exit.");
@@ -405,7 +398,6 @@ bool game::game_start()
 void game::game_exit()
 {
 	log("game encount a deadly error,exit game anyway");
-	system("cls");
 	cout << "your game encounter an error!" << endl;
 	cout << "information be collected will be output to an error file.\nyou can find it in config_path " << endl;
 	break_log();
@@ -415,34 +407,33 @@ void game::game_exit()
 
 void game::game_pause()
 {
-	log("game pause");
+    cout<<"game will pause!"<<endl;
 	clock_pause.s_1 = GetTickCount64() - count_clock.time_of_last_frame;
 	clock_pause.s_2 = GetTickCount64() - count_clock.time_of_last_money;
 	clock_pause.s_3 = GetTickCount64() - count_clock.time_of_last_zombie;
 	game_mode = menu_mode;
     game_state = on_pause;
 	click_location = menu;
-	fflush(stdout);
 	screen::init_menu(menu_list,menu_root,menu_pointer);
+    cout<<"game pause!"<<endl;
 }
 
 bool game::game_continue()
 {
-	log("game continue");
+    cout<<"game will continue!"<<endl;
 	count_clock.time_of_last_frame = GetTickCount64() + clock_pause.s_1;
 	count_clock.time_of_last_money = GetTickCount64() + clock_pause.s_2;
 	count_clock.time_of_last_zombie = GetTickCount64() + clock_pause.s_3;
 	game_mode = running_mode;
 	game_state = running;
 	click_location = store;
-	screen::init_game_screen(plant_list,user.getMoney());
-	screen::flash_store(plant_list, store_pointer);
+    screen::init_game_screen();
 	for (int i = 0; i < screen::size_info.screen_high; i++)
 		for (int j = 0; j < screen::size_info.screen_width; j++)
 		{
 			locate<int, int> p = { i,j };
-			screen::flash_node(p, yard);
 		}
+    cout<<"game continue!"<<endl;
 	return true;
 }
 
@@ -540,6 +531,7 @@ bool game::create_plant()
 	}
 	yardtostore();
 	grade += 50;
+    cout<<"create plant success!"<<endl;
 	return true;
 }
 
@@ -582,9 +574,11 @@ bool game::create_zombie()
 				return false;
 			}
 			zombie_list[(i + index)%10].number--;
+            cout<<"create zombie success"<<endl;
 			return true;
 		}
 	}
+    cout<<"all zombie generated"<<endl;
 	zombie_info::ALL_ZOMBIE = true;
 	return true;
 }
@@ -592,7 +586,6 @@ bool game::create_zombie()
 
 void game::generate_money()
 {
-	log("generate sunney");
 	if (!user.inMoney(sunny_granularity))
 	{
 		errlog("generate_money:unexpected error curror,exit game!");
@@ -751,6 +744,7 @@ void game::menutorun()
 	click_location = store;
 	game_state = running;
 	game_continue();
+    cout<<"menu to running"<<endl;
 }
 
 void game::runtomenu()
@@ -759,32 +753,33 @@ void game::runtomenu()
 	game_mode = menu_mode;
 	click_location = menu;
     game_state = on_pause;
+    cout<<"run to menu"<<endl;
 }
 
 void game::storetomenu()
 {
 	runtomenu();
+    cout<<"store to menu"<<endl;
 }
 
 void game::menutostore()
 {
 	menutorun();
+    cout<<"menu to store"<<endl;
 }
 
 void game::yardtostore()
 {
 	click_location = store;
-	screen::flash_store(plant_list, store_pointer);
 	yard[yard_pointer.high][yard_pointer.width].color = black;
-	screen::flash_node(yard_pointer, yard);
+    cout<<"yard to store"<<endl;
 }
 
 void game::storetoyard()
 {
 	click_location = onyard;
-	screen::flash_store(plant_list, -1);
 	yard[yard_pointer.high][yard_pointer.width].color = blue;
-	screen::flash_node(yard_pointer, yard);
+    cout<<"store to yard"<<endl;
 }
 
 void game::pointerMove(control c)
@@ -825,7 +820,6 @@ void game::pointerMove(control c)
 		default:
 			break;
 		}
-		screen::flash_store(plant_list,store_pointer);
 		break;
 	case menu:
 		switch (c)
@@ -860,6 +854,7 @@ bool game::remove_plant()
 		yard[yard_pointer.high][yard_pointer.width].p = NULL;
 		screen::putMessage("你成功移除了一颗植物");
 		yardtostore();
+        cout<<"remove one plant"<<endl;
 		return true;
 	}
 }
@@ -1022,7 +1017,7 @@ void game::menufunc_zombieNum()
 	system("cls");
 	for (int i = 0; i < 10; i++)
 	{
-		if (zombie_list[i].name != "NULL")
+        if ((string)zombie_list[i].name !=(string) "NULL")
 		{
 			cout << "********************" << endl;
 			cout << zombie_list[i].name << ":";

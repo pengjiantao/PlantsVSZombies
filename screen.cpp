@@ -30,7 +30,7 @@ screen::~screen()
 
 }
 
-void screen::init_game_screen(plant_info* s, int money)
+void screen::init_game_screen()
 {
 	log("init game screen");
     printf("VERSION :%s\n", version);
@@ -43,7 +43,6 @@ void screen::flash_menu(menu_entry* menu_list,int n,int c)
 
 void screen::init_menu(menu_entry* menu_list,int n=0,int c=0)
 {
-    //system("cls");
 	printf("menu:");
 	short base_x = 5;
     short base_y = 1;
@@ -68,10 +67,6 @@ void screen::init_menu(menu_entry* menu_list,int n=0,int c=0)
     }
 }
 
-void screen::flash_store(plant_info* s,int n)
-{
-
-}
 
 void screen::putMessage(string s)
 {
@@ -102,9 +97,6 @@ void screen::flash_grade(int grade)
     cout<<"Your grade: "<<grade<<endl;
 }
 
-void screen::flash_node(const locate<int, int>& pos,yard_node**& yard) {
-
-}
 
 COORD screen::get_position(const locate<int, int>& p)
 {

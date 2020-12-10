@@ -26,7 +26,6 @@ bool init()
 			while (infile>>commad)
 			{
 				infile >> data;
-				//cout << commad << data << endl;
 				if (commad == "MAX_GRADE")
 					MAX_GRADE = data;
 			}
@@ -68,8 +67,6 @@ bool init()
 	catch (string s) {
 		cout << s << endl;
 	}
-	//cout << MAX_GRADE << endl;
-	//system("pause");
 	return true;
 }
 
@@ -87,7 +84,7 @@ void log(string log)
 
 void errlog(string log)
 {
-    cout<<"LOG: "<<log<<endl;
+    cout<<"ERROR LOG: "<<log<<endl;
 	log_entry* p = new log_entry;
 	time_t t = time(0);
     char tmp[32] = { 0 };
@@ -95,16 +92,6 @@ void errlog(string log)
 	p->long_info = (string)tmp + (string)" Error: " + log;
 	p->next = log_list;
 	log_list = p;
-}
-
-void printf_plus(const char* s,const obj_color c)
-{
-	printf("%s", s);
-}
-
-void printf_plus(const char* s, const obj_color c, const obj_color b)
-{
-	printf("%s", s);
 }
 
 void end()
