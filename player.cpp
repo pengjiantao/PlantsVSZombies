@@ -9,7 +9,6 @@ player::player() : name("player"), money(100) {
 player::~player() = default;
 bool player::deMoney(int n)
 {
-	log("money decreased");
 	if (money >= n)
 	{
 		money -= n;
@@ -25,7 +24,6 @@ bool player::deMoney(int n)
 }
 bool player::inMoney(int n)
 {
-	log("money increased");
 	money += n;
 	screen::flash_money(money);
 	return true;

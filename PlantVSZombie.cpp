@@ -17,8 +17,15 @@ int env_w = 8;
 //用于描述游戏庭院行数：env_h=(8);
 int env_h = 5;
 
+
 //游戏配置文件主目录
+#if _WIN32
+string config_path = "C://.plantvszombie/";
+#elif __linux__
 string config_path = "/home/fiyqkrc/plantvszombie/";
+#else
+#error this program can not be complied in a machine which neithor windows nor linux
+#endif
 
 //最高得分记录
 int MAX_GRADE = 0;
