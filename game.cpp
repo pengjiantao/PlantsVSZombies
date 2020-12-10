@@ -125,7 +125,7 @@ void game::game_init()
 	path = config_path + "info.txt";
 	infile.open(path, ios::in);
 	command = "";
-	while (!infile.eof() && command != "ZOMBIENUM")
+    while (!infile.eof() && command != "zombie_num_")
 		infile >> command;
 	for (int i = 0; !infile.eof() && i < 10; i++)
 	{
