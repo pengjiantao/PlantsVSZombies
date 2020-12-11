@@ -3,10 +3,8 @@
 #include"toolfunc.h"
 #include"screen.h"
 using namespace std;
-/*显示实例化：plant locate*/
-template struct locate<int, int>;
 
-/*显式实例化：zombie locate*/
+template struct locate<int, int>;
 template struct locate<int,float>;
 
 plant_info::plant_info(const char* _name, int _health, int _attack_power, obj_color _color, int _price) :
@@ -34,7 +32,6 @@ bool role::ifDead() {
 }
 bool role::deHealth(float n) {
 	if (health <= n) {
-		//errlog("plant:try to decrease a dead plant's health value!");
 		return false;
 	}
 	else {
@@ -596,4 +593,5 @@ bool Bullet::attack(double time, yard_node** yard)
 	{
 		return true;
 	}
+    return false;
 }

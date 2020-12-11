@@ -1032,7 +1032,7 @@ void game::menufunc_zombieNum()
 	outfile << "MAX_GRADE" << endl;
 	outfile << MAX_GRADE << endl;
 
-	outfile << "ZOMBIENUM" << endl;
+    outfile << "zombie_num_" << endl;
 	for (int i = 0; i < 10; i++)
 	{
 		outfile << zombie_list[i].number << " ";
