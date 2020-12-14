@@ -8,6 +8,8 @@
 #include<time.h>
 #include"PlantVSZombie.h"
 #include"screen.h"
+#include<QtDebug>
+#include<QString>
 using namespace std;
 bool init()
 {
@@ -84,7 +86,7 @@ void log(string log)
 
 void errlog(string log)
 {
-    cout<<"ERROR LOG: "<<log<<endl;
+    qDebug() << log.c_str();
 	log_entry* p = new log_entry;
 	time_t t = time(0);
     char tmp[32] = { 0 };

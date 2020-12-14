@@ -1,5 +1,3 @@
-#include "mainwindow.h"
-
 #include <QApplication>
 
 #include"PlantVSZombie.h"
@@ -8,15 +6,14 @@
 #include<iostream>
 #include"toolfunc.h"
 #include"swfunix.h"
-
+#include"window.h"
+#include"settings.h"
 
 int main(int argc,char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
+    window w;
     w.show();
-    a.exec();
-
     if (!init())
     {
         cout << "Error: game init failed!" << endl;
@@ -29,6 +26,7 @@ int main(int argc,char *argv[])
     screen display(env_w,env_h,space_w,space_h);
     game* g=new game;
     g->game_init();
+    /*
     while (g->game_start())
     {
         log("main:start a new game!");
@@ -39,5 +37,6 @@ int main(int argc,char *argv[])
     delete g;
     log("main:exit game!");
     end();
-    return 0;
+    */
+    return a.exec();
 }

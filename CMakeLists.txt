@@ -32,17 +32,17 @@ set(TS_FILES PlantsVSZombies_zh_CN.ts)
 if(ANDROID)
   add_library(PlantsVSZombies SHARED
     main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
     ${TS_FILES}
   )
 else()
   add_executable(PlantsVSZombies
     main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
+    settings.cpp
+    settings.h
+    settings.ui
+    window.cpp
+    window.h
+    window.ui
     game.cpp
     game.h
     plant.cpp
