@@ -22,9 +22,5 @@
         <source>PushButton</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>CommandLinkButton</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 </TS>
