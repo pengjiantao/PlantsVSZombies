@@ -46,9 +46,6 @@ public:
 	/*read config file ,to create plant_list,zombie_list ,menu_list and so on*/
 	void game_init();
 
-	/*program break log*/
-	void break_log();
-
 
 	void configToDisk();
 
