@@ -84,8 +84,12 @@ game::game():QObject(),user()
     sun_timer=new QTimer(this);
     sun_timer->setInterval(sunny_cycle*1000);
     sun_timer->stop();
+    zombie_timer=new QTimer(this);
+    zombie_timer->setInterval(zombie_cycle*1000);
+    zombie_timer->stop();
+    scene=new QGraphicsScene();
 
-
+    connect(this->zombie_timer,SIGNAL(timeout()),this,SLOT(create_zombie()));
     connect(this->sun_timer,SIGNAL(timeout()),this,SLOT(generate_money()));
 }
 
@@ -96,6 +100,7 @@ game::~game()
 	for (int i =0;i< screen::size_info.screen_high; i++)
 		delete[] yard[i];
     delete sun_timer;
+    delete zombie_timer;
     delete main_screen;
 	delete[] yard;
 	delete[] plant_list;
@@ -317,7 +322,10 @@ bool game::game_start()
 	chooseToRemove = false;
 	menu_root = 0;
     sun_timer->start();
+    zombie_timer->start();
+
     main_screen->show();
+    main_screen->ui->main_screen_view->setScene(scene);
     return true;
 }
 
@@ -499,6 +507,7 @@ bool game::create_zombie()
 				errlog("try to create an unexisted zombie");
 				return false;
 			}
+            scene->addItem(nz->body);
 			zombie_list[(i + index)%10].number--;
             cout<<"create zombie success"<<endl;
 			return true;
@@ -514,8 +523,7 @@ void game::generate_money()
 {
 	if (!user.inMoney(sunny_granularity))
 	{
-		errlog("generate_money:unexpected error curror,exit game!");
-		game_exit();
+        errlog("generate_money:unexpected error when create sun!");
 	}
     main_screen->ui->sun->display(user.getMoney());
 }

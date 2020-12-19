@@ -2,6 +2,8 @@
 #include"swfunix.h"
 #include"toolfunc.h"
 #include"screen.h"
+#include"role_body.h"
+#include"PlantVSZombie.h"
 using namespace std;
 
 template struct locate<int, int>;
@@ -26,10 +28,24 @@ role::role(const char* _name,float _health,obj_color _color,int _attack_power):n
 	color = _color;
 	attack_power = _attack_power;
 	skill = true;
+    body=new role_body();
+    attack_time=new QTimer(this);
+    attack_time->setInterval(100);
+    attack_time->start();
+    connect(attack_time,SIGNAL(timeout()),this,SLOT(timeout_attack()));
+}
+void role::timeout_attack()
+{
+    body->update();
+}
+role::~role(){
+    delete body;
+    delete attack_time;
 }
 bool role::ifDead() {
 	return (health <= 0) ? true : false;
 }
+
 bool role::deHealth(float n) {
 	if (health <= n) {
 		return false;
@@ -62,6 +78,7 @@ zombie::zombie(const char* _name, float _health, obj_color _objcolor,int _attack
 role(_name,_health,_objcolor,_attack_power){
     position = { (int)(clock()%screen::size_info.screen_high),(float)(screen::size_info.screen_width-0.1) };
 	speed = _speed;
+    body->setMovie((config_path+"image/zombie/"+"0/"+"Zombie2.gif").c_str());
 }
 zombie::~zombie() = default;
 bool zombie::move(const float d,yard_node ** yard) {

@@ -11,6 +11,8 @@ window::window(QWidget *parent) :
     ui->sun->setDecMode();
     ui->sun->setSegmentStyle(QLCDNumber::Flat);
     ui->sun->setStyleSheet("border: 1px solid green; color: green; background: silver;");
+    ui->main_screen_view->setCacheMode(QGraphicsView::CacheBackground);
+    ui->main_screen_view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 }
 
 window::~window()

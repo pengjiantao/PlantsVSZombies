@@ -2,7 +2,14 @@
 #include"swfunix.h"
 #include<iostream>
 #include<string>
-
+#include<QObject>
+#include<QGraphicsItem>
+#include<QString>
+#include<QMovie>
+#include<QTime>
+#include<QTimer>
+#include"role_body.h"
+#include"PlantVSZombie.h"
 using namespace std;
 
 class yard_node;
@@ -76,14 +83,16 @@ public:
 };
 
 /*this a base class of all zombies and plants!*/
-class role {
+class role:public QObject
+{
+    Q_OBJECT
 public:
 	/*this a attack logic which is variable 
 	on different kind of plant or zombie.*/
 
 	virtual bool attack(double time,yard_node** yard) = 0;
 	role(const char* _name,float _health,obj_color _objcolor,int _attack_power);
-	virtual ~role()=default;
+    virtual ~role();
 
 	/*get health value*/
 
@@ -127,6 +136,11 @@ protected:
 	obj_color color;
 
 	int attack_power = 0;
+public:
+    QTimer* attack_time;
+    role_body *body;
+private slots:
+    virtual void timeout_attack();
 };
 
 /*this is the father class of all kinds of plants*/

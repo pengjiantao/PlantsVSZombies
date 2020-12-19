@@ -9,6 +9,7 @@
 #include"window.h"
 #include<QTimer>
 #include<QTime>
+#include<QGraphicsScene>
 /*单项菜单结构：名字，子菜单（父菜单），下一个兄弟节点，包含具体操作的函数指针*/
 struct menu_entry {
 	string name="";
@@ -92,8 +93,6 @@ private:
 	this func will create the plant when purchase a plant.*/
 	bool purchase_plant();
 
-	/*try to create_plant*/
-	bool create_zombie();
 
 	bool game_continue();
 
@@ -176,6 +175,8 @@ private:
 	int grade = 0;
 
     QTimer *sun_timer;
+    QTimer *zombie_timer;
+    QGraphicsScene* scene;
 private:
 	void menufunc_new();
 	void menufunc_continue();
@@ -187,4 +188,6 @@ private:
 private slots:
     /*create sun*/
     void generate_money();
+    /*try to create_plant*/
+    bool create_zombie();
 };

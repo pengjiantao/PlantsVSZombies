@@ -57,6 +57,8 @@ else()
     toolfunc.h
     swfunix.cpp
     swfunix.h
+    role_body.cpp
+    role_body.h
     ${TS_FILES}
   )
 endif()
