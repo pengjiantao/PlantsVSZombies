@@ -15,11 +15,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Store</source>
+        <source>...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>PushButton</source>
+        <source>Tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Pause   </source>
         <translation type="unfinished"></translation>
     </message>
 </context>

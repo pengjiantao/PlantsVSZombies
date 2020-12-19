@@ -5,7 +5,10 @@
 #include<ctime>
 #include"unistd.h"
 #include"swfunix.h"
-
+#include<QObject>
+#include"window.h"
+#include<QTimer>
+#include<QTime>
 /*单项菜单结构：名字，子菜单（父菜单），下一个兄弟节点，包含具体操作的函数指针*/
 struct menu_entry {
 	string name="";
@@ -32,7 +35,9 @@ enum state {
     on_pause,running,non
 };
 
-class game {
+class game:public QObject
+{
+    Q_OBJECT
 public:
 	/*game start*/
 	bool game_start();
@@ -43,10 +48,11 @@ public:
 	/*program break log*/
 	void break_log();
 
-	/*do all things to do in one frame:flash palnt_list,plant attack,zombie attack...*/
-	void game_fresh();
 
 	void configToDisk();
+
+    /*game mian scene*/
+    window* main_screen;
 
 	game();
 	~game();
@@ -94,8 +100,6 @@ private:
 	/*when all conditions satisfied,create a plant and flash screen*/
 	bool create_plant();
 
-	/*if all conditions matches,create money*/
-	void generate_money();
 
 	/*handle the control from keyboard*/
 	bool control_keyboard();
@@ -171,6 +175,7 @@ private:
 
 	int grade = 0;
 
+    QTimer *sun_timer;
 private:
 	void menufunc_new();
 	void menufunc_continue();
@@ -179,4 +184,7 @@ private:
 	void menufunc_changeColor();
 	void menufunc_zombieNum();
 	void menufunc_changeSize();
+private slots:
+    /*create sun*/
+    void generate_money();
 };

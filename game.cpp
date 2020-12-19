@@ -4,12 +4,16 @@
 #include"plant.h"
 #include"toolfunc.h"
 #include<fstream>
+#include"window.h"
+#include"ui_window.h"
+#include<QTime>
+#include<QTimer>
 using namespace std;
 
 template struct locate<int, int>;
 template struct locate<int,float>;
 
-game::game():user()
+game::game():QObject(),user()
 {
 	log("a game object be created");
 	ULONGLONG now_time = GetTickCount64();
@@ -75,6 +79,14 @@ game::game():user()
 	menu_list = new menu_entry[50];
 	chooseToRemove = false;
 	zombie_info::ALL_ZOMBIE = false;
+
+    main_screen=new window;
+    sun_timer=new QTimer(this);
+    sun_timer->setInterval(sunny_cycle*1000);
+    sun_timer->stop();
+
+
+    connect(this->sun_timer,SIGNAL(timeout()),this,SLOT(generate_money()));
 }
 
 game::~game()
@@ -83,6 +95,8 @@ game::~game()
 	log("a game object be killed");
 	for (int i =0;i< screen::size_info.screen_high; i++)
 		delete[] yard[i];
+    delete sun_timer;
+    delete main_screen;
 	delete[] yard;
 	delete[] plant_list;
 	delete[] zombie_list;
@@ -133,63 +147,6 @@ void game::game_init()
 	infile.close();
 	log("game_init finished");
 
-}
-
-void game::game_fresh()
-{
-	ULONGLONG this_time = GetTickCount64();
-	double time_diff = this_time - count_clock.time_of_last_frame;
-	if (time_diff > 100)
-		errlog("game_fresh:the frame rate is too slow!");
-	bool finish = true;
-	for(int i=0;i<screen::size_info.screen_high;i++)
-		for (int j = 0; j < screen::size_info.screen_width; j++)
-		{
-			yard[i][j].find_first(time_diff);
-			if (yard[i][j].p != NULL)
-			{
-				if (!yard[i][j].p->attack(time_diff, yard))
-					user.inMoney(50);
-			}
-			for (int k = 0; k < 10; k++)
-				if (yard[i][j].z[k] != NULL)
-				{
-					if(yard[i][j].z[k]->getName()!="@")
-						finish = false;
-
-					if (yard[i][j].z[k]->attack(time_diff, yard))
-					{
-						if (yard[i][j].z[k]->getName() == "@")
-						{
-							delete yard[i][j].z[k];
-							yard[i][j].z[k] = NULL;
-						}
-						else {
-							MAX_GRADE = (grade > MAX_GRADE) ? grade : MAX_GRADE;
-							screen::putResult(0, grade);
-							runtomenu();
-						}
-					}
-				}
-		}
-	if (finish == true && zombie_info::ALL_ZOMBIE == true)
-	{
-		grade += 1000;
-		screen::putResult(1, grade);
-		runtomenu();
-	}
-	
-	if ((this_time - count_clock.time_of_last_zombie) / 1000 >= zombie_cycle)
-	{
-		create_zombie();
-		count_clock.time_of_last_zombie = this_time;
-	}
-	if ((this_time-count_clock.time_of_last_money)/1000 >= sunny_cycle)
-	{
-		generate_money();
-		count_clock.time_of_last_money = this_time;
-	}
-	count_clock.time_of_last_frame = this_time;
 }
 
 void game::break_log()
@@ -359,40 +316,9 @@ bool game::game_start()
 	menu_pointer = 0;
 	chooseToRemove = false;
 	menu_root = 0;
-	ULONGLONG now_time = GetTickCount64();
-	count_clock.time_of_last_frame = now_time;
-	count_clock.time_of_last_money = now_time;
-	count_clock.time_of_last_zombie = now_time;
-	clock_pause.s_1 = 0;
-	clock_pause.s_2 = 0;
-	clock_pause.s_3 = 0;
-	grade = 0;
-	while (true)
-	{
-		while (kbhit())
-		{
-			if (!control_keyboard())
-				errlog("control_keyboard:can't understand input!");
-		}
-		if (game_finished) {
-			log("game_start:game finish,exit this game!");
-			break;
-		}
-		if (exit_flag) {
-			log("game_start:exit_flag has been set,exit game!");
-			break;
-		}
-		if (game_mode == running_mode)
-			game_fresh();
-	}
-	if (exit_flag) {
-		log("exit_flag be true,game will exit.");
-		return false;
-	}
-	else {
-		log("game finished,but exit_flag not be set true,a new game will be started");
-		return true;
-	}
+    sun_timer->start();
+    main_screen->show();
+    return true;
 }
 
 void game::game_exit()
@@ -591,6 +517,7 @@ void game::generate_money()
 		errlog("generate_money:unexpected error curror,exit game!");
 		game_exit();
 	}
+    main_screen->ui->sun->display(user.getMoney());
 }
 
 bool game::control_keyboard()

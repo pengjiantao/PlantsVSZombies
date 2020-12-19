@@ -12,8 +12,6 @@
 int main(int argc,char *argv[])
 {
     QApplication a(argc, argv);
-    window w;
-    w.show();
     if (!init())
     {
         cout << "Error: game init failed!" << endl;
@@ -26,17 +24,6 @@ int main(int argc,char *argv[])
     screen display(env_w,env_h,space_w,space_h);
     game* g=new game;
     g->game_init();
-    /*
-    while (g->game_start())
-    {
-        log("main:start a new game!");
-        delete g;
-        g = new game;
-        g->game_init();
-    }
-    delete g;
-    log("main:exit game!");
-    end();
-    */
+    g->game_start();
     return a.exec();
 }
