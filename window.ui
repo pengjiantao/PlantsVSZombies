@@ -348,7 +348,11 @@ border-image: url(:/image/source/Shovel.png);</string>
      </widget>
     </item>
     <item>
-     <widget class="QGraphicsView" name="main_screen_view"/>
+     <widget class="QGraphicsView" name="main_screen_view">
+      <property name="styleSheet">
+       <string notr="true">border-image: url(:/image/environment/nonstop/Background.jpg);</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

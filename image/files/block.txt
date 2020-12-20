@@ -1,0 +1,139 @@
+Your game failed or you aimed to generate this file:
+These are what I can provide:
+Game class:
+
+zombie_list
+name health attack_power color number speed
+路障僵尸 300 50 8 6 0.3
+读报僵尸 150 50 8 6 0.3
+撑杆僵尸 100 40 8 6 0.5
+小丑僵尸 100 30 8 6 0.3
+投石僵尸 400 70 8 6 0.2
+普通僵尸 100 30 8 6 0.3
+NULL 0 0 0 0 0
+NULL 0 0 0 0 0
+NULL 0 0 0 0 0
+NULL 0 0 0 0 0
+ALL_ZOMBIE 0
+
+plant_list
+attack_power color health ice_time last_create name price
+20 10 100 2 9 豌豆射手 100
+0 10 50 1 9 向日葵 50
+20 10 100 4 9 双发射手 200
+30 10 100 6 9 寒冰射手 300
+0 10 500 2 9 坚果 100
+0 10 1000 4 9 高坚果 200
+500 10 1000 2 9 窝瓜 100
+500 10 1000 5 9 樱桃炸弹 250
+0 10 100 2 9 大蒜 100
+0 10 400 2 9 南瓜头 100
+
+menu_list
+name next_menu child_menu
+新游戏 1 -1
+继续游戏 2 -1
+暂停游戏 3 -1
+退出游戏 4 -1
+自定义 -1 5
+母菜单 6 0
+更改环境宽高 7 -1
+更改颜色 8 -1
+更改僵尸数量 -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+NULL -1 -1
+
+count_clock
+last_time_of_frame:9
+last_time_of_zombie:9
+last_time_of_money:9
+
+clock_pause
+s_1:0
+s_2:0
+s_3:0
+
+game_mode: running_mode
+
+game state: running
+
+click location: store
+
+exitflag: 0
+
+game_finished: 0
+
+menu_root: 0
+
+store_pointer 0
+
+menu_pointer 0
+
+yard_pointer: 
+0 0
+
+yard: 
+         plant name
+NULL NULL NULL NULL NULL NULL NULL 
+NULL NULL NULL NULL NULL NULL NULL 
+NULL NULL NULL NULL NULL NULL NULL 
+NULL NULL NULL NULL NULL NULL NULL 
+NULL NULL NULL NULL NULL NULL NULL 
+NULL NULL NULL NULL NULL NULL NULL 
+         plant health
+NULL NULL NULL NULL NULL NULL NULL 
+NULL NULL NULL NULL NULL NULL NULL 
+NULL NULL NULL NULL NULL NULL NULL 
+NULL NULL NULL NULL NULL NULL NULL 
+NULL NULL NULL NULL NULL NULL NULL 
+NULL NULL NULL NULL NULL NULL NULL 
+      zombie num
+0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 
+
+user::money: 100
+
+game::choosetoremove: 0

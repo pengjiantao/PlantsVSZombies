@@ -22,7 +22,7 @@ int env_h = 5;
 #if _WIN32
 string config_path = "C://.plantvszombie/";
 #elif __linux__
-string config_path = "/home/fiyqkrc/plantvszombie/";
+string config_path = "./image/files/";
 #else
 #error this program can not be complied in a machine which neithor windows nor linux
 #endif
