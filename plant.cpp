@@ -78,7 +78,7 @@ zombie::zombie(const char* _name, float _health, obj_color _objcolor,int _attack
 role(_name,_health,_objcolor,_attack_power){
     position = { (int)(clock()%screen::size_info.screen_high),(float)(screen::size_info.screen_width-0.1) };
 	speed = _speed;
-    body->setMovie((config_path+"image/zombie/"+"0/"+"Zombie2.gif").c_str());
+    body->setMovie(":/image/zombie/0/ConeheadZombie.gif");
 }
 zombie::~zombie() = default;
 bool zombie::move(const float d,yard_node ** yard) {

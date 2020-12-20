@@ -45,6 +45,7 @@ else()
     window.ui
     game.cpp
     game.h
+    source.qrc
     plant.cpp
     plant.h
     player.cpp

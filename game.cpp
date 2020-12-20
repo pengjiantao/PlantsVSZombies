@@ -176,6 +176,10 @@ bool game::game_start()
 
     main_screen->show();
     main_screen->ui->main_screen_view->setScene(scene);
+    scene->setSceneRect(-100,-100,1000,800);
+    //scene->setItemIndexMethod(QGraphicsScene::NoIndex);
+    main_screen->ui->main_screen_view->setCacheMode(QGraphicsView::CacheBackground);
+    main_screen->ui->main_screen_view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
     return true;
 }
 
