@@ -36,36 +36,7 @@ void screen::init_game_screen()
     printf("VERSION :%s\n", version);
 }
 
-void screen::flash_menu(menu_entry* menu_list,int n,int c)
-{
-	init_menu(menu_list, n, c);
-}
 
-void screen::init_menu(menu_entry* menu_list,int n=0,int c=0)
-{
-	printf("menu:");
-	short base_x = 5;
-    short base_y = 1;
-    coord curPos = { base_x,base_y };
-    WORD color = 0;
-    if (menu_list[n].name == "NULL")
-        return;
-    for (int i = n; i != -1; i = menu_list[i].next)
-    {
-        if (i == c)
-        {
-            color = red * 16 + blue;
-        }
-        else
-            color = blue;
-        printf("%-20s", menu_list[i].name.c_str());
-        if(i==c)
-            cout<<"<<--"<<endl;
-        else
-            cout<<endl;
-        curPos.Y++;
-    }
-}
 
 
 void screen::putMessage(string s)

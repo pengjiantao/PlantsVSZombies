@@ -16,7 +16,7 @@ template struct locate<int,float>;
 game::game():QObject(),user()
 {
 	log("a game object be created");
-	ULONGLONG now_time = GetTickCount64();
+    uint64_t now_time = GetTickCount64();
 	count_clock.time_of_last_frame = now_time;
 	count_clock.time_of_last_money = now_time;
 	count_clock.time_of_last_zombie = now_time;
@@ -201,7 +201,7 @@ void game::game_pause()
 	game_mode = menu_mode;
     game_state = on_pause;
 	click_location = menu;
-	screen::init_menu(menu_list,menu_root,menu_pointer);
+
     cout<<"game pause!"<<endl;
 }
 
@@ -408,7 +408,6 @@ bool game::control_keyboard()
 			if (menu_root == 0)
 			{
 				menu_pointer = 0;
-				screen::flash_menu(menu_list,menu_root,menu_pointer);
 			}
 			else
 			{
@@ -621,7 +620,6 @@ void game::pointerMove(control c)
 				menu_pointer = menu_list[menu_pointer].next;
 		default:break;
 		}
-		screen::flash_menu(menu_list,menu_root,menu_pointer);
 		break;
 	default:break;
 	}
@@ -669,7 +667,6 @@ bool game::doMenufunc()
 	{
 		menu_root = menu_list[menu_pointer].child;
 		menu_pointer = menu_root;
-		screen::flash_menu(menu_list, menu_root, menu_pointer);
 	}
 	else if (menu_command == "新游戏")
 		menufunc_new();
@@ -715,7 +712,6 @@ void game::menufunc_continue()
 	{
 		system("cls");
 		cout << "没有正在暂停的游戏，你这是要继续什么？" << endl;
-		screen::flash_menu(menu_list,menu_root,menu_pointer);
 	}
 	else
 	{
@@ -729,7 +725,6 @@ void game::menufunc_pause()
 	{
 		system("cls");
 		cout << "没有正在运行的游戏，你这是要暂停什么？" << endl;
-		screen::flash_menu(menu_list, menu_root, menu_pointer);
 	}
 	else if (game_state == running)
 	{
@@ -771,7 +766,6 @@ void game::menufunc_changeColor()
 		cout << "*************************" << endl;
 
 	}
-	screen::flash_menu(menu_list,menu_root,menu_pointer);
 	configToDisk();
 }
 void game::menufunc_changeSize()

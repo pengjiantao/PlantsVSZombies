@@ -19,11 +19,6 @@ public:
 	/*init of screen of game,print the edge of screen*/
     static void init_game_screen();
 
-	/*init the menu*/
-	static void init_menu(menu_entry* menu_list,int n,int c);
-
-	/*falsh the menu*/
-	static void flash_menu(menu_entry* menu_list,int n,int c);
 
 	/*print the result of one game.*/
 	static void putResult(int n,int grade);
