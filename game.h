@@ -10,6 +10,7 @@
 #include<QTimer>
 #include<QTime>
 #include<QGraphicsScene>
+#include"gamescene.h"
 /*单项菜单结构：名字，子菜单（父菜单），下一个兄弟节点，包含具体操作的函数指针*/
 struct menu_entry {
 	string name="";
@@ -60,15 +61,15 @@ private:
 
 	/*计时器*/
 	struct {
-		ULONGLONG time_of_last_frame;
-		ULONGLONG time_of_last_zombie;
-		ULONGLONG time_of_last_money;
+        uint64_t time_of_last_frame;
+        uint64_t time_of_last_zombie;
+        uint64_t time_of_last_money;
 	}count_clock;
 
 	struct {
-		ULONGLONG s_1;
-		ULONGLONG s_2;
-		ULONGLONG s_3;
+        uint64_t s_1;
+        uint64_t s_2;
+        uint64_t s_3;
 	}clock_pause;
 
 	/*if ALL_zombie have been created,flags vary*/
@@ -173,7 +174,7 @@ private:
 
     QTimer *sun_timer;
     QTimer *zombie_timer;
-    QGraphicsScene* scene;
+    GameScene* scene;
 private:
 	void menufunc_new();
 	void menufunc_continue();

@@ -60,6 +60,8 @@ else()
     swfunix.h
     role_body.cpp
     role_body.h
+    gamescene.h
+    gamescene.cpp
     ${TS_FILES}
   )
 endif()

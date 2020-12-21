@@ -12,8 +12,8 @@ using namespace std;
 class screen {
 public:
 
-	static COORD get_position(const locate<int, float>& p);
-	static COORD get_position(const locate<int, int>& p);
+    static coord get_position(const locate<int, float>& p);
+    static coord get_position(const locate<int, int>& p);
 
 
 	/*init of screen of game,print the edge of screen*/

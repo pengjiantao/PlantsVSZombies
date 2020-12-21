@@ -46,7 +46,7 @@ void screen::init_menu(menu_entry* menu_list,int n=0,int c=0)
 	printf("menu:");
 	short base_x = 5;
     short base_y = 1;
-    COORD curPos = { base_x,base_y };
+    coord curPos = { base_x,base_y };
     WORD color = 0;
     if (menu_list[n].name == "NULL")
         return;
@@ -89,7 +89,6 @@ void screen::putResult(int n,int grade)
 	}
 	putchar('\n');
 	printf("Your grade is: %d\n", grade);
-	Sleep(2000);
 }
 
 void screen::flash_grade(int grade)
@@ -98,15 +97,15 @@ void screen::flash_grade(int grade)
 }
 
 
-COORD screen::get_position(const locate<int, int>& p)
+coord screen::get_position(const locate<int, int>& p)
 {
-	COORD res = { 0,0 };
+    coord res = { 0,0 };
 	res.Y = 2 + (p.high) * (size_info.node_high + 1);
 	res.X = 1 + (p.width) * (size_info.node_width + 1);
 	return res;
 }
 
-COORD screen::get_position(const locate<int, float>& p) {
+coord screen::get_position(const locate<int, float>& p) {
 	locate<int, int> tmp = { p.high,(int)p.width };
 	return get_position(tmp);
 }

@@ -2,18 +2,9 @@
 #define SWFUNIX_H
 #include<stdint.h>
 
-#define ULONGLONG unsigned long int
-#define WORD uint8_t
-#define STD_OUTPUT_HANDLE 0
-typedef   struct {short X;short Y;} COORD;
+typedef   struct {short X;short Y;} coord;
 
-ULONGLONG GetTickCount64();
-
-void Sleep(const double n);
-
-bool kbhit();
-
-char getch();
+uint64_t GetTickCount64();
 
 
 #endif // SWFUNIX_H

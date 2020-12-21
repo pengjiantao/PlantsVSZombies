@@ -17,7 +17,6 @@ int main(int argc,char *argv[])
         cout << "Error: game init failed!" << endl;
         cout << "你可以检查config files是否在指定文件夹下：(defaults path: ~/.plantvszombie/)" << endl;
         cout << "program will exit soon!" << endl;
-        Sleep(1000);
         return 0;
     }
     /*start a screen acording to config file*/

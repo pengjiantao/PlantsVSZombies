@@ -87,7 +87,7 @@ game::game():QObject(),user()
     zombie_timer=new QTimer(this);
     zombie_timer->setInterval(zombie_cycle*1000);
     zombie_timer->stop();
-    scene=new QGraphicsScene();
+    scene=new GameScene();
 
     connect(this->zombie_timer,SIGNAL(timeout()),this,SLOT(create_zombie()));
     connect(this->sun_timer,SIGNAL(timeout()),this,SLOT(generate_money()));
@@ -467,9 +467,9 @@ control game::getcommand()
 {
 	control res = undef;
 	char ch=0;
-	while (kbhit()) {
-		if (kbhit())
-			ch = getch();
+    while (false) {
+        if (true)
+            ch = 0;
 		switch (ch)
 		{
 		case 119:res = toup; break;
@@ -704,7 +704,6 @@ void game::menufunc_new()
 	{
 		system("cls");
 		cout << "检测到有未结束的游戏，请注意，正在关闭游戏。。。" << endl;
-		Sleep(1000);
 		game_finished = true;
 	}
 }
@@ -716,7 +715,6 @@ void game::menufunc_continue()
 	{
 		system("cls");
 		cout << "没有正在暂停的游戏，你这是要继续什么？" << endl;
-		Sleep(1000);
 		screen::flash_menu(menu_list,menu_root,menu_pointer);
 	}
 	else
@@ -731,7 +729,6 @@ void game::menufunc_pause()
 	{
 		system("cls");
 		cout << "没有正在运行的游戏，你这是要暂停什么？" << endl;
-		Sleep(1000);
 		screen::flash_menu(menu_list, menu_root, menu_pointer);
 	}
 	else if (game_state == running)
@@ -796,7 +793,6 @@ void game::menufunc_changeSize()
 	cin >> screen::size_info.screen_width;
 	cout << "*******************************************************" << endl;
 	cout << "这项调整后，你至少需要重新启动一个新游戏" << endl;
-	Sleep(1000);
 	game_finished = true;
 	configToDisk();
 }
@@ -827,7 +823,6 @@ void game::menufunc_zombieNum()
 	}
 	outfile << endl;
 	outfile.close();
-	Sleep(1000);
 	game_finished = true;
 	configToDisk();
 }

@@ -1,6 +1,6 @@
 #include "window.h"
 #include "ui_window.h"
-
+#include<QtOpenGL/QGLWidget>
 window::window(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::window)
@@ -47,7 +47,6 @@ window::window(QWidget *parent) :
     ui->sun->setDecMode();
     ui->sun->setSegmentStyle(QLCDNumber::Flat);
     ui->sun->setStyleSheet("border: 1px solid green; color: green;background: silver");
-
 }
 
 window::~window()

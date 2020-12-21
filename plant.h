@@ -51,7 +51,7 @@ public:
 	~plant_info();
 public:
 	/*last time to create this plant*/
-	ULONGLONG last_create;
+    uint64_t last_create;
 	const int price;
 	/*ice_time of plant,this is a const vary*/
 	const double ice_time;
@@ -192,7 +192,7 @@ public:
 private:
 	/*生成阳关的冷却时间*/
 	float iceTime;
-	ULONGLONG last_time_create_money;
+    uint64_t last_time_create_money;
 };
 
 /*shoot*/
@@ -203,7 +203,7 @@ public:
 	virtual ~Shoot(){}
 private:
 	float iceTime;
-	ULONGLONG last_time_of_shoot;
+    uint64_t last_time_of_shoot;
 };
 
 /*doubleshoot*/
@@ -214,7 +214,7 @@ public:
 	virtual ~Doubleshoot() {}
 private:
 	float iceTime;
-	ULONGLONG last_time_of_shoot;
+    uint64_t last_time_of_shoot;
 };
 
 /*iceshoot*/
@@ -225,7 +225,7 @@ public:
 	virtual ~Iceshoot() {}
 private:
 	float iceTime;
-	ULONGLONG last_time_of_shoot;
+    uint64_t last_time_of_shoot;
 };
 
 /*nut*/
@@ -315,7 +315,7 @@ private:
 	float store_power = 70;
 	float shoot_freq = 1.5;
 	int shootNum = 5;
-	ULONGLONG last_shoot;
+    uint64_t last_shoot;
 };
 
 /*normal*/
@@ -364,7 +364,7 @@ public:
 	/*减少一个僵尸，失败返回false*/
 	bool pop_zombie(zombie* zom);
 private:
-	ULONGLONG time_of_killzombies = 0;
+    uint64_t time_of_killzombies = 0;
 	float effect_time;
 	float iz[10];
 };
