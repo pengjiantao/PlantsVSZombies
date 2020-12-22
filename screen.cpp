@@ -9,6 +9,10 @@
 #include"PlantVSZombie.h"
 using namespace std;
 
+QSize screen::zombie_base_={211,126};
+QSize screen::plant_base_={171,126};
+QSize screen::yard_size_={85,100};
+
 screen::size screen::size_info = { 8,5,10,5 };/*screen_width,screen_high,space_w,space_h*/
 
 obj_color screen::env_color = blue;
@@ -28,6 +32,47 @@ screen::screen(int env_w,int env_h,int node_w,int node_h)
 screen::~screen()
 {
 
+}
+
+void screen::setSize(const QSize& n)
+{
+    size_info.screen_high=n.height();
+    size_info.screen_width=n.width();
+}
+
+void screen::setZombieBase(const QSize& n)
+{
+    zombie_base_=n;
+}
+
+void screen::setPlantBase(const QSize& n)
+{
+    plant_base_=n;
+}
+
+void screen::setYardSize(const QSize &n)
+{
+    yard_size_=n;
+}
+
+QSize screen::Size()
+{
+    return {size_info.node_width,size_info.screen_high};
+}
+
+QSize screen::ZombieBase()
+{
+    return zombie_base_;
+}
+
+QSize screen::PlantBase()
+{
+    return plant_base_;
+}
+
+QSize screen::YardSize()
+{
+    return yard_size_;
 }
 
 void screen::init_game_screen()

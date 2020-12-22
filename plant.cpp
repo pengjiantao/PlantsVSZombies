@@ -78,7 +78,8 @@ zombie::zombie(const char* _name, float _health, obj_color _objcolor,int _attack
 role(_name,_health,_objcolor,_attack_power){
     position = { (int)(clock()%screen::size_info.screen_high),(float)(screen::size_info.screen_width-0.1) };
 	speed = _speed;
-    body->setMovie(":/image/zombie/0/ConeheadZombie.gif");
+    this->body->setPos(screen::ZombieBase().width()+screen::YardSize().width()*this->position.width,screen::ZombieBase().height()+screen::YardSize().height()*this->position.high);
+    cout<<screen::ZombieBase().width()*this->position.width<<" "<<screen::ZombieBase().height()*this->position.high<<endl;
 }
 zombie::~zombie() = default;
 bool zombie::move(const float d,yard_node ** yard) {
@@ -184,7 +185,8 @@ bool Iceshoot::attack(double time, yard_node** yard) {
 
 
 Normal::Normal(zombie_info& k):zombie(k.name,k.health,k.color,k.attack_power,k.speed) {
-
+    this->body->setMovie(":/image/zombie/5/Zombie2.gif");
+    this->body->show();
 }
 bool Normal::attack(double time,yard_node** yard)
 {
@@ -361,7 +363,8 @@ bool Garlic::attack(double time, yard_node** yard)
 
 Conehead::Conehead(zombie_info& k):zombie(k.name, k.health, k.color, k.attack_power, k.speed)
 {
-
+    this->body->setMovie(":/image/zombie/0/ConeheadZombie.gif");
+    this->body->show();
 }
 bool Conehead::attack(double time, yard_node** yard)
 {
@@ -392,7 +395,8 @@ bool Conehead::attack(double time, yard_node** yard)
 }
 Reading::Reading(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
 {
-
+    this->body->setMovie(":/image/zombie/1/HeadWalk1.gif");
+    this->body->show();
 }
 bool Reading::attack(double time, yard_node** yard)
 {
@@ -426,6 +430,8 @@ bool Reading::attack(double time, yard_node** yard)
 Pole::Pole(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
 {
 	skill = true;
+    this->body->setMovie(":/image/zombie/2/PoleVaultingZombie.gif");
+    this->body->show();
 }
 bool Pole::attack(double time, yard_node** yard)
 {
@@ -468,7 +474,8 @@ bool Pole::attack(double time, yard_node** yard)
 
 Clown::Clown(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
 {
-
+    this->body->setMovie(":/image/zombie/3/Walk.gif");
+    this->body->show();
 }
 bool Clown::attack(double time, yard_node** yard) {
 	if (yard[position.high][(int)position.width].p != NULL && skill==true)
@@ -515,6 +522,8 @@ Throwstone::Throwstone(zombie_info& k) :zombie(k.name, k.health, k.color, k.atta
 	shoot_freq = 1.5;
 	store_power = 70;
 	last_shoot = GetTickCount64();
+    this->body->setMovie(":/image/zombie/4/2.gif");
+    this->body->show();
 }
 bool Throwstone::attack(double time, yard_node** yard)
 {

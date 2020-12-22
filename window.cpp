@@ -7,7 +7,7 @@ window::window(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setWindowIcon(QIcon(":/image/Icon-144.png"));
-    this->setFixedSize(1500,1350);
+
     this->ui->sun->setFixedSize(300,300);
     this->ui->tool_box->setFixedHeight(450);
     this->ui->groupBox->setFixedSize(150,300);

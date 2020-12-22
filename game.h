@@ -175,6 +175,11 @@ private:
     QTimer *sun_timer;
     QTimer *zombie_timer;
     GameScene* scene;
+    /*background pix*/
+    QGraphicsPixmapItem* bgItem ;
+    /*yard size*/
+    QSize bk_yard_size;
+
 private:
 	void menufunc_new();
 	void menufunc_continue();

@@ -56,24 +56,24 @@ game::game():QObject(),user()
 			yard[i][j] = yard_node();
 
 	plant_list = new plant_info[10]{
-		{"豌豆射手",100,20,green,100},
-		{"向日葵",50,0,green,50},
-		{"双发射手",100,20,green,200},
-		{"寒冰射手",100,30,green,300},
-		{"坚果",500,0,green,100},
-		{"高坚果",1000,0,green,200},
-		{"窝瓜",1000,500,green,100},
-		{"樱桃炸弹",1000,500,green,250},
-		{"大蒜",100,0,green,100},
-		{"南瓜头",400,0,green,100}
+        {"shooter",100,20,green,100},
+        {"sunflower",50,0,green,50},
+        {"repeater",100,20,green,200},
+        {"iceshoot",100,30,green,300},
+        {"nut",500,0,green,100},
+        {"highnut",1000,0,green,200},
+        {"wogua",1000,500,green,100},
+        {"cherrybomb",1000,500,green,250},
+        {"garlic",100,0,green,100},
+        {"nanguatou",400,0,green,100}
 	};
 	zombie_list = new zombie_info[10]{
-		{300,50,0.3,"路障僵尸",grey,0},
-		{150,50,0.3,"读报僵尸",grey,0},
-		{100,40,0.5,"撑杆僵尸",grey,0},
-		{100,30,0.3,"小丑僵尸",grey,0},
-		{400,70,0.2,"投石僵尸",grey,1},
-		{100,30,0.3,"普通僵尸",grey,0}
+        {300,50,0.3,"conehead",grey,0},
+        {150,50,0.3,"reading",grey,0},
+        {100,40,0.5,"pole",grey,0},
+        {100,30,0.3,"xiaochou",grey,0},
+        {400,70,0.2,"throwstone",grey,1},
+        {100,30,0.3,"normal",grey,0}
 	};
 
 	menu_list = new menu_entry[50];
@@ -88,7 +88,7 @@ game::game():QObject(),user()
     zombie_timer->setInterval(zombie_cycle*1000);
     zombie_timer->stop();
     scene=new GameScene();
-
+    bk_yard_size={9,5};
     connect(this->zombie_timer,SIGNAL(timeout()),this,SLOT(create_zombie()));
     connect(this->sun_timer,SIGNAL(timeout()),this,SLOT(generate_money()));
 }
@@ -106,10 +106,13 @@ game::~game()
 	delete[] plant_list;
 	delete[] zombie_list;
 	delete[] menu_list;
+    if(!bgItem)
+        delete bgItem;
 }
 
 void game::game_init()
 {
+
 	log("game_init start");
 	string path = config_path + "menu.txt";
 	fstream infile;
@@ -152,6 +155,21 @@ void game::game_init()
 	infile.close();
 	log("game_init finished");
 
+    screen::setSize(bk_yard_size);
+    main_screen->show();
+    main_screen->ui->main_screen_view->setScene(scene);
+    scene->setSceneRect(0,0,1000,800);
+    //scene->setItemIndexMethod(QGraphicsScene::NoIndex);
+    main_screen->ui->main_screen_view->setCacheMode(QGraphicsView::CacheBackground);
+    main_screen->ui->main_screen_view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+    main_screen->ui->main_screen_view->scale(1,1.1);
+    bgItem = new QGraphicsPixmapItem(QPixmap(":/image/environment/nonstop/Background.jpg"));
+    scene->addItem(bgItem);
+    main_screen->ui->main_screen_view->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    cout<<main_screen->ui->main_screen_view->size().height()<<" "<<main_screen->ui->main_screen_view->size().width()<<endl;
+    cout<<scene->sceneRect().height()<<" "<<scene->sceneRect().width()<<endl;
+    //main_screen->ui->main_screen_view->scale((qreal)main_screen->ui->main_screen_view->size().height()/(qreal)scene->sceneRect().height(),
+                                             //(qreal)main_screen->ui->main_screen_view->size().width()/(qreal)scene->sceneRect().width());
 }
 
 
@@ -174,12 +192,7 @@ bool game::game_start()
     sun_timer->start();
     zombie_timer->start();
 
-    main_screen->show();
-    main_screen->ui->main_screen_view->setScene(scene);
-    scene->setSceneRect(-100,-100,1000,800);
-    //scene->setItemIndexMethod(QGraphicsScene::NoIndex);
-    main_screen->ui->main_screen_view->setCacheMode(QGraphicsView::CacheBackground);
-    main_screen->ui->main_screen_view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+
     return true;
 }
 

@@ -8,6 +8,7 @@ public:
     GameScene();
     ~GameScene();
 protected:
+
 };
 
 #endif // GAMESCENE_H

@@ -41,4 +41,17 @@ public:
 		int node_high;
 	}size_info;
 	static obj_color env_color;
+private:
+    static QSize zombie_base_;
+    static QSize plant_base_;
+    static QSize yard_size_;
+public:
+    static void setSize(const QSize& n);
+    static void setZombieBase(const QSize& n);
+    static void setPlantBase(const QSize& n);
+    static void setYardSize(const QSize& n);
+    static QSize Size();
+    static QSize ZombieBase();
+    static QSize PlantBase();
+    static QSize YardSize();
 };

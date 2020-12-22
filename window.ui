@@ -350,7 +350,7 @@ border-image: url(:/image/source/Shovel.png);</string>
     <item>
      <widget class="QGraphicsView" name="main_screen_view">
       <property name="styleSheet">
-       <string notr="true">border-image: url(:/image/environment/nonstop/Background.jpg);</string>
+       <string notr="true"/>
       </property>
      </widget>
     </item>
