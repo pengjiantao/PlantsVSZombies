@@ -101,5 +101,10 @@
         <source>nanguazhao</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="window.ui" line="325"/>
+        <source>tools</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 </TS>

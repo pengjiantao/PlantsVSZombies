@@ -11,7 +11,7 @@ template struct locate<int,float>;
 
 plant_info::plant_info(const char* _name, int _health, int _attack_power, obj_color _color, int _price) :
 	name(_name),health(_health),attack_power(_attack_power),color(_color),price(_price),ice_time(_price/50){
-	last_create = GetTickCount64();
+    wait=ice_time;
 }
 plant_info::~plant_info(){}
 
@@ -110,6 +110,8 @@ bool zombie::move(const float d,yard_node ** yard) {
         }
         return true;
     }
+    if(this->name!=(string)"@"&&position.width<0)
+        emit(success());
     return false;
 }
 

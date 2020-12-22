@@ -46,12 +46,12 @@ information of one kind of plant,these information will
 be used when a plant be created*/
 class plant_info {
 public:
-	plant_info():name("NULL"),health(0),ice_time(0),attack_power(0),color(black),price(0),last_create(0) {};
+    plant_info():name("NULL"),health(0),ice_time(0),attack_power(0),color(black),price(0),wait(0) {};
 	plant_info(const char* _name, int _health, int _attack_power, obj_color _color,int _price);
 	~plant_info();
 public:
 	/*last time to create this plant*/
-    uint64_t last_create;
+    qreal wait;
 	const int price;
 	/*ice_time of plant,this is a const vary*/
 	const double ice_time;
@@ -165,7 +165,7 @@ protected:
 
 /*this is the father class of all kinds of zombies*/
 class zombie :public role {
-
+    Q_OBJECT
 public:
 	zombie(const char* _name, float _health, obj_color _objcolor,int _attack_power,float _speed);
 	virtual ~zombie();
@@ -187,6 +187,8 @@ protected:
 	float speed;
 private :
     void timeout_attack();
+signals:
+    void success();
 };
 
 /*sunflower*/

@@ -83,6 +83,7 @@ game::game():QObject(),user()
 	menu_list = new menu_entry[50];
 	chooseToRemove = false;
 	zombie_info::ALL_ZOMBIE = false;
+    numZombieOnYard=0;
 
     main_screen=new window;
     sun_timer=new QTimer(this);
@@ -91,10 +92,19 @@ game::game():QObject(),user()
     zombie_timer=new QTimer(this);
     zombie_timer->setInterval(zombie_cycle*1000);
     zombie_timer->stop();
+    plant_ice_action_=new QTimer(this);
+    plant_ice_action_->setInterval(200);
+    plant_ice_action_->stop();
+
     scene=new GameScene();
     bk_yard_size={9,5};
+
     connect(this->zombie_timer,SIGNAL(timeout()),this,SLOT(create_zombie()));
     connect(this->sun_timer,SIGNAL(timeout()),this,SLOT(generate_money()));
+    connect(this->plant_ice_action_,SIGNAL(timeout()),this,SLOT(plant_ice()));
+    connect(this,SIGNAL(onePlantPrepared(int)),this,SLOT(plantPrepared(int)));
+    connect(this,SIGNAL(plantSelectedChanged(int)),this,SLOT(changePlantSelected(int)));
+    connect(this->main_screen->ui->shovel,SIGNAL(clicked()),this,SLOT(shovelClicked()));
 }
 
 game::~game()
@@ -193,6 +203,7 @@ bool game::game_start()
 	menu_root = 0;
     sun_timer->start();
     zombie_timer->start();
+    plant_ice_action_->start();
 
 
     return true;
@@ -260,7 +271,7 @@ bool game::purchase_plant() {
 			screen::putMessage("请在植物上种植南瓜头");
 			return false;
 		}
-		else if ((GetTickCount64()-plant_list[store_pointer].last_create)/1000<plant_list[store_pointer].ice_time)
+        else if (plant_list[store_pointer].wait<plant_list[store_pointer].ice_time)
 		{
 			errlog("ice_time!");
 			screen::putMessage("请注意冷却时间");
@@ -268,7 +279,7 @@ bool game::purchase_plant() {
 		}
 		else if (user.deMoney(plant_list[store_pointer].price))
 		{
-			plant_list[store_pointer].last_create = GetTickCount64();
+            plant_list[store_pointer].wait = plant_list[store_pointer].ice_time;
 			create_plant();
 			log("you purchase a plant successfully");
 			return true;
@@ -377,15 +388,180 @@ bool game::create_zombie()
 			}
             scene->addItem(nz->body);
 			zombie_list[(i + index)%10].number--;
-            cout<<"create zombie success"<<endl;
+            connect(nz,SIGNAL(success()),this,SLOT(zombieSuccess()));
+            this->numZombieOnYard++;
 			return true;
 		}
 	}
-    cout<<"all zombie generated"<<endl;
 	zombie_info::ALL_ZOMBIE = true;
-	return true;
+    return true;
 }
 
+void game::plant_ice()
+{
+    for(int i=0;i<10;i++)
+    {
+        if(plant_list[i].wait>0&&plant_list[i].wait<0.2)
+            emit(onePlantPrepared(i));
+        plant_list[i].wait=max(plant_list[i].wait-0.2,0.0);
+    }
+}
+
+void game::changePlantSelected(int n)
+{
+    if(n==store_pointer&&click_location==pointer_location::onyard&&chooseToRemove==false)
+    {
+        switch(store_pointer)
+        {
+        case 0:this->main_screen->ui->groupBox->setStyleSheet("background-color: lightgreen");break;
+        case 1:this->main_screen->ui->groupBox_2->setStyleSheet("background-color: lightgreen");break;
+        case 2:this->main_screen->ui->groupBox_3->setStyleSheet("background-color: lightgreen");break;
+        case 3:this->main_screen->ui->groupBox_4->setStyleSheet("background-color: lightgreen");break;
+        case 4:this->main_screen->ui->groupBox_5->setStyleSheet("background-color: lightgreen");break;
+        case 5:this->main_screen->ui->groupBox_6->setStyleSheet("background-color: lightgreen");break;
+        case 6:this->main_screen->ui->groupBox_7->setStyleSheet("background-color: lightgreen");break;
+        case 7:this->main_screen->ui->groupBox_8->setStyleSheet("background-color: lightgreen");break;
+        case 8:this->main_screen->ui->groupBox_9->setStyleSheet("background-color: lightgreen");break;
+        case 9:this->main_screen->ui->groupBox_10->setStyleSheet("background-color: lightgreen");break;
+        default:break;
+        }
+        click_location=pointer_location::store;
+        return ;
+    }
+    if(chooseToRemove==true&&click_location==pointer_location::onyard)
+    {
+        this->main_screen->ui->shovel->setStyleSheet("border-image: url(:/image/source/Shovel.png)");
+        chooseToRemove=false;
+        click_location=pointer_location::store;
+    }
+    switch(store_pointer)
+    {
+    case 0:this->main_screen->ui->groupBox->setStyleSheet("background-color: lightgreen");break;
+    case 1:this->main_screen->ui->groupBox_2->setStyleSheet("background-color: lightgreen");break;
+    case 2:this->main_screen->ui->groupBox_3->setStyleSheet("background-color: lightgreen");break;
+    case 3:this->main_screen->ui->groupBox_4->setStyleSheet("background-color: lightgreen");break;
+    case 4:this->main_screen->ui->groupBox_5->setStyleSheet("background-color: lightgreen");break;
+    case 5:this->main_screen->ui->groupBox_6->setStyleSheet("background-color: lightgreen");break;
+    case 6:this->main_screen->ui->groupBox_7->setStyleSheet("background-color: lightgreen");break;
+    case 7:this->main_screen->ui->groupBox_8->setStyleSheet("background-color: lightgreen");break;
+    case 8:this->main_screen->ui->groupBox_9->setStyleSheet("background-color: lightgreen");break;
+    case 9:this->main_screen->ui->groupBox_10->setStyleSheet("background-color: lightgreen");break;
+    default:break;
+    }
+    store_pointer=n;
+    switch(n)
+    {
+    case 0:this->main_screen->ui->groupBox->setStyleSheet("background-color: lightblue");break;
+    case 1:this->main_screen->ui->groupBox_2->setStyleSheet("background-color: lightblue");break;
+    case 2:this->main_screen->ui->groupBox_3->setStyleSheet("background-color: lightblue");break;
+    case 3:this->main_screen->ui->groupBox_4->setStyleSheet("background-color: lightblue");break;
+    case 4:this->main_screen->ui->groupBox_5->setStyleSheet("background-color: lightblue");break;
+    case 5:this->main_screen->ui->groupBox_6->setStyleSheet("background-color: lightblue");break;
+    case 6:this->main_screen->ui->groupBox_7->setStyleSheet("background-color: lightblue");break;
+    case 7:this->main_screen->ui->groupBox_8->setStyleSheet("background-color: lightblue");break;
+    case 8:this->main_screen->ui->groupBox_9->setStyleSheet("background-color: lightblue");break;
+    case 9:this->main_screen->ui->groupBox_10->setStyleSheet("background-color: lightblue");break;
+    default:break;
+    }
+    click_location=pointer_location::onyard;
+}
+
+void game::plantPrepared(int n)
+{
+    switch(n)
+    {
+    case 0:this->main_screen->ui->groupBox->setStyleSheet("background-color: lightgreen");
+        connect(this->main_screen->ui->plant0,SIGNAL(clicked()),this,SLOT(plant1BeSelected()));break;
+    case 1:this->main_screen->ui->groupBox_2->setStyleSheet("background-color: lightgreen");
+        connect(this->main_screen->ui->plant1,SIGNAL(clicked()),this,SLOT(plant2BeSelected()));break;
+    case 2:this->main_screen->ui->groupBox_3->setStyleSheet("background-color: lightgreen");
+        connect(this->main_screen->ui->plant2,SIGNAL(clicked()),this,SLOT(plant3BeSelected()));break;
+    case 3:this->main_screen->ui->groupBox_4->setStyleSheet("background-color: lightgreen");
+        connect(this->main_screen->ui->plant3,SIGNAL(clicked()),this,SLOT(plant4BeSelected()));break;
+    case 4:this->main_screen->ui->groupBox_5->setStyleSheet("background-color: lightgreen");
+        connect(this->main_screen->ui->plant4,SIGNAL(clicked()),this,SLOT(plant5BeSelected()));break;
+    case 5:this->main_screen->ui->groupBox_6->setStyleSheet("background-color: lightgreen");
+        connect(this->main_screen->ui->plant5,SIGNAL(clicked()),this,SLOT(plant6BeSelected()));break;
+    case 6:this->main_screen->ui->groupBox_7->setStyleSheet("background-color: lightgreen");
+        connect(this->main_screen->ui->plant6,SIGNAL(clicked()),this,SLOT(plant7BeSelected()));break;
+    case 7:this->main_screen->ui->groupBox_8->setStyleSheet("background-color: lightgreen");
+        connect(this->main_screen->ui->plant7,SIGNAL(clicked()),this,SLOT(plant8BeSelected()));break;
+    case 8:this->main_screen->ui->groupBox_9->setStyleSheet("background-color: lightgreen");
+        connect(this->main_screen->ui->plant8,SIGNAL(clicked()),this,SLOT(plant9BeSelected()));break;
+    case 9:this->main_screen->ui->groupBox_10->setStyleSheet("background-color: lightgreen");
+        connect(this->main_screen->ui->plant9,SIGNAL(clicked()),this,SLOT(plant10BeSelected()));break;
+    default:break;
+    }
+}
+
+void game::shovelClicked()
+{
+    if(this->chooseToRemove)
+    {
+        this->main_screen->ui->shovel->setStyleSheet("border-image: url(:/image/source/Shovel.png)");
+        chooseToRemove=false;
+        click_location=pointer_location::store;
+    }
+    else
+    {
+        if(click_location==pointer_location::onyard)
+        {
+            emit(plantSelectedChanged(store_pointer));
+        }
+        this->main_screen->ui->shovel->setStyleSheet("background-color: lightblue");
+        click_location=pointer_location::onyard;
+        chooseToRemove=true;
+
+    }
+}
+
+void game::zombieSuccess()
+{
+    game_finished=true;
+    screen::putResult(-1,grade);
+    exit(0);
+}
+
+void game::plant1BeSelected()
+{
+    emit(plantSelectedChanged(0));
+}
+void game::plant2BeSelected()
+{
+    emit(plantSelectedChanged(1));
+}
+void game::plant3BeSelected()
+{
+    emit(plantSelectedChanged(2));
+}
+void game::plant4BeSelected()
+{
+    emit(plantSelectedChanged(3));
+}
+void game::plant5BeSelected()
+{
+    emit(plantSelectedChanged(4));
+}
+void game::plant6BeSelected()
+{
+    emit(plantSelectedChanged(5));
+}
+void game::plant7BeSelected()
+{
+    emit(plantSelectedChanged(6));
+}
+void game::plant8BeSelected()
+{
+    emit(plantSelectedChanged(7));
+}
+void game::plant9BeSelected()
+{
+    emit(plantSelectedChanged(8));
+}
+void game::plant10BeSelected()
+{
+    emit(plantSelectedChanged(9));
+}
 
 void game::generate_money()
 {

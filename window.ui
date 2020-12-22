@@ -47,7 +47,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1342</width>
+            <width>1305</width>
             <height>527</height>
            </rect>
           </property>
@@ -320,29 +320,33 @@
         </widget>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QToolButton" name="shovel">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(85, 87, 83);
-border-image: url(:/image/source/Shovel.png);</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="pause">
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QGroupBox" name="groupBox_11">
+         <property name="title">
+          <string>tools</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QToolButton" name="shovel">
+            <property name="styleSheet">
+             <string notr="true">border-image: url(:/image/source/Shovel.png);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="pause">
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>

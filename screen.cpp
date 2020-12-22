@@ -19,7 +19,7 @@ obj_color screen::env_color = blue;
 
 void screen::flash_money(int money)
 {
-    cout<<"flash sunney:new sunney is "<<money<<endl;
+    Q_UNUSED(money);
 }
 screen::screen(int env_w,int env_h,int node_w,int node_h)
 {

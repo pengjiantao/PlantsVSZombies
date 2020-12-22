@@ -109,7 +109,7 @@ private:
 
 	/*以下皆为控制指针位置和mode切换函数*/
 
-	void storetoyard();
+    void storetoyard();
 
 	void yardtostore();
 
@@ -176,11 +176,14 @@ private:
 
     QTimer *sun_timer;
     QTimer *zombie_timer;
+    QTimer *plant_ice_action_;
     GameScene* scene;
     /*background pix*/
     QGraphicsPixmapItem* bgItem ;
     /*yard size*/
     QSize bk_yard_size;
+
+    int numZombieOnYard;
 
 private:
 	void menufunc_new();
@@ -195,4 +198,27 @@ private slots:
     void generate_money();
     /*try to create_plant*/
     bool create_zombie();
+
+    void plant_ice();
+
+    void changePlantSelected(int n);
+    void plantPrepared(int n);
+    void shovelClicked();
+
+    void zombieSuccess();
+
+    void plant1BeSelected();
+    void plant2BeSelected();
+    void plant3BeSelected();
+    void plant4BeSelected();
+    void plant5BeSelected();
+    void plant6BeSelected();
+    void plant7BeSelected();
+    void plant8BeSelected();
+    void plant9BeSelected();
+    void plant10BeSelected();
+
+signals:
+    void plantSelectedChanged(int n);
+    void onePlantPrepared(int n);
 };
