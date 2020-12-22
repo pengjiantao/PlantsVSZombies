@@ -8,11 +8,13 @@
 #include"ui_window.h"
 #include<QTime>
 #include<QTimer>
+#include<QRandomGenerator>
 using namespace std;
 
 template struct locate<int, int>;
 template struct locate<int,float>;
 
+yard_node** game::game_yard=nullptr;
 game::game():QObject(),user()
 {
 	log("a game object be created");
@@ -54,6 +56,8 @@ game::game():QObject(),user()
 	for (int i = 0; i < screen::size_info.screen_high; i++)
 		for (int j = 0; j < screen::size_info.screen_width; j++)
 			yard[i][j] = yard_node();
+
+    game_yard=yard;
 
 	plant_list = new plant_info[10]{
         {"shooter",100,20,green,100},
@@ -166,8 +170,6 @@ void game::game_init()
     bgItem = new QGraphicsPixmapItem(QPixmap(":/image/environment/nonstop/Background.jpg"));
     scene->addItem(bgItem);
     main_screen->ui->main_screen_view->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-    cout<<main_screen->ui->main_screen_view->size().height()<<" "<<main_screen->ui->main_screen_view->size().width()<<endl;
-    cout<<scene->sceneRect().height()<<" "<<scene->sceneRect().width()<<endl;
     //main_screen->ui->main_screen_view->scale((qreal)main_screen->ui->main_screen_view->size().height()/(qreal)scene->sceneRect().height(),
                                              //(qreal)main_screen->ui->main_screen_view->size().width()/(qreal)scene->sceneRect().width());
 }
@@ -338,7 +340,7 @@ bool game::create_plant()
 bool game::create_zombie()
 {
 	zombie* nz = nullptr;
-	int index = (int)(GetTickCount64() % 10);
+    int index = qrand()%10;
 	for (int i = 0; i < 10; i++)
 	{
 		if (zombie_list[(i + index)%10].name != "NULL" && zombie_list[(i + index)%10].number > 0)
@@ -510,15 +512,15 @@ control game::getcommand()
 
 bool yard_node::push_zombie(zombie* zom)
 {
-	for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 10; i++)
 	{
-		if (z[i] == NULL)
+        if (z[i] == nullptr)
 		{
 			z[i] = zom;
 			return true;
 		}
-	}
-	log("zombies generate too much in an same space!");
+    }
+    errlog("yard_node:have too much zombie");
 	return false;
 }
 
@@ -528,7 +530,7 @@ bool yard_node::pop_zombie(zombie* zom)
 	{
 		if (z[i] == zom)
 		{
-			z[i] = NULL;
+            z[i] = nullptr;
 			return true;
 		}
 	}

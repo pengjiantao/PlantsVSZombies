@@ -20,7 +20,7 @@ int main(int argc,char *argv[])
         return 0;
     }
     /*start a screen acording to config file*/
-    screen display(env_w,env_h,space_w,space_h);
+    screen display(9,5,space_w,space_h);
     game* g=new game;
     g->game_init();
     g->game_start();

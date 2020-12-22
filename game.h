@@ -53,6 +53,8 @@ public:
     /*game mian scene*/
     window* main_screen;
 
+    static yard_node** game_yard;
+
 	game();
 	~game();
 private:

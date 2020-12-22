@@ -136,9 +136,13 @@ protected:
 	obj_color color;
 
 	int attack_power = 0;
+
+    static int flash_time_;
 public:
     QTimer* attack_time;
     role_body *body;
+    int FlashTime();
+    void setFlashTime(int n);
 private slots:
     virtual void timeout_attack();
 };
@@ -161,6 +165,7 @@ protected:
 
 /*this is the father class of all kinds of zombies*/
 class zombie :public role {
+
 public:
 	zombie(const char* _name, float _health, obj_color _objcolor,int _attack_power,float _speed);
 	virtual ~zombie();
@@ -180,6 +185,8 @@ public:
 protected:
 	locate<int,float> position;
 	float speed;
+private :
+    void timeout_attack();
 };
 
 /*sunflower*/
@@ -345,9 +352,9 @@ public:
 	zombie* z[10];
 	int first = -1;
 public:
-	yard_node() :p(NULL), color(black), iz{ 0 }{
+    yard_node() :p(nullptr), color(black), iz{ 0 }{
 		for (int i = 0; i < 10; i++)
-			z[i] = NULL;
+            z[i] = nullptr;
 		first = -1;
 		effect_time = 1;
 		time_of_killzombies = 0;

@@ -1,5 +1,6 @@
 #include "role_body.h"
 #include<iostream>
+#include"screen.h"
 role_body::role_body(qreal wid,qreal hgh):m_width(wid),m_height(hgh)
 {
     movie=nullptr;
@@ -34,5 +35,25 @@ void role_body::setMovie(QString path)
         delete movie;
     movie=new QMovie(path);
     movie->start();
+}
+
+void role_body::MoveHead(qint32 n)
+{
+    QPointF p=this->pos();
+    p.setX(p.x()-n);
+    this->setPos(p);
+
+}
+
+void role_body::MoveBack(qint32 n)
+{
+    QPointF p=this->pos();
+    p.setX(p.x()+n);
+    this->setPos(p);
+}
+
+void role_body::setPosByPosition(const QPointF &n)
+{
+    this->setPos(screen::ZombieBase().width()+screen::YardSize().width()*n.x(),screen::ZombieBase().height()+screen::YardSize().height()*n.y());
 }
 

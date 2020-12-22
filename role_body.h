@@ -15,6 +15,9 @@ public:
     void paint(QPainter* painter,const QStyleOptionGraphicsItem* option=NULL,QWidget* widget=NULL);
     QPainterPath shape() const;
     void setMovie(QString path);
+    void MoveHead(qint32 n);
+    void MoveBack(qint32 n);
+    void setPosByPosition(const QPointF& n);
 private:
     qreal m_width;
     qreal m_height;

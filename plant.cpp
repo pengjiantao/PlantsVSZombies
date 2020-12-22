@@ -23,6 +23,8 @@ health(_health),attack_power(_attack_power),speed(_speed),name(_name),color(_col
 zombie_info::~zombie_info() {
 }
 
+
+int role::flash_time_=100;
 role::role(const char* _name,float _health,obj_color _color,int _attack_power):name((char*)_name) {
 	health = _health;
 	color = _color;
@@ -30,7 +32,7 @@ role::role(const char* _name,float _health,obj_color _color,int _attack_power):n
 	skill = true;
     body=new role_body();
     attack_time=new QTimer(this);
-    attack_time->setInterval(100);
+    attack_time->setInterval(flash_time_);
     attack_time->start();
     connect(attack_time,SIGNAL(timeout()),this,SLOT(timeout_attack()));
 }
@@ -42,8 +44,19 @@ role::~role(){
     delete body;
     delete attack_time;
 }
+
 bool role::ifDead() {
 	return (health <= 0) ? true : false;
+}
+
+void role::setFlashTime(int n)
+{
+    flash_time_=n;
+}
+
+int role::FlashTime()
+{
+    return flash_time_;
 }
 
 bool role::deHealth(float n) {
@@ -79,25 +92,25 @@ role(_name,_health,_objcolor,_attack_power){
     position = { (int)(clock()%screen::size_info.screen_high),(float)(screen::size_info.screen_width-0.1) };
 	speed = _speed;
     this->body->setPos(screen::ZombieBase().width()+screen::YardSize().width()*this->position.width,screen::ZombieBase().height()+screen::YardSize().height()*this->position.high);
-    cout<<screen::ZombieBase().width()*this->position.width<<" "<<screen::ZombieBase().height()*this->position.high<<endl;
 }
 zombie::~zombie() = default;
 bool zombie::move(const float d,yard_node ** yard) {
-	const int pre = (int)position.width;
-	position.width -= d;
-	
-	if (position.width >= 0 && ( position.width < (float)screen::size_info.screen_width))
-	{
-		if (pre !=(int)(position.width) )
-		{
-			yard[position.high][pre].pop_zombie(this);
-			yard[position.high][(int)position.width].push_zombie(this);
-		}
-		return false;
-	}
-	else {
-		return true;
-	}
+    if(position.width>=0&&position.width<=screen::Size().width())
+    {
+        const int pre = (int)position.width;
+        position.width -= d;
+        this->body->setPosByPosition({this->position.width,(qreal)this->position.high});
+        if (position.width >= 0 && ( position.width < (float)screen::size_info.screen_width))
+        {
+            if (pre !=(int)(position.width) )
+            {
+                yard[position.high][pre].pop_zombie(this);
+                yard[position.high][(int)position.width].push_zombie(this);
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 bool zombie::move_aside(yard_node** yard)
@@ -113,7 +126,13 @@ bool zombie::move_aside(yard_node** yard)
 		yard[position.high][(int)position.width].pop_zombie(this);
 		yard[position.high + 1][(int)position.width].push_zombie(this);
 		return true;
-	}
+    }
+}
+
+void zombie::timeout_attack()
+{
+    this->body->update();
+    this->move((float)role::FlashTime()*speed/1000,game::game_yard);
 }
 
 /*植物类*/
