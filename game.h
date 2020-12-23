@@ -218,7 +218,13 @@ private slots:
     void plant9BeSelected();
     void plant10BeSelected();
 
+    void dealPlantDead(plant* s);
+    void dealZombieDead(zombie* s);
+
+    void dealClickedRequest(QPoint a);
 signals:
     void plantSelectedChanged(int n);
     void onePlantPrepared(int n);
+    void plantDead(plant* s);
+    void zombieDead(zombie* s);
 };

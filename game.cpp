@@ -105,6 +105,7 @@ game::game():QObject(),user()
     connect(this,SIGNAL(onePlantPrepared(int)),this,SLOT(plantPrepared(int)));
     connect(this,SIGNAL(plantSelectedChanged(int)),this,SLOT(changePlantSelected(int)));
     connect(this->main_screen->ui->shovel,SIGNAL(clicked()),this,SLOT(shovelClicked()));
+    connect(this->scene,SIGNAL(beClicked(QPoint)),this,SLOT(dealClickedRequest(QPoint)));
 }
 
 game::~game()
@@ -122,6 +123,7 @@ game::~game()
 	delete[] menu_list;
     if(!bgItem)
         delete bgItem;
+    delete scene;
 }
 
 void game::game_init()
@@ -234,18 +236,6 @@ void game::game_pause()
 bool game::game_continue()
 {
     cout<<"game will continue!"<<endl;
-	count_clock.time_of_last_frame = GetTickCount64() + clock_pause.s_1;
-	count_clock.time_of_last_money = GetTickCount64() + clock_pause.s_2;
-	count_clock.time_of_last_zombie = GetTickCount64() + clock_pause.s_3;
-	game_mode = running_mode;
-	game_state = running;
-	click_location = store;
-    screen::init_game_screen();
-	for (int i = 0; i < screen::size_info.screen_high; i++)
-		for (int j = 0; j < screen::size_info.screen_width; j++)
-		{
-			locate<int, int> p = { i,j };
-		}
     cout<<"game continue!"<<endl;
 	return true;
 }
@@ -271,7 +261,7 @@ bool game::purchase_plant() {
 			screen::putMessage("请在植物上种植南瓜头");
 			return false;
 		}
-        else if (plant_list[store_pointer].wait<plant_list[store_pointer].ice_time)
+        else if (plant_list[store_pointer].wait>0)
 		{
 			errlog("ice_time!");
 			screen::putMessage("请注意冷却时间");
@@ -281,6 +271,31 @@ bool game::purchase_plant() {
 		{
             plant_list[store_pointer].wait = plant_list[store_pointer].ice_time;
 			create_plant();
+            changePlantSelected(store_pointer);
+            switch(store_pointer)
+            {
+                   case 0:this->main_screen->ui->groupBox->setStyleSheet("background-color: red");
+                       disconnect(this->main_screen->ui->plant0,SIGNAL(clicked()),this,SLOT(plant1BeSelected()));break;
+                   case 1:this->main_screen->ui->groupBox_2->setStyleSheet("background-color: red");
+                       disconnect(this->main_screen->ui->plant1,SIGNAL(clicked()),this,SLOT(plant2BeSelected()));break;
+                   case 2:this->main_screen->ui->groupBox_3->setStyleSheet("background-color: red");
+                       disconnect(this->main_screen->ui->plant2,SIGNAL(clicked()),this,SLOT(plant3BeSelected()));break;
+                   case 3:this->main_screen->ui->groupBox_4->setStyleSheet("background-color: red");
+                       disconnect(this->main_screen->ui->plant3,SIGNAL(clicked()),this,SLOT(plant4BeSelected()));break;
+                   case 4:this->main_screen->ui->groupBox_5->setStyleSheet("background-color: red");
+                       disconnect(this->main_screen->ui->plant4,SIGNAL(clicked()),this,SLOT(plant5BeSelected()));break;
+                   case 5:this->main_screen->ui->groupBox_6->setStyleSheet("background-color: red");
+                       disconnect(this->main_screen->ui->plant5,SIGNAL(clicked()),this,SLOT(plant6BeSelected()));break;
+                   case 6:this->main_screen->ui->groupBox_7->setStyleSheet("background-color: red");
+                       disconnect(this->main_screen->ui->plant6,SIGNAL(clicked()),this,SLOT(plant7BeSelected()));break;
+                   case 7:this->main_screen->ui->groupBox_8->setStyleSheet("background-color: red");
+                       disconnect(this->main_screen->ui->plant7,SIGNAL(clicked()),this,SLOT(plant8BeSelected()));break;
+                   case 8:this->main_screen->ui->groupBox_9->setStyleSheet("background-color: red");
+                       disconnect(this->main_screen->ui->plant8,SIGNAL(clicked()),this,SLOT(plant9BeSelected()));break;
+                   case 9:this->main_screen->ui->groupBox_10->setStyleSheet("background-color: red");
+                       disconnect(this->main_screen->ui->plant9,SIGNAL(clicked()),this,SLOT(plant10BeSelected()));break;
+                   default:break;
+            }
 			log("you purchase a plant successfully");
 			return true;
 		}
@@ -342,9 +357,9 @@ bool game::create_plant()
 		errlog("create_plant:try to create an plant unexisted");
 		return false;
 	}
-	yardtostore();
 	grade += 50;
-    cout<<"create plant success!"<<endl;
+    scene->addItem(np->body);
+
 	return true;
 }
 
@@ -561,6 +576,38 @@ void game::plant9BeSelected()
 void game::plant10BeSelected()
 {
     emit(plantSelectedChanged(9));
+}
+
+void game::dealPlantDead(plant *s)
+{
+    yard[s->getPosition().high][s->getPosition().width].p=nullptr;
+    delete s;
+}
+
+void game::dealZombieDead(zombie *s)
+{
+    yard[s->get_position().high][(int)s->get_position().width].pop_zombie(s);
+    disconnect(s,SIGNAL(success()),this,SLOT(zombieSuccess()));
+    numZombieOnYard--;
+    delete s;
+}
+
+void game::dealClickedRequest(QPoint a)
+{
+    yard_pointer.high=a.x();
+    yard_pointer.width=a.y();
+    if(click_location==pointer_location::onyard&&chooseToRemove==true)
+    {
+       remove_plant();
+    }
+    else if(click_location==pointer_location::onyard&&chooseToRemove==false)
+    {
+        purchase_plant();
+    }
+    else
+    {
+        cout<<"do nothing"<<endl;
+    }
 }
 
 void game::generate_money()
@@ -821,8 +868,7 @@ bool game::remove_plant()
 {
 	if (yard[yard_pointer.high][yard_pointer.width].p == NULL)
 	{
-		screen::putMessage("你这是要移除什么？");
-		log("try to remove an unexsited plant!");
+        screen::putMessage("你这是要移除什么？");
 		return false;
 	}
 	else
@@ -830,8 +876,7 @@ bool game::remove_plant()
 		delete yard[yard_pointer.high][yard_pointer.width].p;
 		yard[yard_pointer.high][yard_pointer.width].p = NULL;
 		screen::putMessage("你成功移除了一颗植物");
-		yardtostore();
-        cout<<"remove one plant"<<endl;
+        shovelClicked();
 		return true;
 	}
 }

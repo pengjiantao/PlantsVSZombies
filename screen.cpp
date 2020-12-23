@@ -10,8 +10,8 @@
 using namespace std;
 
 QSize screen::zombie_base_={211,126};
-QSize screen::plant_base_={171,126};
-QSize screen::yard_size_={85,100};
+QSize screen::plant_base_={255,83};
+QSize screen::yard_size_={83,100};
 
 screen::size screen::size_info = { 8,5,10,5 };/*screen_width,screen_high,space_w,space_h*/
 

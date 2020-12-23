@@ -84,6 +84,7 @@ bool role::inHealth(float n) {
 plant::plant(const char* _name, float _health, obj_color _objcolor,int _attack_power,int _price,locate<int,int> p):
 	role(_name,_health,_objcolor,_attack_power),position(p){
 	price = _price;
+    this->body->setPos(screen::PlantBase().width()*1.15+screen::YardSize().width()*this->position.width,screen::PlantBase().height()*1.5+screen::YardSize().height()*this->position.high);
 }
 plant::~plant() = default;
 
@@ -142,6 +143,8 @@ Sunflower::Sunflower(const plant_info& src,locate<int,int> p):plant(src.name,src
 {
 	iceTime = 3;
 	last_time_create_money = GetTickCount64();
+    this->body->setMovie(":/image/plant/1/SunFlower1.gif");
+    this->body->show();
 }
 bool Sunflower::attack(double time,yard_node ** yard)
 {
@@ -157,6 +160,8 @@ Shoot::Shoot(const plant_info& src,locate<int,int> p):plant(src.name, src.health
 {
 	iceTime = 1.0;
 	last_time_of_shoot = GetTickCount64();
+    this->body->setMovie(":/image/plant/0/Peashooter.gif");
+    this->body->show();
 }
 bool Shoot::attack(double time, yard_node** yard) {
 	color = green;
@@ -173,6 +178,8 @@ Doubleshoot::Doubleshoot(const plant_info& src, locate<int, int> p) :plant(src.n
 {
 	iceTime = 1.0;
 	last_time_of_shoot = GetTickCount64();
+    this->body->setMovie(":/image/plant/2/Repeater.gif");
+    this->body->show();
 }
 bool Doubleshoot::attack(double time, yard_node** yard) {
 	color = green;
@@ -191,6 +198,8 @@ Iceshoot::Iceshoot(const plant_info& src, locate<int, int> p) :plant(src.name, s
 {
 	iceTime = 1.0;
 	last_time_of_shoot = GetTickCount64();
+    this->body->setMovie(":/image/plant/3/SnowPea.gif");
+    this->body->show();
 }
 bool Iceshoot::attack(double time, yard_node** yard) {
 	color = green;
@@ -240,7 +249,8 @@ bool Nut::attack(double time, yard_node** yard)
 }
 Nut::Nut(const plant_info& src, locate<int, int> p):plant(src.name, src.health, src.color, src.attack_power, src.price, p)
 {
-
+    this->body->setMovie(":/image/plant/4/WallNut.gif");
+    this->body->show();
 }
 
 bool Highnut::attack(double time, yard_node** yard)
@@ -251,7 +261,8 @@ bool Highnut::attack(double time, yard_node** yard)
 
 Highnut::Highnut(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.color, src.attack_power, src.price, p)
 {
-
+    this->body->setMovie(":/image/plant/5/TallNut.gif");
+    this->body->show();
 }
 
 
@@ -333,7 +344,8 @@ void yard_node::icefirstzombie()
 
 Wogua::Wogua(const plant_info& src,locate<int,int> p):plant(src.name, src.health, src.color, src.attack_power, src.price, p)
 {
-
+    this->body->setMovie(":/image/plant/6/Squash.gif");
+    this->body->show();
 }
 bool Wogua::attack(double time, yard_node** yard)
 {
@@ -354,7 +366,8 @@ bool Wogua::attack(double time, yard_node** yard)
 
 Cherrybomb::Cherrybomb(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.color, src.attack_power, src.price, p)
 {
-
+    this->body->setMovie(":/image/plant/7/CherryBomb.gif");
+    this->body->show();
 }
 bool Cherrybomb::attack(double time, yard_node** yard)
 {
@@ -371,6 +384,8 @@ bool Cherrybomb::attack(double time, yard_node** yard)
 Garlic::Garlic(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.color, src.attack_power, src.price, p)
 {
 	skill = true;
+    this->body->setMovie(":/image/plant/8/Garlic.gif");
+    this->body->show();
 }
 bool Garlic::attack(double time, yard_node** yard)
 {

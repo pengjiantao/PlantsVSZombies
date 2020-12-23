@@ -149,6 +149,7 @@ private slots:
 
 /*this is the father class of all kinds of plants*/
 class plant :public role {
+    Q_OBJECT
 public:
 	plant(const char* _name, float _health, obj_color _objcolor,int _attack_power,int _price,locate<int,int> _position);
 	virtual ~plant();
