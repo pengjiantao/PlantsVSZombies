@@ -241,7 +241,7 @@ bool game::game_continue()
 }
 
 bool game::purchase_plant() {
-	if ((int)store_pointer >= 10 || plant_list[store_pointer].name == "NULL")
+    if ((int)store_pointer >= 10 || plant_list[store_pointer].name ==(string) "NULL")
 	{
 		errlog("purchase_plant:you try to purchase a plant unexisted!");
 		errlog("purchase_plant:your purchase has been blocked!");
@@ -358,8 +358,9 @@ bool game::create_plant()
 		return false;
 	}
 	grade += 50;
-    scene->addItem(np->body);
-
+    if(np!=nullptr){
+        scene->addItem(np->body);
+    }
 	return true;
 }
 
@@ -369,7 +370,7 @@ bool game::create_zombie()
     int index = qrand()%10;
 	for (int i = 0; i < 10; i++)
 	{
-		if (zombie_list[(i + index)%10].name != "NULL" && zombie_list[(i + index)%10].number > 0)
+        if (zombie_list[(i + index)%10].name !=(string) "NULL" && zombie_list[(i + index)%10].number > 0)
 		{
 			switch ((i + index)%10)
 			{
@@ -404,7 +405,15 @@ bool game::create_zombie()
             scene->addItem(nz->body);
 			zombie_list[(i + index)%10].number--;
             connect(nz,SIGNAL(success()),this,SLOT(zombieSuccess()));
+            connect(nz,SIGNAL(plantDie(plant*)),this,SLOT(dealPlantDead(plant*)));
+            connect(nz,SIGNAL(walkToAttack()),nz,SLOT(walkToAttackSlot()));
+            connect(this,SIGNAL(pause()),nz,SLOT(runToPauseSlot()));
+            connect(this,SIGNAL(gameContinue()),nz,SLOT(pauseToRunSlot()));
+            connect(nz,SIGNAL(attackToWalk()),nz,SLOT(attackToWalkSlot()));
+            connect(nz,SIGNAL(die(zombie*)),this,SLOT(dealZombieDead(zombie*)));
             this->numZombieOnYard++;
+            if(numZombieOnYard==9)
+                emit(pause());
 			return true;
 		}
 	}
@@ -581,14 +590,17 @@ void game::plant10BeSelected()
 void game::dealPlantDead(plant *s)
 {
     yard[s->getPosition().high][s->getPosition().width].p=nullptr;
+    s->disconnect();
     delete s;
 }
 
 void game::dealZombieDead(zombie *s)
 {
     yard[s->get_position().high][(int)s->get_position().width].pop_zombie(s);
-    disconnect(s,SIGNAL(success()),this,SLOT(zombieSuccess()));
     numZombieOnYard--;
+    s->disconnect();
+    cout<<1<<endl;
+    this->dieAnimation(s);
     delete s;
 }
 
@@ -604,10 +616,13 @@ void game::dealClickedRequest(QPoint a)
     {
         purchase_plant();
     }
-    else
-    {
-        cout<<"do nothing"<<endl;
-    }
+}
+
+void game::dieAnimationEnd(role_body *s)
+{
+    s->Timer()->disconnect();
+    s->disconnect();
+    delete s;
 }
 
 void game::generate_money()
@@ -839,7 +854,7 @@ void game::pointerMove(control c)
 				errlog("pointerMove:store_pointer>9!");
 				game_exit();
 			}
-			if (store_pointer<9 &&plant_list[store_pointer].name != "NULL")
+            if (store_pointer<9 &&plant_list[store_pointer].name !=(string) "NULL")
 				store_pointer += 1;
 			break;
 		default:
@@ -878,7 +893,140 @@ bool game::remove_plant()
 		screen::putMessage("你成功移除了一颗植物");
         shovelClicked();
 		return true;
-	}
+    }
+}
+
+void game::dieAnimation(zombie *s)
+{
+    role_body* body1=nullptr,*body2=nullptr;
+    if(s->getHealth()<-100)
+    {
+        if(s->getName()!=static_cast<string>("throwstone"))
+        {
+            body1=new role_body();
+            body1->setMovie(":/image/zombie/5/BoomDie.gif");
+            body1->setTimer(new QTimer());
+            body1->Timer()->setInterval(1500);
+            body1->Timer()->start();
+            body1->setPos(s->body->pos());
+            scene->addItem(body1);
+            body1->show();
+            Q_UNUSED(body2);
+            connect(body1,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
+        }
+        else
+        {
+            body1=new role_body();
+            body1->setMovie(":/image/zombie/4/BoomDie.gif");
+            body1->setTimer(new QTimer());
+            body1->Timer()->setInterval(1500);
+            body1->Timer()->start();
+            body1->setPos(s->body->pos());
+            scene->addItem(body1);
+            body1->show();
+            Q_UNUSED(body2);
+            connect(body1,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
+        }
+    }
+    else
+    {
+        if(s->getName()==static_cast<string>("normal")||s->getName()==static_cast<string>("conehead"))
+        {
+            body1=new role_body();
+            body1->setMovie(":/image/zombie/5/ZombieDie.gif");
+            body1->setTimer(new QTimer());
+            body1->Timer()->setInterval(1500);
+            body1->Timer()->start();
+            body1->setPos(s->body->pos());
+            scene->addItem(body1);
+            body1->show();
+            connect(body1,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
+            body2=new role_body();
+            body2->setMovie(":/image/zombie/5/ZombieHead.gif");
+            body2->setTimer(new QTimer());
+            body2->Timer()->setInterval(1500);
+            body2->Timer()->start();
+            body2->setPos(s->body->pos());
+            scene->addItem(body1);
+            body2->show();
+            connect(body2,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
+        }
+        else if(s->getName()==static_cast<string>("reading"))
+        {
+            body1=new role_body();
+            body1->setMovie(":/image/zombie/1/Die.gif");
+            body1->setTimer(new QTimer());
+            body1->Timer()->setInterval(1500);
+            body1->Timer()->start();
+            body1->setPos(s->body->pos());
+            scene->addItem(body1);
+            body1->show();
+            connect(body1,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
+            body2=new role_body();
+            body2->setMovie(":/image/zombie/1/Head.gif");
+            body2->setTimer(new QTimer());
+            body2->Timer()->setInterval(1500);
+            body2->Timer()->start();
+            body2->setPos(s->body->pos());
+            scene->addItem(body1);
+            body2->show();
+            connect(body2,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
+        }
+        else if(s->getName()==static_cast<string>("throwstone"))
+        {
+            body1=new role_body();
+            body1->setMovie(":/image/zombie/4/5.gif");
+            body1->setTimer(new QTimer());
+            body1->Timer()->setInterval(1500);
+            body1->Timer()->start();
+            body1->setPos(s->body->pos());
+            scene->addItem(body1);
+            body1->show();
+            connect(body1,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
+        }
+        else if(s->getName()==static_cast<string>("xiaochou"))
+        {
+            body1=new role_body();
+            body1->setMovie(":/image/zombie/3/Die.gif");
+            body1->setTimer(new QTimer());
+            body1->Timer()->setInterval(1500);
+            body1->Timer()->start();
+            body1->setPos(s->body->pos());
+            scene->addItem(body1);
+            body1->show();
+            connect(body1,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
+            body2=new role_body();
+            body2->setMovie(":/image/zombie/5/ZombieHead.gif");
+            body2->setTimer(new QTimer());
+            body2->Timer()->setInterval(1500);
+            body2->Timer()->start();
+            body2->setPos(s->body->pos());
+            scene->addItem(body1);
+            body2->show();
+            connect(body2,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
+        }
+        else if(s->getName()==static_cast<string>("pole"))
+        {
+            body1=new role_body();
+            body1->setMovie(":/image/zombie/2/PoleVaultingZombieDie.gif");
+            body1->setTimer(new QTimer());
+            body1->Timer()->setInterval(1500);
+            body1->Timer()->start();
+            body1->setPos(s->body->pos());
+            scene->addItem(body1);
+            body1->show();
+            connect(body1,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
+            body2=new role_body();
+            body2->setMovie(":/image/zombie/2/PoleVaultingZombieHead.gif");
+            body2->setTimer(new QTimer());
+            body2->Timer()->setInterval(1500);
+            body2->Timer()->start();
+            body2->setPos(s->body->pos());
+            scene->addItem(body1);
+            body2->show();
+            connect(body2,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
+        }
+    }
 }
 
 void game::configToDisk()

@@ -124,6 +124,8 @@ private:
 	void pointerMove(control c);
 
 	bool remove_plant();
+
+    void dieAnimation(zombie* s);
 private:
 	/*游戏在运行中，或在菜单中*/
 	mode game_mode;
@@ -222,9 +224,11 @@ private slots:
     void dealZombieDead(zombie* s);
 
     void dealClickedRequest(QPoint a);
+
+    void dieAnimationEnd(role_body* s);
 signals:
     void plantSelectedChanged(int n);
     void onePlantPrepared(int n);
-    void plantDead(plant* s);
-    void zombieDead(zombie* s);
+    void pause();
+    void gameContinue();
 };

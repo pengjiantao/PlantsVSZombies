@@ -1,9 +1,23 @@
 #include "role_body.h"
 #include<iostream>
 #include"screen.h"
+role_body::~role_body()
+{
+    if(timer_)
+    {
+        timer_->disconnect();
+        delete timer_;
+    }
+    this->disconnect();
+}
+
 role_body::role_body(qreal wid,qreal hgh):m_width(wid),m_height(hgh)
 {
     movie=nullptr;
+    update_clock_=new QTimer();
+    update_clock_->setInterval(100);
+    update_clock_->start();
+    connect(this->update_clock_,SIGNAL(timeout()),this,SLOT(updateMyself()));
 }
 
 QRectF role_body::boundingRect() const
@@ -55,5 +69,29 @@ void role_body::MoveBack(qint32 n)
 void role_body::setPosByPosition(const QPointF &n)
 {
     this->setPos(screen::ZombieBase().width()+screen::YardSize().width()*n.x(),screen::ZombieBase().height()+screen::YardSize().height()*n.y());
+}
+
+void role_body::movieEnd()
+{
+    emit(end(this));
+}
+
+void role_body::updateMyself()
+{
+    this->update();
+}
+void role_body::setTimer(QTimer* s)
+{
+    timer_=s;
+    connect(timer_,SIGNAL(timeout()),this,SLOT(movieEnd()));
+}
+
+void role_body::resetTimer()
+{
+    if(timer_){
+        timer_->disconnect();
+        delete timer_;
+    }
+    timer_=nullptr;
 }
 

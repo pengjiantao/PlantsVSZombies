@@ -38,7 +38,7 @@ role::role(const char* _name,float _health,obj_color _color,int _attack_power):n
 }
 void role::timeout_attack()
 {
-    body->update();
+
 }
 role::~role(){
     delete body;
@@ -61,11 +61,11 @@ int role::FlashTime()
 
 bool role::deHealth(float n) {
 	if (health <= n) {
+        health-=n;
 		return false;
 	}
 	else {
 		health -= n;
-		color = red;
 		return true;
 	}
 }
@@ -84,7 +84,14 @@ bool role::inHealth(float n) {
 plant::plant(const char* _name, float _health, obj_color _objcolor,int _attack_power,int _price,locate<int,int> p):
 	role(_name,_health,_objcolor,_attack_power),position(p){
 	price = _price;
+    this->body->setWidth(80);
+    this->body->setHeight(80);
     this->body->setPos(screen::PlantBase().width()*1.15+screen::YardSize().width()*this->position.width,screen::PlantBase().height()*1.5+screen::YardSize().height()*this->position.high);
+}
+
+void plant::timeout_attack()
+{
+
 }
 plant::~plant() = default;
 
@@ -92,6 +99,7 @@ zombie::zombie(const char* _name, float _health, obj_color _objcolor,int _attack
 role(_name,_health,_objcolor,_attack_power){
     position = { (int)(clock()%screen::size_info.screen_high),(float)(screen::size_info.screen_width-0.1) };
 	speed = _speed;
+    status=zombie_status::walk;
     this->body->setPos(screen::ZombieBase().width()+screen::YardSize().width()*this->position.width,screen::ZombieBase().height()+screen::YardSize().height()*this->position.high);
 }
 zombie::~zombie() = default;
@@ -134,8 +142,38 @@ bool zombie::move_aside(yard_node** yard)
 
 void zombie::timeout_attack()
 {
-    this->body->update();
-    this->move((float)role::FlashTime()*speed/1000,game::game_yard);
+    if(this->status!=zombie_status::wait){
+        if(game::game_yard[position.high][(int)position.width].p!=nullptr)
+        {
+            if(status!=zombie_status::attack)
+                emit(walkToAttack());
+            this->attack((double)role::FlashTime(),game::game_yard);
+        }
+        else{
+            this->move((float)role::FlashTime()*speed/1000,game::game_yard);
+        }
+    }
+}
+
+void zombie::walkToAttackSlot()
+{
+    status=zombie_status::attack;
+    cout<<"walk to attack"<<endl;
+}
+
+void zombie::attackToWalkSlot()
+{
+    status=zombie_status::walk;
+}
+
+void zombie::runToPauseSlot()
+{
+    status=zombie_status::wait;
+}
+
+void zombie::pauseToRunSlot()
+{
+    status=zombie_status::walk;
 }
 
 /*植物类*/
@@ -217,33 +255,49 @@ bool Iceshoot::attack(double time, yard_node** yard) {
 Normal::Normal(zombie_info& k):zombie(k.name,k.health,k.color,k.attack_power,k.speed) {
     this->body->setMovie(":/image/zombie/5/Zombie2.gif");
     this->body->show();
+
 }
 bool Normal::attack(double time,yard_node** yard)
 {
-	color = grey;
-	if (yard[position.high][(int)position.width].p != NULL)
-		if (!yard[position.high][(int)position.width].p->deHealth((float)(time / 1000) * attack_power))
-		{
-			delete yard[position.high][(int)position.width].p;
-			yard[position.high][(int)position.width].p = NULL;
-			return false;
-		}
-		else{
-			return false;
-		}
-	else
-	{
-		if (move(time / 1000 * speed,yard))
-		{
-			return true;
-		}
-		else
-			return false;
-	}
+    if (yard[position.high][(int)position.width].p != nullptr){
+        yard[position.high][(int)position.width].p->deHealth((float)(time / 1000) * attack_power);
+        if(yard[position.high][(int)position.width].p->ifDead())
+        {
+            emit(plantDie(yard[position.high][(int)position.width].p));
+            emit(attackToWalk());
+        }
+    }
+    return true;
+}
+
+void Normal::walkToAttackSlot()
+{
+    status=zombie_status::attack;
+    this->body->setMovie(":/image/zombie/5/ZombieAttack.gif");
+}
+
+void Normal::attackToWalkSlot()
+{
+    status=zombie_status::walk;
+    this->body->setMovie(":/image/zombie/5/Zombie.gif");
+}
+
+void Normal::runToPauseSlot()
+{
+    status=zombie_status::wait;
+    this->body->setMovie(":/image/zombie/5/3.gif");
+}
+
+void Normal::pauseToRunSlot()
+{
+    status=zombie_status::walk;
+    this->body->setMovie(":/image/zombie/5/Zombie.gif");
 }
 
 bool Nut::attack(double time, yard_node** yard)
 {
+    Q_UNUSED(time);
+    Q_UNUSED(yard);
 	color = green;
 	return true;
 }
@@ -404,30 +458,54 @@ Conehead::Conehead(zombie_info& k):zombie(k.name, k.health, k.color, k.attack_po
 }
 bool Conehead::attack(double time, yard_node** yard)
 {
-	if (health <= 100)
+    if (health <= 100&&name!=(string)"normal")
 	{
-		name = (char*)"普通僵尸";
+        name = (char*)"normal";
+        this->body->setMovie(":/image/zombie/5/Zombie.gif");
 	}
-	color = grey;
-	if (yard[position.high][(int)position.width].p != NULL)
+    if (yard[position.high][(int)position.width].p != nullptr)
 		if (!yard[position.high][(int)position.width].p->deHealth((float)(time / 1000) * attack_power))
 		{
-			delete yard[position.high][(int)position.width].p;
-			yard[position.high][(int)position.width].p = NULL;
-			return false;
+            emit(plantDie(yard[position.high][(int)position.width].p));
+            emit(attackToWalk());
 		}
-		else {
-			return false;
-		}
-	else
-	{
-		if (move(time / 1000 * speed, yard))
-		{
-			return true;
-		}
-		else
-			return false;
-	}
+    return true;
+}
+
+void Conehead::walkToAttackSlot()
+{
+    status=zombie_status::attack;
+    if(name!=(string)"normal")
+        this->body->setMovie(":/image/zombie/0/ConeheadZombieAttack.gif");
+    else
+        this->body->setMovie(":/image/zombie/5/ZombieAttack.gif");
+}
+
+void Conehead::attackToWalkSlot()
+{
+    status=zombie_status::walk;
+    if(name!=(string)"normal")
+        this->body->setMovie(":/image/zombie/0/ConeheadZombie.gif");
+    else
+        this->body->setMovie(":/image/zombie/5/Zombie.gif");
+}
+
+void Conehead::runToPauseSlot()
+{
+    status=zombie_status::wait;
+    if(name!=(string)"normal")
+        this->body->setMovie(":/image/zombie/0/1.gif");
+    else
+        this->body->setMovie(":/image/zombie/5/3.gif");
+}
+
+void Conehead::pauseToRunSlot()
+{
+    status=zombie_status::walk;
+    if(name!=(string)"normal")
+        this->body->setMovie(":/image/zombie/0/ConeheadZombie.gif");
+    else
+        this->body->setMovie(":/image/zombie/5/Zombie.gif");
 }
 Reading::Reading(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
 {
@@ -437,31 +515,51 @@ Reading::Reading(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_pow
 bool Reading::attack(double time, yard_node** yard)
 {
 	if (health <= 100)
-	{
-		color = purple;
 		speed = 0.45;
-	}
-	else
-		color = grey;
-	if (yard[position.high][(int)position.width].p != NULL)
+    if (yard[position.high][(int)position.width].p != nullptr)
 		if (!yard[position.high][(int)position.width].p->deHealth((float)(time / 1000) * attack_power))
 		{
-			delete yard[position.high][(int)position.width].p;
-			yard[position.high][(int)position.width].p = NULL;
-			return false;
+            emit(plantDie(yard[position.high][(int)position.width].p));
+            emit(attackToWalk());
 		}
-		else {
-			return false;
-		}
-	else
-	{
-		if (move(time / 1000 * speed, yard))
-		{
-			return true;
-		}
-		else
-			return false;
-	}
+    return true;
+}
+
+void Reading::walkToAttackSlot()
+{
+    status=zombie_status::attack;
+    if(speed==0.45)
+        this->body->setMovie(":/image/zombie/1/HeadAttack0.gif");
+    else
+        this->body->setMovie(":/image/zombie/1/HeadAttack1.gif");
+}
+
+void Reading::attackToWalkSlot()
+{
+    status=zombie_status::walk;
+    if(speed==0.45)
+        this->body->setMovie(":/image/zombie/1/HeadWalk0.gif");
+    else
+        this->body->setMovie(":/image/zombie/1/HeadWalk1.gif");
+}
+
+void Reading::runToPauseSlot()
+{
+    status=zombie_status::wait;
+    if(speed==0.45)
+        this->body->setMovie(":/image/zombie/1/1.gif");
+    else
+        //there is no source of zombie wait with no newspaper...
+        this->body->setMovie(":/image/zombie/1/1.gif");
+}
+
+void Reading::pauseToRunSlot()
+{
+    status=zombie_status::walk;
+    if(speed==0.45)
+        this->body->setMovie(":/image/zombie/1/HeadWalk0.gif");
+    else
+        this->body->setMovie(":/image/zombie/1/HeadWalk1.gif");
 }
 Pole::Pole(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
 {
@@ -471,137 +569,226 @@ Pole::Pole(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.
 }
 bool Pole::attack(double time, yard_node** yard)
 {
-	if (skill == true)
+    if(jumping==true)
+    {
+        return true;
+    }
+    if (skill == true && jumping==false)
 	{
-		color = purple;
-		if (yard[position.high][(int)position.width].p != NULL)
+        if (yard[position.high][(int)position.width].p != nullptr)
 		{
 			yard[position.high][(int)position.width].pop_zombie(this);
-			position.width -= 1;
-			yard[position.high][(int)position.width].push_zombie(this);
-			if (position.width <= 0)
-				return true;
-			skill = false;
+            this->body->setMovie(":/image/zombie/2/PoleVaultingZombieJump.gif");
+            connect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump0Finished()));
+            jumping=true;
+            return true;
 		}
 	}
-	else
-		color = grey;
-	if (yard[position.high][(int)position.width].p != NULL)
+    if (yard[position.high][(int)position.width].p != nullptr)
 		if (!yard[position.high][(int)position.width].p->deHealth((float)(time / 1000) * attack_power))
 		{
-			delete yard[position.high][(int)position.width].p;
-			yard[position.high][(int)position.width].p = NULL;
-			return false;
-		}
-		else {
-			return false;
-		}
-	else
-	{
-		if (move(time / 1000 * speed, yard))
-		{
-			return true;
-		}
-		else
-			return false;
-	}
-	return false;
+            emit(plantDie(yard[position.high][(int)position.width].p));
+            emit(attackToWalk());
+        }
+    return true;
+}
+void Pole::walkToAttackSlot()
+{
+    status=zombie_status::attack;
+    this->body->setMovie(":/image/zombie/2/PoleVaultingZombieAttack.gif");
+}
+
+void Pole::attackToWalkSlot()
+{
+    status=zombie_status::walk;
+    this->body->setMovie(":/image/zombie/2/PoleVaultingZombieWalk.gif");
+}
+
+void Pole::runToPauseSlot()
+{
+    status=zombie_status::wait;
+    if(skill==true)
+    {
+        this->body->setMovie(":/image/zombie/2/1.gif");
+    }
+    else
+    {
+        this->body->setMovie(":/image/zombie/2/PoleVaultingZombieWalk.gif");
+    }
+}
+
+void Pole::pauseToRunSlot()
+{
+    status=zombie_status::walk;
+    if(skill==true)
+    {
+        this->body->setMovie(":/image/zombie/2/PoleVaultingZombie.gif");
+    }
+    else
+    {
+        this->body->setMovie(":/image/zombie/2/PoleVaultingZombieWalk.gif");
+    }
+}
+
+void Pole::dealJump0Finished()
+{
+    disconnect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump0Finished()));
+    this->body->setMovie(":/image/zombie/2/PoleVaultingZombieJump2.gif");
+    connect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump1Finished()));
+    this->body->MoveHead(screen::YardSize().width()*2/3);
+}
+
+void Pole::dealJump1Finished()
+{
+    this->position.width-=1;
+    game::game_yard[position.high][(int)position.width].push_zombie(this);
+    this->body->setMovie(":/image/zombie/2/PoleVaultingZombieWalk.gif");
+    disconnect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump1Finished()));
+    speed=speed/2;
+    jumping=false;
+    skill=false;
+}
+
+void Pole::timeout_attack()
+{
+    if(this->status!=zombie_status::wait&&jumping==false){
+        if(game::game_yard[position.high][(int)position.width].p!=nullptr)
+        {
+            if(status!=zombie_status::attack)
+                emit(walkToAttack());
+            this->attack((double)role::FlashTime(),game::game_yard);
+        }
+        else{
+            this->move((float)role::FlashTime()*speed/1000,game::game_yard);
+        }
+    }
 }
 
 Clown::Clown(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
 {
     this->body->setMovie(":/image/zombie/3/Walk.gif");
     this->body->show();
+    bomb_clock_=new QTimer(this);
+    open_box_=new QTimer(this);
+    int i=qrand()%10+15;
+    open_box_->setInterval(i*1000);
+    open_box_->start();
+    bomb_clock_->setInterval(1500);
+
+
+    connect(this->open_box_,SIGNAL(timeout()),this,SLOT(openBox()));
 }
 bool Clown::attack(double time, yard_node** yard) {
-	if (yard[position.high][(int)position.width].p != NULL && skill==true)
-	{
-		skill = false;
-		if (GetTickCount64() % 2 == 0)
-		{
-			for (int i = position.high - 1;i<=position.high+1;i++)
-				for (int j = position.width - 1; j < position.width + 1; j++)
-				{
-					if (i >= 0 && i < screen::size_info.screen_high && j >= 0 && j < screen::size_info.screen_width)
-						yard[i][j].kill_plant();
-				}
-			return false;
-		}
-	}
-	color = grey;
-	if (yard[position.high][(int)position.width].p != NULL)
+    if (yard[position.high][(int)position.width].p != nullptr)
 		if (!yard[position.high][(int)position.width].p->deHealth((float)(time / 1000) * attack_power))
 		{
-			delete yard[position.high][(int)position.width].p;
-			yard[position.high][(int)position.width].p = NULL;
-			return false;
+            emit(plantDie(yard[position.high][(int)position.width].p));
+            emit(attackToWalk());
 		}
-		else {
-			return false;
-		}
-	else
-	{
-		if (move(time / 1000 * speed, yard))
-		{
-			return true;
-		}
-		else
-			return false;
-	}
-	return false;
-	
+    return true;
+
+}
+
+void Clown::walkToAttackSlot()
+{
+    status=zombie_status::attack;
+    this->body->setMovie(":/image/zombie/3/Attack.gif");
+}
+
+void Clown::attackToWalkSlot()
+{
+    status=zombie_status::walk;
+    this->body->setMovie(":/image/zombie/3/Walk.gif");
+}
+
+void Clown::runToPauseSlot()
+{
+    status=zombie_status::wait;
+    this->body->setMovie(":/image/zombie/3/1.gif");
+}
+
+void Clown::pauseToRunSlot()
+{
+    status=zombie_status::walk;
+    this->body->setMovie(":/image/zombie/3/Walk.gif");
+}
+
+void Clown::bomb()
+{
+    this->body->setMovie(":/image/zombie/3/Boom.gif");
+    connect(this->bomb_clock_,SIGNAL(timeout()),this,SLOT(bombEnd()));
+    disconnect(this->bomb_clock_,SIGNAL(timeout()),this,SLOT(bomb()));
+    this->health=-1000;
+    if(this->position.width-1>=0)
+    {
+        game::game_yard[position.high][(int)position.width-1].kill_plant();
+    }
+    if(this->position.width+1<=screen::size_info.screen_width)
+    {
+        game::game_yard[position.high][(int)position.width+1].kill_plant();
+    }
+    if(this->position.high+1<screen::size_info.screen_high)
+    {
+        game::game_yard[position.high+1][(int)position.width].kill_plant();
+    }
+    if(this->position.high-1>=0)
+    {
+        game::game_yard[position.high-1][(int)position.width].kill_plant();
+    }
+    game::game_yard[position.high][(int)position.width].kill_plant();
+}
+
+void Clown::openBox()
+{
+    status=zombie_status::wait;
+    this->body->setMovie(":/image/zombie/3/OpenBox.gif");
+    connect(this->bomb_clock_,SIGNAL(timeout()),this,SLOT(bomb()));
+    disconnect(this->open_box_,SIGNAL(timeout()),this,SLOT(openBox()));
+    bomb_clock_->start();
+}
+
+void Clown::bombEnd()
+{
+    emit(die(this));
 }
 
 Throwstone::Throwstone(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
 {
-	shootNum = 1;
-	shoot_freq = 1.5;
-	store_power = 70;
-	last_shoot = GetTickCount64();
+    this->body->setWidth(200);
+    this->body->setHeight(200);
     this->body->setMovie(":/image/zombie/4/2.gif");
     this->body->show();
 }
 bool Throwstone::attack(double time, yard_node** yard)
 {
-	if (skill == true && shootNum == 0)
-	{
-		skill = false;
-		speed = speed / 2;
-		return false;
-	}
-	else if (skill == true && shootNum > 0)
-	{
-		color = purple;
-		if (GetTickCount64() - last_shoot > shoot_freq)
-		{
-			for (int i = position.width; i >= 0; i--)
-			{
-				if (yard[position.high][i].p != NULL)
-				{
-					Bullet* b = new Bullet{ "@",purple,(int)store_power,4,"plant",position };
-					yard[position.high][(int)position.width].push_zombie(b);
-					shootNum--;
-					last_shoot = GetTickCount64();
-					break;
-				}
-			}
-		}
-		return false;
-	}
-	else if(skill==false)
-	{
-		color = grey;
-		if (yard[position.high][(int)position.width].p != NULL)
-		{
-			delete yard[position.high][(int)position.width].p;
-			yard[position.high][(int)position.width].p = NULL;
-		}
-		if (move(time / 1000 * speed, yard))
-			return true;
-		else
-			return false;
-	}
-	return false;
+    Q_UNUSED(time);
+    if(yard[position.high][(int)this->position.width].p!=nullptr)
+    {
+        emit(plantDie(yard[position.high][(int)this->position.width].p));
+    }
+    return true;
+}
+
+void Throwstone::walkToAttackSlot()
+{
+    status=zombie_status::attack;
+}
+
+void Throwstone::attackToWalkSlot()
+{
+    status=zombie_status::walk;
+}
+
+void Throwstone::runToPauseSlot()
+{
+    status=zombie_status::wait;
+    this->body->setMovie(":/image/zombie/4/1.gif");
+}
+
+void Throwstone::pauseToRunSlot()
+{
+    status=zombie_status::walk;
+    this->body->setMovie(":/image/zombie/4/2.gif");
 }
 
 Bullet::Bullet(const char* _name, obj_color _color, int _attack_power, float _speed,const char* _aim,locate<int,float> p):

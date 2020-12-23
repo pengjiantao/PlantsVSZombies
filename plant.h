@@ -38,7 +38,9 @@ template<typename T1, typename T2> struct locate {
 };
 
 
-
+enum class zombie_status{
+    attack,walk,wait
+};
 
 
 /*this is a class named plant_info which stroe the
@@ -162,6 +164,10 @@ public:
 protected:
 	locate<int, int> position;
 	int price = 0;
+signals:
+
+private slots:
+    void timeout_attack();
 };
 
 /*this is the father class of all kinds of zombies*/
@@ -186,10 +192,19 @@ public:
 protected:
 	locate<int,float> position;
 	float speed;
-private :
+    zombie_status status=zombie_status::walk;
+private slots:
     void timeout_attack();
+    void walkToAttackSlot();
+    void attackToWalkSlot();
+    void runToPauseSlot();
+    void pauseToRunSlot();
 signals:
     void success();
+    void plantDie(plant* n);
+    void die(zombie* n);
+    void walkToAttack();
+    void attackToWalk();
 };
 
 /*sunflower*/
@@ -285,55 +300,105 @@ class Pumpkin :public plant {
 
 /*Conehead*/
 class Conehead :public zombie {
+    Q_OBJECT
 public:
 	Conehead(zombie_info& k);
 	bool virtual attack(double time, yard_node** yard);
 	~Conehead(){}
+private slots:
+    void walkToAttackSlot();
+    void attackToWalkSlot();
+    void runToPauseSlot();
+    void pauseToRunSlot();
 };
 
 /*reading*/
 class Reading :public zombie {
+    Q_OBJECT
 public:
 	Reading(zombie_info& k);
 	bool virtual attack(double time, yard_node** yard);
 	~Reading(){}
+private slots:
+    void walkToAttackSlot();
+    void attackToWalkSlot();
+    void runToPauseSlot();
+    void pauseToRunSlot();
 };
 
 /*pole*/
 class Pole :public zombie {
+    Q_OBJECT
 public:
 	Pole(zombie_info& k);
 	bool virtual attack(double time, yard_node** yard);
-	~Pole(){}
+    ~Pole(){
+    }
+private:
+    bool jumping=false;
+private slots:
+    void walkToAttackSlot();
+    void attackToWalkSlot();
+    void runToPauseSlot();
+    void pauseToRunSlot();
+    void dealJump0Finished();
+    void dealJump1Finished();
+    void timeout_attack();
+signals:
+    void jump0Finished();
+    void jump1Finished();
 };
 
 /*clown*/
 class Clown :public zombie {
+    Q_OBJECT
 public:
 	Clown(zombie_info& k);
 	bool virtual attack(double time, yard_node** yard);
-	~Clown(){}
+    ~Clown(){
+
+        delete open_box_;
+        delete bomb_clock_;
+    }
+private slots:
+    void walkToAttackSlot();
+    void attackToWalkSlot();
+    void runToPauseSlot();
+    void pauseToRunSlot();
+    void bomb();
+    void openBox();
+    void bombEnd();
+private:
+    QTimer *bomb_clock_;
+    QTimer *open_box_;
 };
 
 /*throwstone*/
 class Throwstone :public zombie {
+    Q_OBJECT
 public:
 	Throwstone(zombie_info& k);
 	bool virtual attack(double time, yard_node** yard);
 	~Throwstone(){}
-private:
-	float store_power = 70;
-	float shoot_freq = 1.5;
-	int shootNum = 5;
-    uint64_t last_shoot;
+private slots:
+    void walkToAttackSlot();
+    void attackToWalkSlot();
+    void runToPauseSlot();
+    void pauseToRunSlot();
 };
 
 /*normal*/
 class Normal :public zombie {
+    Q_OBJECT
 public:
 	Normal(zombie_info& k);
 	bool virtual attack(double time,yard_node** yard);
 	~Normal(){}
+private slots:
+    void walkToAttackSlot();
+    void attackToWalkSlot();
+    void runToPauseSlot();
+    void pauseToRunSlot();
 };
 
 class Bullet :public zombie {

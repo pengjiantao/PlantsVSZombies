@@ -48,17 +48,6 @@
     <message>
         <location filename="window.ui" line="113"/>
         <source>repeater</source>
-        <oldsource>snow_pea</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="window.ui" line="155"/>
-        <source>300SUN</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="window.ui" line="113"/>
-        <source>repeater</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -70,6 +59,11 @@
     <message>
         <location filename="window.ui" line="139"/>
         <source>SnowPea</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="window.ui" line="155"/>
+        <source>300SUN</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
