@@ -8,6 +8,15 @@ role_body::~role_body()
         timer_->disconnect();
         delete timer_;
     }
+    if(movie){
+        movie->disconnect();
+        delete movie;
+    }
+    if(update_clock_)
+    {
+        update_clock_->disconnect();
+        delete update_clock_;
+    }
     this->disconnect();
 }
 
@@ -46,8 +55,10 @@ QPainterPath role_body::shape() const
 
 void role_body::setMovie(QString path)
 {
-    if(movie)
+    if(movie){
+        movie->disconnect();
         delete movie;
+    }
     movie=new QMovie(path);
     movie->start();
 }
@@ -83,6 +94,11 @@ void role_body::updateMyself()
 }
 void role_body::setTimer(QTimer* s)
 {
+    if(timer_)
+    {
+        timer_->disconnect();
+        delete timer_;
+    }
     timer_=s;
     connect(timer_,SIGNAL(timeout()),this,SLOT(movieEnd()));
 }

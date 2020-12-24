@@ -49,7 +49,10 @@ be used when a plant be created*/
 class plant_info {
 public:
     plant_info():name("NULL"),health(0),ice_time(0),attack_power(0),color(black),price(0),wait(0) {};
-	plant_info(const char* _name, int _health, int _attack_power, obj_color _color,int _price);
+    plant_info(const char* _name, int _health, int _attack_power, obj_color _color,int _price) :
+        name(_name),health(_health),attack_power(_attack_power),color(_color),price(_price),ice_time(_price/50){
+        wait=ice_time;
+    }
 	~plant_info();
 public:
 	/*last time to create this plant*/
@@ -403,7 +406,7 @@ class Normal :public zombie {
 public:
 	Normal(zombie_info& k);
 	bool virtual attack(double time,yard_node** yard);
-	~Normal(){}
+    virtual ~Normal(){disconnect();}
 private slots:
     void walkToAttackSlot();
     void attackToWalkSlot();
@@ -416,7 +419,7 @@ class Bullet :public role {
 public:
     Bullet(const char* name, obj_color _color, int _attack_power, float _speed,locate<int,float> p);
 	bool virtual attack(double time, yard_node** yard);
-	~Bullet(){}
+    virtual ~Bullet(){disconnect();};
 protected:
     zombie_status status;
     locate<int,float> position;

@@ -9,10 +9,7 @@ using namespace std;
 template struct locate<int, int>;
 template struct locate<int,float>;
 
-plant_info::plant_info(const char* _name, int _health, int _attack_power, obj_color _color, int _price) :
-	name(_name),health(_health),attack_power(_attack_power),color(_color),price(_price),ice_time(_price/50){
-    wait=ice_time;
-}
+
 plant_info::~plant_info(){}
 
 bool zombie_info::ALL_ZOMBIE = false;
