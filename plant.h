@@ -218,12 +218,19 @@ class Sunflower :public plant {
 public:
 	virtual bool attack(double time,yard_node** yard);
 	Sunflower(const plant_info& src,locate<int,int> p);
-	virtual ~Sunflower() =default;
-
+    virtual ~Sunflower(){
+        disconnect();
+        sun_timer_->disconnect();
+        delete sun_timer_;
+    }
 private:
 	/*生成阳关的冷却时间*/
-	float iceTime;
-    uint64_t last_time_create_money;
+    float ice_timer_;
+    QTimer* sun_timer_;
+private slots:
+    void sun_clock_timeout();
+    void pauseSlot();
+    void continueSlot();
 };
 
 /*shoot*/
@@ -242,6 +249,8 @@ private:
     QTimer* attack_clock_;
 private slots:
     void attack_clock_timeout();
+    void pauseSlot();
+    void continueSlot();
 };
 
 /*doubleshoot*/
@@ -264,6 +273,8 @@ private:
 private slots:
     void attack_clock_timeout();
     void second_shoot_timeout();
+    void pauseSlot();
+    void continueSlot();
 };
 
 /*iceshoot*/
@@ -282,6 +293,8 @@ private:
     QTimer* attack_clock_;
 private slots:
     void attack_clock_timeout();
+    void pauseSlot();
+    void continueSlot();
 };
 
 /*nut*/

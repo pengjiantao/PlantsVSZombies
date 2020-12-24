@@ -186,19 +186,36 @@ void zombie::pauseToRunSlot()
 /*植物类*/
 Sunflower::Sunflower(const plant_info& src,locate<int,int> p):plant(src.name,src.health,src.color,src.attack_power,src.price,p)
 {
-	iceTime = 3;
-	last_time_create_money = GetTickCount64();
+    ice_timer_=4;
+    sun_timer_=new QTimer();
+    sun_timer_->setInterval(ice_timer_*1000);
+    sun_timer_->start();
     this->body->setMovie(":/image/plant/1/SunFlower1.gif");
     this->body->show();
+    connect(sun_timer_,SIGNAL(timeout()),this,SLOT(sun_clock_timeout()));
+}
+
+void Sunflower::sun_clock_timeout()
+{
+    attack(100,game::game_yard);
+}
+
+void Sunflower::pauseSlot()
+{
+    sun_timer_->stop();
+
+}
+
+void Sunflower::continueSlot()
+{
+    sun_timer_->start();
 }
 bool Sunflower::attack(double time,yard_node ** yard)
 {
-	if ((GetTickCount64() - last_time_create_money) / 1000 >= iceTime)
-	{
-		last_time_create_money = GetTickCount64();
-		return false;
-	}
-	return true;
+    Q_UNUSED(time);
+    Q_UNUSED(yard);
+    emit(createBullet(this));
+    return true;
 }
 
 Shoot::Shoot(const plant_info& src,locate<int,int> p):plant(src.name, src.health, src.color, src.attack_power, src.price, p)
@@ -215,6 +232,16 @@ Shoot::Shoot(const plant_info& src,locate<int,int> p):plant(src.name, src.health
 void Shoot::attack_clock_timeout()
 {
     attack(100,game::game_yard);
+}
+
+void Shoot::pauseSlot()
+{
+    attack_clock_->stop();
+}
+
+void Shoot::continueSlot()
+{
+    attack_clock_->start();
 }
 bool Shoot::attack(double time, yard_node** yard) {
     Q_UNUSED(yard);
@@ -248,6 +275,16 @@ void Doubleshoot::second_shoot_timeout()
     second_shoot_->stop();
     attack(100,game::game_yard);
 }
+
+void Doubleshoot::pauseSlot()
+{
+    attack_clock_->stop();
+}
+
+void Doubleshoot::continueSlot()
+{
+    attack_clock_->start();
+}
 bool Doubleshoot::attack(double time, yard_node** yard) {
     Q_UNUSED(yard);
     Q_UNUSED(time);
@@ -269,6 +306,16 @@ Iceshoot::Iceshoot(const plant_info& src, locate<int, int> p) :plant(src.name, s
 void Iceshoot::attack_clock_timeout()
 {
     attack(100,game::game_yard);
+}
+
+void Iceshoot::pauseSlot()
+{
+    attack_clock_->stop();
+}
+
+void Iceshoot::continueSlot()
+{
+    attack_clock_->start();
 }
 bool Iceshoot::attack(double time, yard_node** yard) {
     Q_UNUSED(time);

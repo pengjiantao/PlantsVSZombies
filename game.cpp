@@ -447,6 +447,11 @@ void game::createBullet(plant *s)
     {
         b=new Bullet("BlueBullet",obj_color::green,30,16,{s->getPosition().high,(float)s->getPosition().width});
     }
+    else if(s->getName()==(string)"sunflower")
+    {
+        generate_sun_plant(s);
+        return;
+    }
     else
         return;
     connect(this,SIGNAL(pause()),b,SLOT(runToPauseSlot()));
@@ -691,6 +696,18 @@ void game::exit_clock_timeout()
 {
     emit(die(this));
     cout<<"game will exit"<<endl;
+}
+
+void game::generate_sun_plant(plant *s)
+{
+    sun* soney=new sun;
+    soney->setBotton(s->body->pos().y()+(qreal)screen::YardSize().height()/2);
+    soney->setPos({s->body->pos().x()+(qreal)screen::YardSize().width()/2-qrand()%screen::YardSize().width(),s->body->pos().y()});
+    scene->addItem(soney);
+    connect(soney,SIGNAL(beCollected(sun*)),this,SLOT(sunBeCollected(sun*)));
+    connect(this,SIGNAL(pause()),soney,SLOT(pauseSlot()));
+    connect(this,SIGNAL(gameContinue()),soney,SLOT(continueSlot()));
+    main_screen->ui->sun->display(user.getMoney());
 }
 
 void game::generate_money()

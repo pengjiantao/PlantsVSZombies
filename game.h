@@ -236,6 +236,8 @@ private slots:
 
     void dieAnimationEnd(role_body* s);
     void exit_clock_timeout();
+
+    void generate_sun_plant(plant* s);
 signals:
     void plantSelectedChanged(int n);
     void onePlantPrepared(int n);
