@@ -360,6 +360,7 @@ bool game::create_plant()
 	grade += 50;
     if(np!=nullptr){
         scene->addItem(np->body);
+        connect(np,SIGNAL(createBullet(plant*)),this,SLOT(createBullet(plant*)));
     }
 	return true;
 }
@@ -419,6 +420,27 @@ bool game::create_zombie()
 	}
 	zombie_info::ALL_ZOMBIE = true;
     return true;
+}
+
+void game::createBullet(plant *s)
+{
+    Bullet* b;
+    if(s->getName()==(string)"shooter"||s->getName()==(string)"iceshoot")
+    {
+        b=new Bullet("GreenBullet",obj_color::green,30,16,{s->getPosition().high,(float)s->getPosition().width});
+
+    }
+    else if(s->getName()==(string)"repeater")
+    {
+        b=new Bullet("BlueBullet",obj_color::green,30,16,{s->getPosition().high,(float)s->getPosition().width});
+    }
+    else
+        return;
+    connect(this,SIGNAL(pause()),b,SLOT(runToPauseSlot()));
+    connect(this,SIGNAL(gameContinue()),b,SLOT(pauseToRunSlot()));
+    connect(b,SIGNAL(die(Bullet*)),this,SLOT(dealBulletDead(Bullet*)));
+    connect(b,SIGNAL(zombieDie(zombie*)),this,SLOT(dealZombieDead(zombie*)));
+    scene->addItem(b->body);
 }
 
 void game::plant_ice()
@@ -599,8 +621,13 @@ void game::dealZombieDead(zombie *s)
     yard[s->get_position().high][(int)s->get_position().width].pop_zombie(s);
     numZombieOnYard--;
     s->disconnect();
-    cout<<1<<endl;
     this->dieAnimation(s);
+    delete s;
+}
+
+void game::dealBulletDead(Bullet *s)
+{
+    s->disconnect();
     delete s;
 }
 
@@ -947,7 +974,7 @@ void game::dieAnimation(zombie *s)
             body2->Timer()->setInterval(1500);
             body2->Timer()->start();
             body2->setPos(s->body->pos());
-            scene->addItem(body1);
+            scene->addItem(body2);
             body2->show();
             connect(body2,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
         }
@@ -968,7 +995,7 @@ void game::dieAnimation(zombie *s)
             body2->Timer()->setInterval(1500);
             body2->Timer()->start();
             body2->setPos(s->body->pos());
-            scene->addItem(body1);
+            scene->addItem(body2);
             body2->show();
             connect(body2,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
         }
@@ -1001,7 +1028,7 @@ void game::dieAnimation(zombie *s)
             body2->Timer()->setInterval(1500);
             body2->Timer()->start();
             body2->setPos(s->body->pos());
-            scene->addItem(body1);
+            scene->addItem(body2);
             body2->show();
             connect(body2,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
         }
@@ -1022,7 +1049,7 @@ void game::dieAnimation(zombie *s)
             body2->Timer()->setInterval(1500);
             body2->Timer()->start();
             body2->setPos(s->body->pos());
-            scene->addItem(body1);
+            scene->addItem(body2);
             body2->show();
             connect(body2,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
         }

@@ -14,8 +14,9 @@ role_body::~role_body()
 role_body::role_body(qreal wid,qreal hgh):m_width(wid),m_height(hgh)
 {
     movie=nullptr;
+    flash_time_=33;
     update_clock_=new QTimer();
-    update_clock_->setInterval(100);
+    update_clock_->setInterval(flash_time_);
     update_clock_->start();
     connect(this->update_clock_,SIGNAL(timeout()),this,SLOT(updateMyself()));
 }
@@ -93,5 +94,18 @@ void role_body::resetTimer()
         delete timer_;
     }
     timer_=nullptr;
+}
+
+qreal role_body::FlashTime()
+{
+    return flash_time_;
+}
+
+void role_body::setFlashTime(qreal a)
+{
+    flash_time_=a;
+    update_clock_->stop();
+    update_clock_->setInterval(flash_time_);
+    update_clock_->start();
 }
 

@@ -165,7 +165,7 @@ protected:
 	locate<int, int> position;
 	int price = 0;
 signals:
-
+    void createBullet(plant* s);
 private slots:
     void timeout_attack();
 };
@@ -209,6 +209,7 @@ signals:
 
 /*sunflower*/
 class Sunflower :public plant {
+    Q_OBJECT
 public:
 	virtual bool attack(double time,yard_node** yard);
 	Sunflower(const plant_info& src,locate<int,int> p);
@@ -222,17 +223,25 @@ private:
 
 /*shoot*/
 class Shoot :public plant {
+    Q_OBJECT
 public:
 	virtual bool attack(double time, yard_node** yard);
 	Shoot(const plant_info& src, locate<int, int> p);
-	virtual ~Shoot(){}
+    virtual ~Shoot(){
+        disconnect();
+        attack_clock_->disconnect();
+        delete attack_clock_;
+    }
 private:
-	float iceTime;
-    uint64_t last_time_of_shoot;
+    float ice_time_;
+    QTimer* attack_clock_;
+private slots:
+    void attack_clock_timeout();
 };
 
 /*doubleshoot*/
 class Doubleshoot :public plant {
+    Q_OBJECT
 public:
 	virtual bool attack(double time, yard_node** yard);
 	Doubleshoot(const plant_info& src, locate<int, int> p);
@@ -244,6 +253,7 @@ private:
 
 /*iceshoot*/
 class Iceshoot :public plant {
+    Q_OBJECT
 public:
 	virtual bool attack(double time, yard_node** yard);
 	Iceshoot(const plant_info& src, locate<int, int> p);
@@ -401,12 +411,23 @@ private slots:
     void pauseToRunSlot();
 };
 
-class Bullet :public zombie {
+class Bullet :public role {
+    Q_OBJECT
 public:
-	Bullet(const char* name, obj_color _color, int _attack_power, float _speed,const char* _aim,locate<int,float> p);
+    Bullet(const char* name, obj_color _color, int _attack_power, float _speed,locate<int,float> p);
 	bool virtual attack(double time, yard_node** yard);
 	~Bullet(){}
-	const char* aim = "zombie";
+protected:
+    zombie_status status;
+    locate<int,float> position;
+    float speed_;
+private slots:
+    void pauseToRunSlot();
+    void runToPauseSlot();
+    void timeout_attack();
+signals:
+    void die(Bullet* s);
+    void zombieDie(zombie* s);
 };
 
 

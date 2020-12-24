@@ -201,6 +201,8 @@ private slots:
     /*try to create_plant*/
     bool create_zombie();
 
+    void createBullet(plant* s);
+
     void plant_ice();
 
     void changePlantSelected(int n);
@@ -222,6 +224,7 @@ private slots:
 
     void dealPlantDead(plant* s);
     void dealZombieDead(zombie* s);
+    void dealBulletDead(Bullet* s);
 
     void dealClickedRequest(QPoint a);
 

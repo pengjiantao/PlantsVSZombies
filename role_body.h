@@ -41,12 +41,15 @@ public:
     {
         return timer_;
     }
+    qreal FlashTime();
+    void setFlashTime(qreal a);
 private:
     qreal m_width;
     qreal m_height;
     QMovie* movie;
     QTimer* timer_=nullptr;
     QTimer* update_clock_;
+    qreal flash_time_;
 private slots:
     void movieEnd();
     void updateMyself();
