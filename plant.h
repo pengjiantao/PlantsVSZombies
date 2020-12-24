@@ -194,16 +194,21 @@ public:
 		return true;
 	}
 	float getSpeed() const{ return speed; }
+    void beIce();
 protected:
 	locate<int,float> position;
 	float speed;
     zombie_status status=zombie_status::walk;
-private slots:
+    bool beIced=false;
+    QTimer *ice_clock_;
+protected slots:
     void timeout_attack();
     void walkToAttackSlot();
     void attackToWalkSlot();
     void runToPauseSlot();
     void pauseToRunSlot();
+    void ice_clock_timeout();
+
 signals:
     void success();
     void plantDie(plant* n);

@@ -108,8 +108,15 @@ role(_name,_health,_objcolor,_attack_power){
 	speed = _speed;
     status=zombie_status::walk;
     this->body->setPos(screen::ZombieBase().width()+screen::YardSize().width()*this->position.width,screen::ZombieBase().height()+screen::YardSize().height()*this->position.high);
+    beIced=false;
+    ice_clock_=new QTimer();
+    ice_clock_->setInterval(1000);
 }
-zombie::~zombie() = default;
+zombie::~zombie(){
+    disconnect();
+    ice_clock_->disconnect();
+    delete ice_clock_;
+}
 bool zombie::move(const float d,yard_node ** yard) {
     if(position.width>=0&&position.width<=screen::Size().width())
     {
@@ -165,7 +172,6 @@ void zombie::timeout_attack()
 void zombie::walkToAttackSlot()
 {
     status=zombie_status::attack;
-    cout<<"walk to attack"<<endl;
 }
 
 void zombie::attackToWalkSlot()
@@ -181,6 +187,32 @@ void zombie::runToPauseSlot()
 void zombie::pauseToRunSlot()
 {
     status=zombie_status::walk;
+}
+
+void zombie::ice_clock_timeout()
+{
+    speed=speed*3;
+    this->body->Movie()->setSpeed(100);
+    ice_clock_->stop();
+    beIced=false;
+    disconnect(ice_clock_,SIGNAL(timeout()),this,SLOT(ice_clock_timeout()));
+}
+
+void zombie::beIce()
+{
+    if(beIced)
+    {
+        ice_clock_->stop();
+        ice_clock_->start();
+    }
+    else
+    {
+        this->speed=speed/3;
+        this->body->Movie()->setSpeed(33);
+        ice_clock_->start();
+        beIced=true;
+        connect(ice_clock_,SIGNAL(timeout()),this,SLOT(ice_clock_timeout()));
+    }
 }
 
 /*植物类*/
@@ -889,6 +921,8 @@ bool Bullet::attack(double time, yard_node** yard)
     if(index!=-1)
     {
         yard[this->position.high][(int)position.width].z[index]->deHealth(this->attack_power);
+        if(this->name==(string)"BlueBullet")
+            yard[this->position.high][(int)position.width].z[index]->beIce();
         if(yard[this->position.high][(int)position.width].z[index]->ifDead())
             emit(zombieDie(yard[this->position.high][(int)position.width].z[index]));
         emit(die(this));
