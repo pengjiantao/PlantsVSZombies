@@ -56,7 +56,11 @@ game::game():QObject(),user()
 
 	for (int i = 0; i < screen::size_info.screen_high; i++)
 		for (int j = 0; j < screen::size_info.screen_width; j++)
+        {
             yard[i][j] =new yard_node();
+            connect(yard[i][j],SIGNAL(plantDie(plant*)),this,SLOT(dealPlantDead(plant*)));
+            connect(yard[i][j],SIGNAL(zombieDie(zombie*)),this,SLOT(dealZombieDead(zombie*)));
+        }
 
     game_yard=yard;
 
@@ -376,6 +380,8 @@ bool game::create_plant()
         connect(np,SIGNAL(createBullet(plant*)),this,SLOT(createBullet(plant*)));
         connect(this,SIGNAL(pause()),np,SLOT(pauseSlot()));
         connect(this,SIGNAL(gameContinue()),np,SLOT(continueSlot()));
+        connect(np,SIGNAL(die(plant*)),this,SLOT(dealPlantDead(plant*)));
+        connect(np,SIGNAL(zombieDie(zombie*)),this,SLOT(dealZombieDead(zombie*)));
     }
 	return true;
 }
@@ -898,14 +904,14 @@ void game::menutostore()
 void game::yardtostore()
 {
 	click_location = store;
-    yard[yard_pointer.high][yard_pointer.width]->color = black;
+
     cout<<"yard to store"<<endl;
 }
 
 void game::storetoyard()
 {
 	click_location = onyard;
-    yard[yard_pointer.high][yard_pointer.width]->color = blue;
+
     cout<<"store to yard"<<endl;
 }
 
@@ -924,9 +930,7 @@ void game::pointerMove(control c)
 		default:
 			return;
 		}
-        yard[yard_pointer.high][yard_pointer.width]->color = yard[pos.high][pos.width]->color;
-        yard[pos.high][pos.width]->color = black;
-        yard[yard_pointer.high][yard_pointer.width]->color = blue;
+
         break;}
 	case store:
 		switch(c)
@@ -986,7 +990,7 @@ bool game::remove_plant()
 void game::dieAnimation(zombie *s)
 {
     role_body* body1=nullptr,*body2=nullptr;
-    if(s->getHealth()<-100)
+    if(s->getHealth()<-100&&s->getHealth()>-1000)
     {
         if(s->getName()!=static_cast<string>("throwstone"))
         {
@@ -1015,7 +1019,7 @@ void game::dieAnimation(zombie *s)
             connect(body1,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
         }
     }
-    else
+    else if(s->getHealth()>=-100)
     {
         if(s->getName()==static_cast<string>("normal")||s->getName()==static_cast<string>("conehead"))
         {
@@ -1114,6 +1118,8 @@ void game::dieAnimation(zombie *s)
             connect(body2,SIGNAL(end(role_body*)),this,SLOT(dieAnimationEnd(role_body*)));
         }
     }
+    else
+        return;
 }
 
 void game::configToDisk()

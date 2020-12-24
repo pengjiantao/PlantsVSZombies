@@ -151,6 +151,7 @@ public:
 private slots:
     virtual void timeout_attack();
 };
+class zombie;
 
 /*this is the father class of all kinds of plants*/
 class plant :public role {
@@ -169,6 +170,8 @@ protected:
 	int price = 0;
 signals:
     void createBullet(plant* s);
+    void die(plant* s);
+    void zombieDie(zombie* s);
 private slots:
     void timeout_attack();
     void pauseSlot();
@@ -320,10 +323,22 @@ public:
 
 /*wogua*/
 class Wogua :public plant {
+    Q_OBJECT
 public:
     virtual bool attack(double time, yard_node*** yard);
 	Wogua(const plant_info& src, locate<int, int> p);
-	virtual ~Wogua(){}
+    virtual ~Wogua(){
+        disconnect();
+    }
+private:
+    bool attacking=false;
+signals:
+    void animationEnd();
+private slots:
+    void animationEndSlot();
+    void timeout_attack();
+    void pauseSlot();
+    void continueSlot();
 };
 
 /*cherrybomb*/
@@ -473,36 +488,28 @@ signals:
 class yard_node:public QObject {
     Q_OBJECT
 public:
-	using menufunc = void (*)();
-	obj_color color;
 	/*如果有植物，p!=NULL,else p=NULL*/
 	plant* p;
 	/*僵尸队列，最多十个*/
 	zombie* z[10];
 	int first = -1;
 public:
-    yard_node() :p(nullptr), color(black), iz{ 0 }{
+    yard_node() :p(nullptr){
 		for (int i = 0; i < 10; i++)
             z[i] = nullptr;
 		first = -1;
-		effect_time = 1;
-		time_of_killzombies = 0;
-		
 	}
-	~yard_node() = default;
+    ~yard_node(){
+        disconnect();
+    }
 	void find_first(double time);
 	void kii_all_zombie();
-	void icefirstzombie();
 
 	void kill_plant();
 	/*插入一个僵尸，如果失败返回flase*/
 	bool push_zombie(zombie* zom);
 	/*减少一个僵尸，失败返回false*/
 	bool pop_zombie(zombie* zom);
-private:
-    uint64_t time_of_killzombies = 0;
-	float effect_time;
-	float iz[10];
 signals:
     void zombieDie(zombie* s);
     void plantDie(plant* s);

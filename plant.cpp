@@ -439,7 +439,7 @@ void yard_node::kii_all_zombie()
             if (z[i] != nullptr)
 			{
                 z[i]->deHealth(1000);
-
+                emit(zombieDie(z[i]));
             }
 		first = -1;
 	}
@@ -447,12 +447,10 @@ void yard_node::kii_all_zombie()
 
 void yard_node::kill_plant()
 {
-	if (p != NULL)
+    if (p != nullptr)
 	{
-		delete p;
-		p = NULL;
-		color = red;
-		time_of_killzombies = GetTickCount64();
+        p->deHealth(1000);
+        emit(plantDie(p));
 	}
 }
 void yard_node::find_first(double time)
@@ -460,61 +458,64 @@ void yard_node::find_first(double time)
 	float min = 100;
 	int _first = -1;
 	for (int j = 0; j < 10; j++)
-		if (z[j] != NULL && z[j]->get_position().width < min && z[j]->getName()!="@")
+        if (z[j] != nullptr && z[j]->get_position().width < min)
 		{
 			min = z[j]->get_position().width;
 			_first = j;
 		}
 	first = _first;
-	if (color==red&&(GetTickCount64() - time_of_killzombies)/1000 > effect_time)
-		color = black;
-	if (p != NULL && p->skill==false)
-	{
-		delete p;
-		p = NULL;
-	}
-	for (int i = 0; i < 10; i++)
-	{
-		if (iz[i] > 0)
-		{
-			iz[i] -= time;
-			if (iz[i] <= 0)
-			{
-				z[i]->deSpeed(-z[i]->getSpeed());
-			}
-		}
-
-	}
+    Q_UNUSED(time);
 }
 
-void yard_node::icefirstzombie()
-{
-	if (first != -1)
-	{
-		z[first]->deSpeed(z[first]->getSpeed() / 2);
-		iz[first] = effect_time*1000;
-	}
-}
 
 Wogua::Wogua(const plant_info& src,locate<int,int> p):plant(src.name, src.health, src.color, src.attack_power, src.price, p)
 {
     this->body->setMovie(":/image/plant/6/Squash.gif");
     this->body->show();
+    attacking=false;
+}
+
+void Wogua::animationEndSlot()
+{
+    cout<<"animationend"<<endl;
+    for(auto i:game::game_yard[position.high][position.width]->z)
+    {
+        if(i)
+        {
+            i->deHealth(10000);
+            emit(zombieDie(i));
+        }
+    }
+    emit(die(this));
+}
+
+void Wogua::timeout_attack()
+{
+    attack(100,game::game_yard);
+}
+
+void Wogua::pauseSlot()
+{
+
+}
+
+void Wogua::continueSlot()
+{
+
 }
 bool Wogua::attack(double time, yard_node*** yard)
 {
-    if (yard[position.high][position.width]->first != -1)
-	{
-        yard[position.high][position.width]->kii_all_zombie();
-		skill = false;
+    Q_UNUSED(time);
+    if(!attacking)
+    {
         yard[position.high][position.width]->find_first(0);
-	}
-    else if((position.width+1)<screen::size_info.screen_width && yard[position.high][position.width+1]->first!=-1)
-	{
-        yard[position.high][position.width + 1]->kii_all_zombie();
-		skill = false;
-        yard[position.high][position.width+1]->find_first(0);
-	}
+        if (yard[position.high][position.width]->first != -1)
+        {
+            this->body->setMovie(":/image/plant/6/SquashAttack.gif");
+            connect(this->body->Movie(),SIGNAL(finished()),this,SLOT(animationEndSlot()));
+            attacking=true;
+        }
+    }
 	return true;
 }
 
