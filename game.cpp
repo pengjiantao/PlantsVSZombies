@@ -96,7 +96,7 @@ game::game():QObject(),user()
     plant_ice_action_=new QTimer(this);
     plant_ice_action_->setInterval(200);
     plant_ice_action_->stop();
-
+    exit_clock_=new QTimer(this);
     scene=new GameScene();
     bk_yard_size={9,5};
 
@@ -107,6 +107,7 @@ game::game():QObject(),user()
     connect(this,SIGNAL(plantSelectedChanged(int)),this,SLOT(changePlantSelected(int)));
     connect(this->main_screen->ui->shovel,SIGNAL(clicked()),this,SLOT(shovelClicked()));
     connect(this->scene,SIGNAL(beClicked(QPoint)),this,SLOT(dealClickedRequest(QPoint)));
+    connect(this->main_screen->ui->pause,SIGNAL(clicked()),this,SLOT(game_pause()));
 }
 
 game::~game()
@@ -115,8 +116,15 @@ game::~game()
 	log("a game object be killed");
 	for (int i =0;i< screen::size_info.screen_high; i++)
 		delete[] yard[i];
+    sun_timer->disconnect();
+    zombie_timer->disconnect();
+    plant_ice_action_->disconnect();
+    exit_clock_->disconnect();
+    delete exit_clock_;
+    delete plant_ice_action_;
     delete sun_timer;
     delete zombie_timer;
+
     delete main_screen;
 	delete[] yard;
 	delete[] plant_list;
@@ -124,7 +132,9 @@ game::~game()
 	delete[] menu_list;
     if(!bgItem)
         delete bgItem;
+    scene->disconnect();
     delete scene;
+    this->disconnect();
 }
 
 void game::game_init()
@@ -176,7 +186,6 @@ void game::game_init()
     main_screen->show();
     main_screen->ui->main_screen_view->setScene(scene);
     scene->setSceneRect(0,0,1000,800);
-    //scene->setItemIndexMethod(QGraphicsScene::NoIndex);
     main_screen->ui->main_screen_view->setCacheMode(QGraphicsView::CacheBackground);
     main_screen->ui->main_screen_view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
     main_screen->ui->main_screen_view->scale(1,1.1);
@@ -223,21 +232,24 @@ void game::game_exit()
 
 void game::game_pause()
 {
-    cout<<"game will pause!"<<endl;
-	clock_pause.s_1 = GetTickCount64() - count_clock.time_of_last_frame;
-	clock_pause.s_2 = GetTickCount64() - count_clock.time_of_last_money;
-	clock_pause.s_3 = GetTickCount64() - count_clock.time_of_last_zombie;
-	game_mode = menu_mode;
-    game_state = on_pause;
-	click_location = menu;
-
-    cout<<"game pause!"<<endl;
+    zombie_timer->stop();
+    sun_timer->stop();
+    plant_ice_action_->stop();
+    emit(pause());
+    disconnect(this->main_screen->ui->pause,SIGNAL(clicked()),this,SLOT(game_pause()));
+    this->main_screen->ui->pause->setStyleSheet("background-color: green");
+    connect(this->main_screen->ui->pause,SIGNAL(clicked()),this,SLOT(game_continue()));
 }
 
 bool game::game_continue()
 {
-    cout<<"game will continue!"<<endl;
-    cout<<"game continue!"<<endl;
+    zombie_timer->start();
+    sun_timer->start();
+    plant_ice_action_->start();
+    emit(gameContinue());
+    disconnect(this->main_screen->ui->pause,SIGNAL(clicked()),this,SLOT(game_continue()));
+    this->main_screen->ui->pause->setStyleSheet("background-color: red");
+    connect(this->main_screen->ui->pause,SIGNAL(clicked()),this,SLOT(game_pause()));
 	return true;
 }
 
@@ -416,10 +428,6 @@ bool game::create_zombie()
             connect(nz,SIGNAL(attackToWalk()),nz,SLOT(attackToWalkSlot()));
             connect(nz,SIGNAL(die(zombie*)),this,SLOT(dealZombieDead(zombie*)));
             this->numZombieOnYard++;
-            if(numZombieOnYard==9)
-                emit(pause());
-            if(numZombieOnYard==11)
-                emit(gameContinue());
 			return true;
 		}
 	}
@@ -568,7 +576,7 @@ void game::shovelClicked()
 
 void game::zombieSuccess()
 {
-    emit(pause());
+    game_pause();
     game_finished=true;
     screen::putResult(-1,grade);
 
@@ -577,12 +585,15 @@ void game::zombieSuccess()
     c->setTimer(new QTimer);
     c->Timer()->setInterval(2000);
     c->Timer()->start();
-    c->setHeight(500);
-    c->setWidth(500);
-    c->setPos({(qreal)screen::ZombieBase().width(),(qreal)screen::ZombieBase().height()});
+    c->setHeight(screen::size_info.screen_high*screen::YardSize().height());
+    c->setWidth(screen::size_info.screen_width*screen::YardSize().width());
+    c->setPos({(qreal)screen::PlantBase().width()+screen::size_info.screen_width*screen::YardSize().width()/2,
+               (qreal)screen::ZombieBase().height()+screen::size_info.screen_high*screen::YardSize().height()/2});
     scene->addItem(c);
     c->show();
-    cout<<"yes"<<endl;
+    exit_clock_->setInterval(2000);
+    exit_clock_->start();
+    connect(exit_clock_,SIGNAL(timeout()),this,SLOT(exit_clock_timeout()));
 }
 
 void game::plant1BeSelected()
@@ -674,6 +685,12 @@ void game::dieAnimationEnd(role_body *s)
     s->Timer()->disconnect();
     s->disconnect();
     delete s;
+}
+
+void game::exit_clock_timeout()
+{
+    emit(die(this));
+    cout<<"game will exit"<<endl;
 }
 
 void game::generate_money()

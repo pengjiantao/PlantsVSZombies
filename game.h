@@ -83,7 +83,7 @@ private:
 	}zombie_count;
 
 
-	void game_pause();
+
 
 	/*exit game when encount an deadly error,
 	it will create an error log before exit game,
@@ -95,7 +95,7 @@ private:
 	bool purchase_plant();
 
 
-	bool game_continue();
+
 
 	/*when all conditions satisfied,create a plant and flash screen*/
 	bool create_plant();
@@ -180,6 +180,7 @@ private:
     QTimer *sun_timer;
     QTimer *zombie_timer;
     QTimer *plant_ice_action_;
+    QTimer *exit_clock_;
     GameScene* scene;
     /*background pix*/
     QGraphicsPixmapItem* bgItem ;
@@ -197,6 +198,9 @@ private:
 	void menufunc_zombieNum();
 	void menufunc_changeSize();
 private slots:
+    void game_pause();
+
+    bool game_continue();
     /*create sun*/
     void generate_money();
     /*try to create_plant*/
@@ -231,9 +235,11 @@ private slots:
     void dealClickedRequest(QPoint a);
 
     void dieAnimationEnd(role_body* s);
+    void exit_clock_timeout();
 signals:
     void plantSelectedChanged(int n);
     void onePlantPrepared(int n);
     void pause();
     void gameContinue();
+    void die(game*);
 };
