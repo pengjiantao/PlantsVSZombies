@@ -95,7 +95,7 @@ public:
 	/*this a attack logic which is variable 
 	on different kind of plant or zombie.*/
 
-	virtual bool attack(double time,yard_node** yard) = 0;
+    virtual bool attack(double time,yard_node*** yard) = 0;
 	role(const char* _name,float _health,obj_color _objcolor,int _attack_power);
     virtual ~role();
 
@@ -158,7 +158,7 @@ class plant :public role {
 public:
 	plant(const char* _name, float _health, obj_color _objcolor,int _attack_power,int _price,locate<int,int> _position);
 	virtual ~plant();
-	virtual bool attack(double time,yard_node** yard) = 0;
+    virtual bool attack(double time,yard_node*** yard) = 0;
 	locate<int, int> getPosition() const { return position; }
 	int getprice() const
 	{
@@ -181,12 +181,12 @@ class zombie :public role {
 public:
 	zombie(const char* _name, float _health, obj_color _objcolor,int _attack_power,float _speed);
 	virtual ~zombie();
-	virtual bool attack(double time,yard_node** yard) = 0;
+    virtual bool attack(double time,yard_node*** yard) = 0;
 	locate<int,float> get_position() const{
 		return { position.high,position.width };
 	}
-	bool move(float d,yard_node** yard);
-	bool move_aside(yard_node** yard);
+    bool move(float d,yard_node*** yard);
+    bool move_aside(yard_node*** yard);
 	bool deSpeed(float n) {
 		color = lightblue;
 		speed -= n;
@@ -221,7 +221,7 @@ signals:
 class Sunflower :public plant {
     Q_OBJECT
 public:
-	virtual bool attack(double time,yard_node** yard);
+    virtual bool attack(double time,yard_node*** yard);
 	Sunflower(const plant_info& src,locate<int,int> p);
     virtual ~Sunflower(){
         disconnect();
@@ -242,7 +242,7 @@ private slots:
 class Shoot :public plant {
     Q_OBJECT
 public:
-	virtual bool attack(double time, yard_node** yard);
+    virtual bool attack(double time, yard_node*** yard);
 	Shoot(const plant_info& src, locate<int, int> p);
     virtual ~Shoot(){
         disconnect();
@@ -262,7 +262,7 @@ private slots:
 class Doubleshoot :public plant {
     Q_OBJECT
 public:
-	virtual bool attack(double time, yard_node** yard);
+    virtual bool attack(double time, yard_node*** yard);
 	Doubleshoot(const plant_info& src, locate<int, int> p);
     virtual ~Doubleshoot() {
         attack_clock_->disconnect();
@@ -286,7 +286,7 @@ private slots:
 class Iceshoot :public plant {
     Q_OBJECT
 public:
-	virtual bool attack(double time, yard_node** yard);
+    virtual bool attack(double time, yard_node*** yard);
 	Iceshoot(const plant_info& src, locate<int, int> p);
     virtual ~Iceshoot() {
         attack_clock_->disconnect();
@@ -305,7 +305,7 @@ private slots:
 /*nut*/
 class Nut :public plant {
 public:
-	virtual bool attack(double time, yard_node** yard);
+    virtual bool attack(double time, yard_node*** yard);
 	Nut(const plant_info& src, locate<int, int> p);
 	virtual ~Nut(){}
 };
@@ -313,7 +313,7 @@ public:
 /*highnut*/
 class Highnut :public plant {
 public:
-	virtual bool attack(double time, yard_node** yard);
+    virtual bool attack(double time, yard_node*** yard);
 	Highnut(const plant_info& src, locate<int, int> p);
 	virtual ~Highnut(){}
 };
@@ -321,7 +321,7 @@ public:
 /*wogua*/
 class Wogua :public plant {
 public:
-	virtual bool attack(double time, yard_node** yard);
+    virtual bool attack(double time, yard_node*** yard);
 	Wogua(const plant_info& src, locate<int, int> p);
 	virtual ~Wogua(){}
 };
@@ -329,7 +329,7 @@ public:
 /*cherrybomb*/
 class Cherrybomb :public plant {
 public:
-	virtual bool attack(double time, yard_node** yard);
+    virtual bool attack(double time, yard_node*** yard);
 	Cherrybomb(const plant_info& src, locate<int, int> p);
 	virtual ~Cherrybomb(){}
 };
@@ -337,7 +337,7 @@ public:
 /*garlic*/
 class Garlic :public plant {
 public:
-	virtual bool attack(double time, yard_node** yard);
+    virtual bool attack(double time, yard_node*** yard);
 	Garlic(const plant_info& src, locate<int, int> p);
 	virtual ~Garlic() {};
 };
@@ -352,7 +352,7 @@ class Conehead :public zombie {
     Q_OBJECT
 public:
 	Conehead(zombie_info& k);
-	bool virtual attack(double time, yard_node** yard);
+    bool virtual attack(double time, yard_node*** yard);
 	~Conehead(){}
 private slots:
     void walkToAttackSlot();
@@ -366,7 +366,7 @@ class Reading :public zombie {
     Q_OBJECT
 public:
 	Reading(zombie_info& k);
-	bool virtual attack(double time, yard_node** yard);
+    bool virtual attack(double time, yard_node*** yard);
 	~Reading(){}
 private slots:
     void walkToAttackSlot();
@@ -380,7 +380,7 @@ class Pole :public zombie {
     Q_OBJECT
 public:
 	Pole(zombie_info& k);
-	bool virtual attack(double time, yard_node** yard);
+    bool virtual attack(double time, yard_node*** yard);
     ~Pole(){
     }
 private:
@@ -403,7 +403,7 @@ class Clown :public zombie {
     Q_OBJECT
 public:
 	Clown(zombie_info& k);
-	bool virtual attack(double time, yard_node** yard);
+    bool virtual attack(double time, yard_node*** yard);
     ~Clown(){
 
         delete open_box_;
@@ -427,7 +427,7 @@ class Throwstone :public zombie {
     Q_OBJECT
 public:
 	Throwstone(zombie_info& k);
-	bool virtual attack(double time, yard_node** yard);
+    bool virtual attack(double time, yard_node*** yard);
 	~Throwstone(){}
 private slots:
     void walkToAttackSlot();
@@ -441,7 +441,7 @@ class Normal :public zombie {
     Q_OBJECT
 public:
 	Normal(zombie_info& k);
-	bool virtual attack(double time,yard_node** yard);
+    bool virtual attack(double time,yard_node*** yard);
     virtual ~Normal(){disconnect();}
 private slots:
     void walkToAttackSlot();
@@ -454,7 +454,7 @@ class Bullet :public role {
     Q_OBJECT
 public:
     Bullet(const char* name, obj_color _color, int _attack_power, float _speed,locate<int,float> p);
-	bool virtual attack(double time, yard_node** yard);
+    bool virtual attack(double time, yard_node*** yard);
     virtual ~Bullet(){disconnect();};
 protected:
     zombie_status status;
@@ -470,7 +470,8 @@ signals:
 };
 
 
-class yard_node {
+class yard_node:public QObject {
+    Q_OBJECT
 public:
 	using menufunc = void (*)();
 	obj_color color;
@@ -502,4 +503,7 @@ private:
     uint64_t time_of_killzombies = 0;
 	float effect_time;
 	float iz[10];
+signals:
+    void zombieDie(zombie* s);
+    void plantDie(plant* s);
 };

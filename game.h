@@ -54,7 +54,7 @@ public:
     /*game mian scene*/
     window* main_screen;
 
-    static yard_node** game_yard;
+    static yard_node*** game_yard;
 
 	game();
 	~game();
@@ -152,7 +152,7 @@ private:
 	locate<int, int> yard_pointer;
 
 	/*this is the array of yard*/
-	yard_node** yard;
+    yard_node*** yard;
 
 	/*this array store all information of plant*/
 	plant_info* plant_list;

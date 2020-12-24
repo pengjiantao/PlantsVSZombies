@@ -15,7 +15,7 @@ using namespace std;
 template struct locate<int, int>;
 template struct locate<int,float>;
 
-yard_node** game::game_yard=nullptr;
+yard_node*** game::game_yard=nullptr;
 game::game():QObject(),user()
 {
 	log("a game object be created");
@@ -50,13 +50,13 @@ game::game():QObject(),user()
 	yard_pointer.width = 0;
 	yard_pointer.high = 0;
 
-	yard = new yard_node*[screen::size_info.screen_high];
+    yard = new yard_node**[screen::size_info.screen_high];
 	for (int i = 0; i < screen::size_info.screen_high; i++)
-		yard[i] = new yard_node[screen::size_info.screen_width];
+        yard[i] = new yard_node*[screen::size_info.screen_width];
 
 	for (int i = 0; i < screen::size_info.screen_high; i++)
 		for (int j = 0; j < screen::size_info.screen_width; j++)
-			yard[i][j] = yard_node();
+            yard[i][j] =new yard_node();
 
     game_yard=yard;
 
@@ -262,13 +262,13 @@ bool game::purchase_plant() {
 	}
 	else
 	{
-		if (yard[yard_pointer.high][yard_pointer.width].p != NULL&&store_pointer!=9)
+        if (yard[yard_pointer.high][yard_pointer.width]->p != NULL&&store_pointer!=9)
 		{
 			errlog("try to create an plant on a unblank grace!");
 			screen::putMessage("不能在非空的草地上种植物");
 			return false;
 		}
-		else if (store_pointer == 9 && yard[yard_pointer.high][yard_pointer.width].p == NULL)
+        else if (store_pointer == 9 && yard[yard_pointer.high][yard_pointer.width]->p == NULL)
 		{
 			errlog("try to create an pumpkin at a blank grace");
 			screen::putMessage("请在植物上种植南瓜头");
@@ -327,43 +327,43 @@ bool game::create_plant()
 	{
 	case shoot:
 		np = new Shoot( plant_list[shoot], yard_pointer );
-		yard[yard_pointer.high][yard_pointer.width].p = np;
+        yard[yard_pointer.high][yard_pointer.width]->p = np;
 		break;
 	case sunflower:
 		np = new Sunflower(plant_list[sunflower], yard_pointer);
-		yard[yard_pointer.high][yard_pointer.width].p = np;
+        yard[yard_pointer.high][yard_pointer.width]->p = np;
 		break;
 	case doubleshoot:
 		np = new Doubleshoot(plant_list[doubleshoot], yard_pointer);
-		yard[yard_pointer.high][yard_pointer.width].p = np;
+        yard[yard_pointer.high][yard_pointer.width]->p = np;
 		break;
 	case iceshoot:
 		np = new Iceshoot(plant_list[iceshoot], yard_pointer);
-		yard[yard_pointer.high][yard_pointer.width].p = np;
+        yard[yard_pointer.high][yard_pointer.width]->p = np;
 		break;
 	case nut:
 		np = new Nut(plant_list[nut], yard_pointer);
-		yard[yard_pointer.high][yard_pointer.width].p = np;
+        yard[yard_pointer.high][yard_pointer.width]->p = np;
 		break;
 	case highnut:
 		np = new Highnut(plant_list[highnut], yard_pointer);
-		yard[yard_pointer.high][yard_pointer.width].p = np;
+        yard[yard_pointer.high][yard_pointer.width]->p = np;
 		break;
 	case cherrybomb:
 		np = new Cherrybomb(plant_list[cherrybomb], yard_pointer);
-		yard[yard_pointer.high][yard_pointer.width].p = np;
+        yard[yard_pointer.high][yard_pointer.width]->p = np;
 		break;
 	case wogua:
 		np = new Wogua(plant_list[wogua], yard_pointer);
-		yard[yard_pointer.high][yard_pointer.width].p = np;
+        yard[yard_pointer.high][yard_pointer.width]->p = np;
 		break;
 	case garlic:
 		np = new Garlic(plant_list[garlic], yard_pointer);
-		yard[yard_pointer.high][yard_pointer.width].p = np;
+        yard[yard_pointer.high][yard_pointer.width]->p = np;
 		break;
 	case pumpkin:
 	{
-		yard[yard_pointer.high][yard_pointer.width].p->inHealth(plant_list[pumpkin].health);
+        yard[yard_pointer.high][yard_pointer.width]->p->inHealth(plant_list[pumpkin].health);
 		break;
 	}
 	default:
@@ -392,27 +392,27 @@ bool game::create_zombie()
 			{
 			case normal:
 				nz = new Normal(zombie_list[(i + index)%10]);
-				yard[nz->get_position().high][(int)nz->get_position().width].push_zombie(nz);
+                yard[nz->get_position().high][(int)nz->get_position().width]->push_zombie(nz);
 				break;
 			case conehead:
 				nz = new Conehead(zombie_list[(i + index) % 10]);
-				yard[nz->get_position().high][(int)nz->get_position().width].push_zombie(nz);
+                yard[nz->get_position().high][(int)nz->get_position().width]->push_zombie(nz);
 				break;
 			case reading:
 				nz = new Reading(zombie_list[(i+index) % 10]);
-				yard[nz->get_position().high][(int)nz->get_position().width].push_zombie(nz);
+                yard[nz->get_position().high][(int)nz->get_position().width]->push_zombie(nz);
 				break;
 			case pole:
 				nz = new Pole(zombie_list[(i + index) % 10]);
-				yard[nz->get_position().high][(int)nz->get_position().width].push_zombie(nz);
+                yard[nz->get_position().high][(int)nz->get_position().width]->push_zombie(nz);
 				break;
 			case clown:
 				nz = new Clown(zombie_list[(i + index) % 10]);
-				yard[nz->get_position().high][(int)nz->get_position().width].push_zombie(nz);
+                yard[nz->get_position().high][(int)nz->get_position().width]->push_zombie(nz);
 				break;
 			case throwstone:
 				nz = new Throwstone(zombie_list[(i + index) % 10]);
-				yard[nz->get_position().high][(int)nz->get_position().width].push_zombie(nz);
+                yard[nz->get_position().high][(int)nz->get_position().width]->push_zombie(nz);
 				break;
 			default:
 				errlog("try to create an unexisted zombie");
@@ -644,14 +644,14 @@ void game::plant10BeSelected()
 
 void game::dealPlantDead(plant *s)
 {
-    yard[s->getPosition().high][s->getPosition().width].p=nullptr;
+    yard[s->getPosition().high][s->getPosition().width]->p=nullptr;
     s->disconnect();
     delete s;
 }
 
 void game::dealZombieDead(zombie *s)
 {
-    yard[s->get_position().high][(int)s->get_position().width].pop_zombie(s);
+    yard[s->get_position().high][(int)s->get_position().width]->pop_zombie(s);
     numZombieOnYard--;
     s->disconnect();
     this->dieAnimation(s);
@@ -898,14 +898,14 @@ void game::menutostore()
 void game::yardtostore()
 {
 	click_location = store;
-	yard[yard_pointer.high][yard_pointer.width].color = black;
+    yard[yard_pointer.high][yard_pointer.width]->color = black;
     cout<<"yard to store"<<endl;
 }
 
 void game::storetoyard()
 {
 	click_location = onyard;
-	yard[yard_pointer.high][yard_pointer.width].color = blue;
+    yard[yard_pointer.high][yard_pointer.width]->color = blue;
     cout<<"store to yard"<<endl;
 }
 
@@ -924,9 +924,9 @@ void game::pointerMove(control c)
 		default:
 			return;
 		}
-        yard[yard_pointer.high][yard_pointer.width].color = yard[pos.high][pos.width].color;
-        yard[pos.high][pos.width].color = black;
-		yard[yard_pointer.high][yard_pointer.width].color = blue;
+        yard[yard_pointer.high][yard_pointer.width]->color = yard[pos.high][pos.width]->color;
+        yard[pos.high][pos.width]->color = black;
+        yard[yard_pointer.high][yard_pointer.width]->color = blue;
         break;}
 	case store:
 		switch(c)
@@ -968,15 +968,15 @@ void game::pointerMove(control c)
 
 bool game::remove_plant()
 {
-	if (yard[yard_pointer.high][yard_pointer.width].p == NULL)
+    if (yard[yard_pointer.high][yard_pointer.width]->p == NULL)
 	{
         screen::putMessage("你这是要移除什么？");
 		return false;
 	}
 	else
 	{
-		delete yard[yard_pointer.high][yard_pointer.width].p;
-		yard[yard_pointer.high][yard_pointer.width].p = NULL;
+        delete yard[yard_pointer.high][yard_pointer.width]->p;
+        yard[yard_pointer.high][yard_pointer.width]->p = NULL;
 		screen::putMessage("你成功移除了一颗植物");
         shovelClicked();
 		return true;
