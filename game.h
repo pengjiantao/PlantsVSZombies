@@ -11,6 +11,7 @@
 #include<QTime>
 #include<QGraphicsScene>
 #include"gamescene.h"
+#include"sun.h"
 /*单项菜单结构：名字，子菜单（父菜单），下一个兄弟节点，包含具体操作的函数指针*/
 struct menu_entry {
 	string name="";
@@ -225,6 +226,7 @@ private slots:
     void dealPlantDead(plant* s);
     void dealZombieDead(zombie* s);
     void dealBulletDead(Bullet* s);
+    void sunBeCollected(sun* s);
 
     void dealClickedRequest(QPoint a);
 

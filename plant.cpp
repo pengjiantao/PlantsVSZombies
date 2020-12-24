@@ -90,6 +90,16 @@ void plant::timeout_attack()
 {
 
 }
+
+void plant::pauseSlot()
+{
+
+}
+
+void plant::continueSlot()
+{
+
+}
 plant::~plant() = default;
 
 zombie::zombie(const char* _name, float _health, obj_color _objcolor,int _attack_power,float _speed):
@@ -215,37 +225,56 @@ bool Shoot::attack(double time, yard_node** yard) {
 
 Doubleshoot::Doubleshoot(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.color, src.attack_power, src.price, p)
 {
-	iceTime = 1.0;
-	last_time_of_shoot = GetTickCount64();
+    ice_timer_=1.5;
     this->body->setMovie(":/image/plant/2/Repeater.gif");
     this->body->show();
+    attack_clock_=new QTimer();
+    attack_clock_->setInterval(ice_timer_*1500);
+    attack_clock_->start();
+    second_shoot_=new QTimer();
+    second_shoot_->setInterval(200);
+    connect(attack_clock_,SIGNAL(timeout()),this,SLOT(attack_clock_timeout()));
+}
+
+void Doubleshoot::attack_clock_timeout()
+{
+    attack(100,game::game_yard);
+    second_shoot_->start();
+    connect(second_shoot_,SIGNAL(timeout()),this,SLOT(second_shoot_timeout()));
+}
+
+void Doubleshoot::second_shoot_timeout()
+{
+    second_shoot_->stop();
+    attack(100,game::game_yard);
 }
 bool Doubleshoot::attack(double time, yard_node** yard) {
-	color = green;
-	if ((float)(GetTickCount64() - last_time_of_shoot) / 1000 > iceTime) {
-        auto* b = new Bullet("@", yellow, attack_power, -4,  { position.high,(float)position.width });
-        b = new Bullet("@", yellow, attack_power, -4,  { position.high,(float)position.width });
-		last_time_of_shoot = GetTickCount64();
-		return true;
-	}
-	return true;
+    Q_UNUSED(yard);
+    Q_UNUSED(time);
+    emit(createBullet(this));
+    return true;
 }
 
 Iceshoot::Iceshoot(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.color, src.attack_power, src.price, p)
 {
-	iceTime = 1.0;
-	last_time_of_shoot = GetTickCount64();
+    ice_time_ = 1.5;
+    attack_clock_=new QTimer();
+    attack_clock_->setInterval(ice_time_*1000);
     this->body->setMovie(":/image/plant/3/SnowPea.gif");
     this->body->show();
+    attack_clock_->start();
+    connect(attack_clock_,SIGNAL(timeout()),this,SLOT(attack_clock_timeout()));
+}
+
+void Iceshoot::attack_clock_timeout()
+{
+    attack(100,game::game_yard);
 }
 bool Iceshoot::attack(double time, yard_node** yard) {
-	color = green;
-	if ((float)(GetTickCount64() - last_time_of_shoot) / 1000 > iceTime) {
-        Bullet* b = new Bullet("@", lightblue, attack_power, -4,  { position.high,(float)position.width });
-		last_time_of_shoot = GetTickCount64();
-		return true;
-	}
-	return true;
+    Q_UNUSED(time);
+    Q_UNUSED(yard);
+    emit(createBullet(this));
+    return true;
 }
 
 

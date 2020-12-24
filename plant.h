@@ -171,6 +171,8 @@ signals:
     void createBullet(plant* s);
 private slots:
     void timeout_attack();
+    void pauseSlot();
+    void continueSlot();
 };
 
 /*this is the father class of all kinds of zombies*/
@@ -248,10 +250,20 @@ class Doubleshoot :public plant {
 public:
 	virtual bool attack(double time, yard_node** yard);
 	Doubleshoot(const plant_info& src, locate<int, int> p);
-	virtual ~Doubleshoot() {}
+    virtual ~Doubleshoot() {
+        attack_clock_->disconnect();
+        delete attack_clock_;
+        second_shoot_->disconnect();
+        delete second_shoot_;
+        this->disconnect();
+    }
 private:
-	float iceTime;
-    uint64_t last_time_of_shoot;
+    float ice_timer_;
+    QTimer* attack_clock_;
+    QTimer* second_shoot_;
+private slots:
+    void attack_clock_timeout();
+    void second_shoot_timeout();
 };
 
 /*iceshoot*/
@@ -260,10 +272,16 @@ class Iceshoot :public plant {
 public:
 	virtual bool attack(double time, yard_node** yard);
 	Iceshoot(const plant_info& src, locate<int, int> p);
-	virtual ~Iceshoot() {}
+    virtual ~Iceshoot() {
+        attack_clock_->disconnect();
+        delete attack_clock_;
+        this->disconnect();
+    }
 private:
-	float iceTime;
-    uint64_t last_time_of_shoot;
+    float ice_time_;
+    QTimer* attack_clock_;
+private slots:
+    void attack_clock_timeout();
 };
 
 /*nut*/

@@ -9,6 +9,7 @@
 #include<QTime>
 #include<QTimer>
 #include<QRandomGenerator>
+#include"sun.h"
 using namespace std;
 
 template struct locate<int, int>;
@@ -361,6 +362,8 @@ bool game::create_plant()
     if(np!=nullptr){
         scene->addItem(np->body);
         connect(np,SIGNAL(createBullet(plant*)),this,SLOT(createBullet(plant*)));
+        connect(this,SIGNAL(pause()),np,SLOT(pauseSlot()));
+        connect(this,SIGNAL(gameContinue()),np,SLOT(continueSlot()));
     }
 	return true;
 }
@@ -415,6 +418,8 @@ bool game::create_zombie()
             this->numZombieOnYard++;
             if(numZombieOnYard==9)
                 emit(pause());
+            if(numZombieOnYard==11)
+                emit(gameContinue());
 			return true;
 		}
 	}
@@ -563,9 +568,21 @@ void game::shovelClicked()
 
 void game::zombieSuccess()
 {
+    emit(pause());
     game_finished=true;
     screen::putResult(-1,grade);
-    exit(0);
+
+    role_body* c=new role_body;
+    c->setMovie(":/image/source/ZombiesWon.gif");
+    c->setTimer(new QTimer);
+    c->Timer()->setInterval(2000);
+    c->Timer()->start();
+    c->setHeight(500);
+    c->setWidth(500);
+    c->setPos({(qreal)screen::ZombieBase().width(),(qreal)screen::ZombieBase().height()});
+    scene->addItem(c);
+    c->show();
+    cout<<"yes"<<endl;
 }
 
 void game::plant1BeSelected()
@@ -631,6 +648,13 @@ void game::dealBulletDead(Bullet *s)
     delete s;
 }
 
+void game::sunBeCollected(sun *s)
+{
+    user.inMoney(s->Value());
+    s->disconnect();
+    delete s;
+}
+
 void game::dealClickedRequest(QPoint a)
 {
     yard_pointer.high=a.x();
@@ -654,10 +678,12 @@ void game::dieAnimationEnd(role_body *s)
 
 void game::generate_money()
 {
-	if (!user.inMoney(sunny_granularity))
-	{
-        errlog("generate_money:unexpected error when create sun!");
-	}
+    sun* soney=new sun;
+    soney->setPos(screen::PlantBase().width()+qrand()%(screen::size_info.screen_width*screen::YardSize().width()),screen::PlantBase().height());
+    scene->addItem(soney);
+    connect(soney,SIGNAL(beCollected(sun*)),this,SLOT(sunBeCollected(sun*)));
+    connect(this,SIGNAL(pause()),soney,SLOT(pauseSlot()));
+    connect(this,SIGNAL(gameContinue()),soney,SLOT(continueSlot()));
     main_screen->ui->sun->display(user.getMoney());
 }
 

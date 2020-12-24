@@ -78,6 +78,20 @@ void role_body::MoveBack(qint32 n)
     this->setPos(p);
 }
 
+void role_body::MoveTop(qint32 n)
+{
+    QPointF p=this->pos();
+    p.setY(p.y()-n);
+    this->setPos(p);
+}
+
+void role_body::MoveDown(qint32 n)
+{
+    QPointF p=this->pos();
+    p.setY(p.y()+n);
+    this->setPos(p);
+}
+
 void role_body::setPosByPosition(const QPointF &n)
 {
     this->setPos(screen::ZombieBase().width()+screen::YardSize().width()*n.x(),screen::ZombieBase().height()+screen::YardSize().height()*n.y());

@@ -20,6 +20,8 @@ public:
     void setMovie(QString path);
     void MoveHead(qint32 n);
     void MoveBack(qint32 n);
+    void MoveTop(qint32 n);
+    void MoveDown(qint32 n);
     void setPosByPosition(const QPointF& n);
     void setWidth(qreal width)
     {

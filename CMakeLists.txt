@@ -62,6 +62,8 @@ else()
     role_body.h
     gamescene.h
     gamescene.cpp
+    sun.h
+    sun.cpp
     ${TS_FILES}
   )
 endif()
