@@ -829,9 +829,9 @@ Bullet::Bullet(const char* _name, obj_color _color, int _attack_power, float _sp
     this->body->setWidth(40);
     this->body->setPos(screen::ZombieBase().width()+screen::YardSize().width()*this->position.width,screen::ZombieBase().height()+screen::YardSize().height()*this->position.high);
     if(this->name==(string)"GreenBullet")
-        this->body->setMovie(":/image/bullet/PB10.gif");
+        this->body->setMovie(":/image/bullet/PB00.gif");
     else if(this->name==(string)"BlueBullet")
-        this->body->setMovie(":/image/bullet/PB10.gif");
+        this->body->setMovie(":/image/bullet/PB-10.gif");
     this->body->show();
 }
 bool Bullet::attack(double time, yard_node** yard)

@@ -438,12 +438,12 @@ bool game::create_zombie()
 void game::createBullet(plant *s)
 {
     Bullet* b;
-    if(s->getName()==(string)"shooter"||s->getName()==(string)"iceshoot")
+    if(s->getName()==(string)"shooter"||s->getName()==(string)"repeater")
     {
         b=new Bullet("GreenBullet",obj_color::green,30,16,{s->getPosition().high,(float)s->getPosition().width});
 
     }
-    else if(s->getName()==(string)"repeater")
+    else if(s->getName()==(string)"iceshoot")
     {
         b=new Bullet("BlueBullet",obj_color::green,30,16,{s->getPosition().high,(float)s->getPosition().width});
     }
@@ -582,8 +582,8 @@ void game::zombieSuccess()
 
     role_body* c=new role_body;
     c->setMovie(":/image/source/ZombiesWon.gif");
-    c->setTimer(new QTimer);
-    c->Timer()->setInterval(2000);
+    c->setTimer(new QTimer());
+    c->Timer()->setInterval(1000);
     c->Timer()->start();
     c->setHeight(screen::size_info.screen_high*screen::YardSize().height());
     c->setWidth(screen::size_info.screen_width*screen::YardSize().width());
