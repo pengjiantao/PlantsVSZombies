@@ -19,25 +19,9 @@ yard_node*** game::game_yard=nullptr;
 game::game():QObject(),user()
 {
 	log("a game object be created");
-    uint64_t now_time = GetTickCount64();
-	count_clock.time_of_last_frame = now_time;
-	count_clock.time_of_last_money = now_time;
-	count_clock.time_of_last_zombie = now_time;
-	
-	clock_pause.s_1 = 0;
-	clock_pause.s_2 = 0;
-	clock_pause.s_3 = 0;
 
-	zombie_count.ALL_zombie = false;
-	zombie_count.lasted_zombie = 10;
-	zombie_count.zombie_time = 3;
-
-	game_mode = menu_mode;
-	game_state = non;
-	click_location = menu;
 	exit_flag = false;
 	game_finished = true;
-	menu_root = 0;
 
 	sunny_cycle = 2;
 	zombie_cycle = 3;
@@ -46,7 +30,6 @@ game::game():QObject(),user()
 	grade = 0;
 
 	store_pointer = 0;
-	menu_pointer = 0;
 	yard_pointer.width = 0;
 	yard_pointer.high = 0;
 
@@ -85,7 +68,7 @@ game::game():QObject(),user()
         {100,30,0.3,"normal",grey,0}
 	};
 
-	menu_list = new menu_entry[50];
+
 	chooseToRemove = false;
 	zombie_info::ALL_ZOMBIE = false;
     numZombieOnYard=0;
@@ -140,7 +123,7 @@ game::~game()
 	delete[] yard;
 	delete[] plant_list;
 	delete[] zombie_list;
-	delete[] menu_list;
+
     if(!bgItem)
         delete bgItem;
     scene->disconnect();
@@ -152,38 +135,10 @@ void game::game_init()
 {
 
 	log("game_init start");
-	string path = config_path + "menu.txt";
-	fstream infile;
-	infile.open(path.c_str(), ios::in);
-	if (!infile)
-	{
-		errlog("game_init:no menu.txt found,this is an important file!");
-		game_exit();
-		return;
-	}
-	string command = "";
-	for (int i = 0; i < 50; i++) {
-		infile >> command;
-		if (command != "NULL")
-		{
-			menu_list[i].name = command;
-			infile >> command;
-			menu_list[i].next = stoi(command);
-			infile >> command;
-			menu_list[i].child = stoi(command);
-		}
-		else
-		{
-			menu_list[i].name = "NULL";
-			menu_list[i].child = -1;
-			menu_list[i].next = -1;
-		}
-	}
-	infile.close();
-
-	path = config_path + "info.txt";
+    string path = config_path + "info.txt";
+    fstream infile;
 	infile.open(path, ios::in);
-	command = "";
+    string command = "";
     while (!infile.eof() && command != "zombie_num_")
 		infile >> command;
 	for (int i = 0; !infile.eof() && i < 10; i++)
@@ -213,17 +168,13 @@ bool game::game_start()
 	log("a game start now!");
     screen::init_game_screen();
 	screen::putMessage("游戏开始！");
-	game_mode = running_mode;
-	game_state = running;
 	click_location = store;
 	exit_flag = false;
 	game_finished = false;
 	store_pointer = 0;
 	yard_pointer.width = 0;
 	yard_pointer.high = 0;
-	menu_pointer = 0;
 	chooseToRemove = false;
-	menu_root = 0;
     sun_timer->start();
     zombie_timer->start();
     plant_ice_action_->start();
@@ -231,15 +182,6 @@ bool game::game_start()
 
 
     return true;
-}
-
-void game::game_exit()
-{
-	log("game encount a deadly error,exit game anyway");
-	cout << "your game encounter an error!" << endl;
-	cout << "information be collected will be output to an error file.\nyou can find it in config_path " << endl;
-	end();
-	exit(0);
 }
 
 void game::game_pause()
@@ -399,7 +341,7 @@ bool game::create_plant()
 bool game::create_zombie()
 {
 	zombie* nz = nullptr;
-    int index = qrand()%10;
+    int index = QRandomGenerator::global()->bounded(10);
 	for (int i = 0; i < 10; i++)
 	{
         if (zombie_list[(i + index)%10].name !=(string) "NULL" && zombie_list[(i + index)%10].number > 0)
@@ -734,15 +676,15 @@ void game::dieAnimationEnd(role_body *s)
 
 void game::exit_clock_timeout()
 {
-    emit(die(this));
     cout<<"game will exit"<<endl;
+    emit(die(this));
 }
 
 void game::generate_sun_plant(plant *s)
 {
     sun* soney=new sun;
     soney->setBotton(s->body->pos().y()+(qreal)screen::YardSize().height()/2);
-    soney->setPos({s->body->pos().x()+(qreal)screen::YardSize().width()/2-qrand()%screen::YardSize().width(),s->body->pos().y()});
+    soney->setPos({s->body->pos().x()+(qreal)screen::YardSize().width()/2-QRandomGenerator::global()->bounded(screen::YardSize().width()),s->body->pos().y()});
     scene->addItem(soney);
     connect(soney,SIGNAL(beCollected(sun*)),this,SLOT(sunBeCollected(sun*)));
     connect(this,SIGNAL(pause()),soney,SLOT(pauseSlot()));
@@ -762,7 +704,7 @@ void game::zombie_check_timeout()
 void game::generate_money()
 {
     sun* soney=new sun;
-    soney->setPos(screen::PlantBase().width()+qrand()%(screen::size_info.screen_width*screen::YardSize().width()),screen::PlantBase().height());
+    soney->setPos(screen::PlantBase().width()+QRandomGenerator::global()->bounded(screen::size_info.screen_width*screen::YardSize().width()),screen::PlantBase().height());
     scene->addItem(soney);
     connect(soney,SIGNAL(beCollected(sun*)),this,SLOT(sunBeCollected(sun*)));
     connect(this,SIGNAL(pause()),soney,SLOT(pauseSlot()));
@@ -770,119 +712,7 @@ void game::generate_money()
     main_screen->ui->sun->display(user.getMoney());
 }
 
-bool game::control_keyboard()
-{
-	control command = this->getcommand();
-	switch (command) 
-	{
-	case toup:
-		pointerMove(toup);
-		break;
-	case todown:
-		pointerMove(todown);
-		break;
-	case toback:
-		switch (game_mode)
-		{
-		case running_mode:
-			if (click_location == onyard) {
-				if (chooseToRemove == true)
-					chooseToRemove = false;
-				yardtostore();
-			}
-			else
-				runtomenu();
-			break;
-		case menu_mode:
-			if (menu_root == 0)
-			{
-				menu_pointer = 0;
-			}
-			else
-			{
-				menu_pointer = menu_root;
-				doMenufunc();
-			}
-			break;
-		}
-		break;
-	case toenter:
-		switch (click_location) {
-		case onyard:
-			if (!chooseToRemove)
-				purchase_plant();
-			else
-				remove_plant();
-			break;
-		case menu:
-			doMenufunc();
-			break;
-		case store:
-			storetoyard();
-			break;
-		default:
-			errlog("control_keyboard:click_location on an unexpected location!");
-			game_exit();
-			break;
-		}
-		break;
-	case toleft:
-		pointerMove(toleft);
-		break;
-	case toright:
-		pointerMove(toright);
-		break;
-	case toremove:
-		switch (game_mode) {
-		case running_mode:
-			chooseToRemove = true;
-			if (click_location == store)
-				storetoyard();
-			break;
-		case menu_mode:
-			break;
-		}
-		break;
-	default:
-		errlog("control_keyboard:unexpected command!something may error!");
-		return false;
-		break;
-	}
-	return true;
-}
 
-control game::getcommand()
-{
-	control res = undef;
-	char ch=0;
-    while (false) {
-        if (true)
-            ch = 0;
-		switch (ch)
-		{
-		case 119:res = toup; break;
-		case 115:res = todown; break;
-		case 97:res = toleft; break;
-		case 100:res = toright; break;
-		case 27:res = toback; break;
-		case 13:res = toenter; break;
-		case 72:res=toup; break;
-		case 80:res = todown; break;
-		case 75:res = toleft; break;
-		case 77:res = toright; break;
-		case 112:res = toremove; break;
-		default:
-			if (ch == 0)
-				errlog("getcommand:get ch may failed.");
-			else if (ch > 0)
-				errlog("getcommand:get an ch i can not to understand.");
-			break;
-		}
-		if (res != undef)
-			break;
-	}
-	return res;
-}
 
 bool yard_node::push_zombie(zombie* zom)
 {
@@ -912,106 +742,6 @@ bool yard_node::pop_zombie(zombie* zom)
 	return false;
 }
 
-void game::menutorun()
-{
-	menu_root = 0;
-	menu_pointer = 0;
-	game_mode = running_mode;
-	click_location = store;
-	game_state = running;
-	game_continue();
-    cout<<"menu to running"<<endl;
-}
-
-void game::runtomenu()
-{
-	game_pause();
-	game_mode = menu_mode;
-	click_location = menu;
-    game_state = on_pause;
-    cout<<"run to menu"<<endl;
-}
-
-void game::storetomenu()
-{
-	runtomenu();
-    cout<<"store to menu"<<endl;
-}
-
-void game::menutostore()
-{
-	menutorun();
-    cout<<"menu to store"<<endl;
-}
-
-void game::yardtostore()
-{
-	click_location = store;
-
-    cout<<"yard to store"<<endl;
-}
-
-void game::storetoyard()
-{
-	click_location = onyard;
-
-    cout<<"store to yard"<<endl;
-}
-
-void game::pointerMove(control c)
-{
-	switch (click_location)
-	{
-	case onyard:
-    {auto pos = yard_pointer;
-		switch(c)
-		{	
-		case toup:yard_pointer.high=(yard_pointer.high + screen::size_info.screen_high-1) % screen::size_info.screen_high; break;
-		case todown:yard_pointer.high=(yard_pointer.high + 1) % screen::size_info.screen_high; break;
-		case toleft:yard_pointer.width=(yard_pointer.width +screen::size_info.screen_width-1) % screen::size_info.screen_width; break;
-		case toright:yard_pointer.width=(yard_pointer.width + 1) % screen::size_info.screen_width; break;
-		default:
-			return;
-		}
-
-        break;}
-	case store:
-		switch(c)
-		{
-		case toup:
-			if (store_pointer > 0)
-				store_pointer -= 1;
-			break;
-		case todown:
-			if (store_pointer > 9)
-			{
-				errlog("pointerMove:store_pointer>9!");
-				game_exit();
-			}
-            if (store_pointer<9 &&plant_list[store_pointer].name !=(string) "NULL")
-				store_pointer += 1;
-			break;
-		default:
-			break;
-		}
-		break;
-	case menu:
-		switch (c)
-		{
-		case toup:
-			if (menu_pointer > menu_root)
-				menu_pointer -= 1;
-			break;
-		case todown:
-			if (menu_list[menu_pointer].next != -1)
-				menu_pointer = menu_list[menu_pointer].next;
-		default:break;
-		}
-		break;
-	default:break;
-	}
-	
-}
 
 bool game::remove_plant()
 {
@@ -1185,163 +915,3 @@ bool game::Result()
     return result;
 }
 
-bool game::doMenufunc()
-{
-	string menu_command = menu_list[menu_pointer].name;
-	if (menu_list[menu_pointer].child != -1)
-	{
-		menu_root = menu_list[menu_pointer].child;
-		menu_pointer = menu_root;
-	}
-	else if (menu_command == "新游戏")
-		menufunc_new();
-	else if (menu_command == "继续游戏")
-		menufunc_continue();
-	else if (menu_command == "暂停游戏")
-		menufunc_pause();
-	else if (menu_command == "退出游戏")
-		menufunc_exit();
-	else if (menu_command == "更改环境宽高")
-		menufunc_changeSize();
-	else if (menu_command == "更改颜色")
-		menufunc_changeColor();
-	else if (menu_command == "更改僵尸数量")
-		menufunc_zombieNum();
-	else
-	{
-		errlog("doMenufunc:unexpected menu_command!");
-		errlog((string)"doMenufunc:it is:" + menu_command);
-		return false;
-	}
-	return true;
-}
-
-void game::menufunc_exit()
-{
-	exit_flag = true;
-}
-void game::menufunc_new()
-{
-    if (game_state == on_pause)
-	{
-		system("cls");
-		cout << "检测到有未结束的游戏，请注意，正在关闭游戏。。。" << endl;
-		game_finished = true;
-	}
-}
-void game::menufunc_continue()
-{
-    if(game_state==on_pause)
-		game_continue();
-	else if (game_state == non)
-	{
-		system("cls");
-		cout << "没有正在暂停的游戏，你这是要继续什么？" << endl;
-	}
-	else
-	{
-		errlog("menufunc_continue:there is something wrong,I find out that your game_state is running!");
-		game_exit();
-	}
-}
-void game::menufunc_pause()
-{
-	if (game_state == non)
-	{
-		system("cls");
-		cout << "没有正在运行的游戏，你这是要暂停什么？" << endl;
-	}
-	else if (game_state == running)
-	{
-		errlog("menufunc_pause:you may get some errors,game_state shouldn't be running at any time.");
-		game_exit();
-	}
-}
-void game::menufunc_changeColor()
-{
-	system("cls");
-	cout << "输入你需要的颜色" << endl;
-	cout << "目前支持blue,green,purple,yellow,grey,white" << endl;
-	string command = "";
-	bool getLegalCommand = false;
-	while (1) {
-		cout << "*************************" << endl;
-		cout << "<<<";
-		cin >> command;
-		getLegalCommand = true;
-		if (command == "blue")
-			screen::env_color = blue;
-		else if (command == "green")
-			screen::env_color = green;
-		else if (command == "purple")
-			screen::env_color = purple;
-		else if (command == "yellow")
-			screen::env_color = yellow;
-		else if (command == "grey")
-			screen::env_color = grey;
-		else if (command == "white")
-			screen::env_color = white;
-		else
-		{
-			cout << "不合法的输入" << endl;
-			getLegalCommand = false;
-		}
-		if (getLegalCommand == true)
-			break;
-		cout << "*************************" << endl;
-
-	}
-	configToDisk();
-}
-void game::menufunc_changeSize()
-{
-	system("cls");
-	cout << "请输入需要调整的大小，鉴于屏幕的电脑屏幕的宽高，请不要与默认相差太大." << endl;
-	cout << "虽然程序本身支持任意调整宽高，但受屏幕限制可能出现显示问题" << endl;
-	cout << "*******************************************************" << endl;
-	cout << "单块草地宽度(>=12):";
-	cin >> screen::size_info.node_width;
-	cout << "*******************************************************" << endl;
-	cout << "单块草地高度:(>=2):";
-	cin >> screen::size_info.node_high;
-	cout << "*******************************************************" << endl;
-	cout << "行数:" << endl;
-	cin >> screen::size_info.screen_high;
-	cout << "*******************************************************" << endl;
-	cout << "列数:" << endl;
-	cin >> screen::size_info.screen_width;
-	cout << "*******************************************************" << endl;
-	cout << "这项调整后，你至少需要重新启动一个新游戏" << endl;
-	game_finished = true;
-	configToDisk();
-}
-void game::menufunc_zombieNum()
-{
-	system("cls");
-	for (int i = 0; i < 10; i++)
-	{
-        if ((string)zombie_list[i].name !=(string) "NULL")
-		{
-			cout << "********************" << endl;
-			cout << zombie_list[i].name << ":";
-			cin >> zombie_list[i].number;
-		}
-	}
-	cout << "这项调整后，你至少需要重新启动一个新游戏" << endl;
-	fstream outfile;
-	string path = config_path + "info.txt";
-	outfile.open(path, ios::out);
-
-	outfile << "MAX_GRADE" << endl;
-	outfile << MAX_GRADE << endl;
-
-    outfile << "zombie_num_" << endl;
-	for (int i = 0; i < 10; i++)
-	{
-		outfile << zombie_list[i].number << " ";
-	}
-	outfile << endl;
-	outfile.close();
-	game_finished = true;
-	configToDisk();
-}

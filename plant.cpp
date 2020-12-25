@@ -4,6 +4,7 @@
 #include"screen.h"
 #include"role_body.h"
 #include"PlantVSZombie.h"
+#include<QRandomGenerator>
 using namespace std;
 
 template struct locate<int, int>;
@@ -40,7 +41,9 @@ void role::timeout_attack()
 
 }
 role::~role(){
+    body->disconnect();
     delete body;
+    attack_time->disconnect();
     delete attack_time;
 }
 
@@ -386,11 +389,13 @@ void Doubleshoot::second_shoot_timeout()
 void Doubleshoot::pauseSlot()
 {
     attack_clock_->stop();
+    second_shoot_->stop();
 }
 
 void Doubleshoot::continueSlot()
 {
     attack_clock_->start();
+    second_shoot_->start();
 }
 bool Doubleshoot::attack(double time, yard_node*** yard) {
     Q_UNUSED(yard);
@@ -980,9 +985,9 @@ Clown::Clown(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, 
 {
     this->body->setMovie(":/image/zombie/3/Walk.gif");
     this->body->show();
-    bomb_clock_=new QTimer(this);
-    open_box_=new QTimer(this);
-    int i=qrand()%10+15;
+    bomb_clock_=new QTimer();
+    open_box_=new QTimer();
+    int i=QRandomGenerator::global()->bounded(10)+15;
     open_box_->setInterval(i*1000);
     open_box_->start();
     bomb_clock_->setInterval(1000);
@@ -992,7 +997,6 @@ bool Clown::attack(double time, yard_node*** yard) {
     if (yard[position.high][(int)position.width]->p != nullptr)
         if (!yard[position.high][(int)position.width]->p->deHealth((float)(time / 1000) * attack_power))
 		{
-            //this->move_aside(yard);
             emit(plantDie(yard[position.high][(int)position.width]->p));
             emit(attackToWalk());
 		}
@@ -1015,20 +1019,24 @@ void Clown::attackToWalkSlot()
 void Clown::runToPauseSlot()
 {
     status=zombie_status::wait;
+    this->bomb_clock_->stop();
+    this->open_box_->stop();
     this->body->setMovie(":/image/zombie/3/1.gif");
 }
 
 void Clown::pauseToRunSlot()
 {
     status=zombie_status::walk;
+    this->bomb_clock_->start();
+    this->open_box_->start();
     this->body->setMovie(":/image/zombie/3/Walk.gif");
 }
 
 void Clown::bomb()
 {
     this->body->setMovie(":/image/zombie/3/Boom.gif");
-    connect(this->bomb_clock_,SIGNAL(timeout()),this,SLOT(bombEnd()));
     disconnect(this->bomb_clock_,SIGNAL(timeout()),this,SLOT(bomb()));
+    connect(this->bomb_clock_,SIGNAL(timeout()),this,SLOT(bombEnd()));
     this->health-=1000;
     if(this->position.width-1>=0)
     {
@@ -1053,8 +1061,8 @@ void Clown::openBox()
 {
     status=zombie_status::wait;
     this->body->setMovie(":/image/zombie/3/OpenBox.gif");
-    connect(this->bomb_clock_,SIGNAL(timeout()),this,SLOT(bomb()));
     disconnect(this->open_box_,SIGNAL(timeout()),this,SLOT(openBox()));
+    connect(this->bomb_clock_,SIGNAL(timeout()),this,SLOT(bomb()));
     bomb_clock_->start();
 }
 

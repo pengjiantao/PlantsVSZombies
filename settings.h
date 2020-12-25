@@ -2,7 +2,7 @@
 #define SETTINGS_H
 
 #include <QMainWindow>
-
+#include<game.h>
 namespace Ui {
 class settings;
 }
@@ -17,6 +17,11 @@ public:
 
 private:
     Ui::settings *ui;
+    int current_mode_;
+private slots:
+    void gameEnd(game* s);
+    void mode1BeSelected();
+    void mode2BeSelected();
 };
 
 #endif // SETTINGS_H

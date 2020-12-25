@@ -327,7 +327,9 @@ class Nut :public plant {
 public:
     virtual bool attack(double time, yard_node*** yard);
 	Nut(const plant_info& src, locate<int, int> p);
-	virtual ~Nut(){}
+    virtual ~Nut(){
+        disconnect();
+    }
 private:
     void timeout_attack();
 };
@@ -337,7 +339,9 @@ class Highnut :public plant {
 public:
     virtual bool attack(double time, yard_node*** yard);
 	Highnut(const plant_info& src, locate<int, int> p);
-	virtual ~Highnut(){}
+    virtual ~Highnut(){
+        disconnect();
+    }
 private:
     void timeout_attack();
 };
@@ -435,6 +439,7 @@ public:
 	Pole(zombie_info& k);
     bool virtual attack(double time, yard_node*** yard);
     ~Pole(){
+        disconnect();
     }
 private:
     bool jumping=false;
@@ -458,9 +463,11 @@ public:
 	Clown(zombie_info& k);
     bool virtual attack(double time, yard_node*** yard);
     ~Clown(){
-
+        open_box_->disconnect();
+        bomb_clock_->disconnect();
         delete open_box_;
         delete bomb_clock_;
+        disconnect();
     }
 private slots:
     void walkToAttackSlot();
@@ -481,7 +488,9 @@ class Throwstone :public zombie {
 public:
 	Throwstone(zombie_info& k);
     bool virtual attack(double time, yard_node*** yard);
-	~Throwstone(){}
+    ~Throwstone(){
+        disconnect();
+    }
 private slots:
     void walkToAttackSlot();
     void attackToWalkSlot();

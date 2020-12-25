@@ -4,8 +4,18 @@
 <context>
     <name>settings</name>
     <message>
-        <location filename="settings.ui" line="14"/>
+        <location filename="settings.ui" line="20"/>
         <source>MainWindow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settings.ui" line="30"/>
+        <source>Forever</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settings.ui" line="37"/>
+        <source>mode2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

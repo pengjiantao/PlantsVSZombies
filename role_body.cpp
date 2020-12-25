@@ -23,6 +23,7 @@ role_body::~role_body()
 role_body::role_body(qreal wid,qreal hgh):m_width(wid),m_height(hgh)
 {
     movie=nullptr;
+    timer_=nullptr;
     flash_time_=33;
     update_clock_=new QTimer();
     update_clock_->setInterval(flash_time_);
