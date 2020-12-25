@@ -332,8 +332,6 @@ public:
     }
 private:
     bool attacking=false;
-signals:
-    void animationEnd();
 private slots:
     void animationEndSlot();
     void timeout_attack();
@@ -343,18 +341,31 @@ private slots:
 
 /*cherrybomb*/
 class Cherrybomb :public plant {
+    Q_OBJECT
 public:
     virtual bool attack(double time, yard_node*** yard);
 	Cherrybomb(const plant_info& src, locate<int, int> p);
-	virtual ~Cherrybomb(){}
+    virtual ~Cherrybomb(){
+        disconnect();
+    }
+private:
+    bool attacking=false;
+private slots:
+    void animationEndSlot(role_body*);
+    void timeout_attack();
+    void pauseSlot();
+    void continueSlot();
 };
 
 /*garlic*/
 class Garlic :public plant {
+    Q_OBJECT
 public:
     virtual bool attack(double time, yard_node*** yard);
 	Garlic(const plant_info& src, locate<int, int> p);
-	virtual ~Garlic() {};
+    virtual ~Garlic() {
+        disconnect();
+    };
 };
 
 /*pumpkin*/
@@ -368,12 +379,15 @@ class Conehead :public zombie {
 public:
 	Conehead(zombie_info& k);
     bool virtual attack(double time, yard_node*** yard);
-	~Conehead(){}
+    ~Conehead(){
+        disconnect();
+    }
 private slots:
     void walkToAttackSlot();
     void attackToWalkSlot();
     void runToPauseSlot();
     void pauseToRunSlot();
+    void timeout_attack();
 };
 
 /*reading*/
@@ -382,12 +396,17 @@ class Reading :public zombie {
 public:
 	Reading(zombie_info& k);
     bool virtual attack(double time, yard_node*** yard);
-	~Reading(){}
+    ~Reading(){
+        disconnect();
+    }
+protected:
+    bool loseNewspaper=false;
 private slots:
     void walkToAttackSlot();
     void attackToWalkSlot();
     void runToPauseSlot();
     void pauseToRunSlot();
+    void timeout_attack();
 };
 
 /*pole*/

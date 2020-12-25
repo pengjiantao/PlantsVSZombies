@@ -472,12 +472,15 @@ Wogua::Wogua(const plant_info& src,locate<int,int> p):plant(src.name, src.health
 {
     this->body->setMovie(":/image/plant/6/Squash.gif");
     this->body->show();
+    this->body->setHeight(screen::YardSize().height()*3/2);
+    this->body->setWidth(screen::YardSize().width()*3/2);
+    this->body->MoveTop(screen::YardSize().height()/5);
+    this->body->MoveHead(screen::YardSize().width()/8);
     attacking=false;
 }
 
 void Wogua::animationEndSlot()
 {
-    cout<<"animationend"<<endl;
     for(auto i:game::game_yard[position.high][position.width]->z)
     {
         if(i)
@@ -524,16 +527,44 @@ Cherrybomb::Cherrybomb(const plant_info& src, locate<int, int> p) :plant(src.nam
     this->body->setMovie(":/image/plant/7/CherryBomb.gif");
     this->body->show();
 }
+
+void Cherrybomb::animationEndSlot(role_body* s)
+{
+    Q_UNUSED(s)
+    emit(die(this));
+}
+
+void Cherrybomb::timeout_attack()
+{
+    if(!attacking)
+        attack(100,game::game_yard);
+}
+
+void Cherrybomb::pauseSlot()
+{
+
+}
+
+void Cherrybomb::continueSlot()
+{
+
+}
 bool Cherrybomb::attack(double time, yard_node*** yard)
 {
+    Q_UNUSED(time);
 	for(int i=position.high-1;i<=position.high+1;i++)
 		for (int j = position.width - 1; j <= position.width + 1; j++)
 		{
 			if (i >= 0 && i < screen::size_info.screen_high && j >= 0 && j < screen::size_info.screen_width)
                 yard[i][j]->kii_all_zombie();
 		}
-	skill = false;
-	return true;
+    this->body->setMovie(":/image/plant/7/Boom.gif");
+    this->body->setTimer(new QTimer());
+    this->body->Timer()->setInterval(1000);
+    this->body->Timer()->start();
+    connect(this->body,SIGNAL(end(role_body*)),this,SLOT(animationEndSlot(role_body*)));
+    attacking=true;
+    return true;
 }
 
 Garlic::Garlic(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.color, src.attack_power, src.price, p)
@@ -559,12 +590,7 @@ Conehead::Conehead(zombie_info& k):zombie(k.name, k.health, k.color, k.attack_po
 }
 bool Conehead::attack(double time, yard_node*** yard)
 {
-    if (health <= 100&&name!=(string)"normal")
-	{
-        cout<<"yes"<<endl;
-        name = (char*)"normal";
-        this->body->setMovie(":/image/zombie/5/Zombie.gif");
-	}
+
     if (yard[position.high][(int)position.width]->p != nullptr)
         if (!yard[position.high][(int)position.width]->p->deHealth((float)(time / 1000) * attack_power))
 		{
@@ -609,15 +635,35 @@ void Conehead::pauseToRunSlot()
     else
         this->body->setMovie(":/image/zombie/5/Zombie.gif");
 }
+
+void Conehead::timeout_attack()
+{
+    if (health <= 100&&name!=(string)"normal")
+    {
+        name = (char*)"normal";
+        this->body->setMovie(":/image/zombie/5/Zombie.gif");
+    }
+    if(this->status!=zombie_status::wait){
+        if(game::game_yard[position.high][(int)position.width]->p!=nullptr)
+        {
+            if(status!=zombie_status::attack)
+                emit(walkToAttack());
+            this->attack((double)role::FlashTime(),game::game_yard);
+        }
+        else{
+            this->move((float)role::FlashTime()*speed/1000,game::game_yard);
+        }
+    }
+}
 Reading::Reading(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
 {
     this->body->setMovie(":/image/zombie/1/HeadWalk1.gif");
     this->body->show();
+    loseNewspaper=false;
 }
 bool Reading::attack(double time, yard_node*** yard)
 {
-	if (health <= 100)
-		speed = 0.45;
+
     if (yard[position.high][(int)position.width]->p != nullptr)
         if (!yard[position.high][(int)position.width]->p->deHealth((float)(time / 1000) * attack_power))
 		{
@@ -630,7 +676,7 @@ bool Reading::attack(double time, yard_node*** yard)
 void Reading::walkToAttackSlot()
 {
     status=zombie_status::attack;
-    if(speed==0.45)
+    if(speed>0.4)
         this->body->setMovie(":/image/zombie/1/HeadAttack0.gif");
     else
         this->body->setMovie(":/image/zombie/1/HeadAttack1.gif");
@@ -639,7 +685,7 @@ void Reading::walkToAttackSlot()
 void Reading::attackToWalkSlot()
 {
     status=zombie_status::walk;
-    if(speed==0.45)
+    if(speed>0.4)
         this->body->setMovie(":/image/zombie/1/HeadWalk0.gif");
     else
         this->body->setMovie(":/image/zombie/1/HeadWalk1.gif");
@@ -648,7 +694,7 @@ void Reading::attackToWalkSlot()
 void Reading::runToPauseSlot()
 {
     status=zombie_status::wait;
-    if(speed==0.45)
+    if(speed>0.4)
         this->body->setMovie(":/image/zombie/1/1.gif");
     else
         //there is no source of zombie wait with no newspaper...
@@ -658,10 +704,31 @@ void Reading::runToPauseSlot()
 void Reading::pauseToRunSlot()
 {
     status=zombie_status::walk;
-    if(speed==0.45)
+    if(speed>0.4)
         this->body->setMovie(":/image/zombie/1/HeadWalk0.gif");
     else
         this->body->setMovie(":/image/zombie/1/HeadWalk1.gif");
+}
+
+void Reading::timeout_attack()
+{
+    if (health <= 100&&loseNewspaper==false)
+    {
+        speed = 0.45;
+        loseNewspaper=true;
+        this->body->setMovie(":/image/zombie/1/HeadWalk0.gif");
+    }
+    if(this->status!=zombie_status::wait){
+        if(game::game_yard[position.high][(int)position.width]->p!=nullptr)
+        {
+            if(status!=zombie_status::attack)
+                emit(walkToAttack());
+            this->attack((double)role::FlashTime(),game::game_yard);
+        }
+        else{
+            this->move((float)role::FlashTime()*speed/1000,game::game_yard);
+        }
+    }
 }
 Pole::Pole(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
 {
@@ -734,6 +801,15 @@ void Pole::pauseToRunSlot()
 
 void Pole::dealJump0Finished()
 {
+    if(game::game_yard[position.high][(int)position.width]->p->getName()==(string)"highnut")
+    {
+        skill=false;
+        jumping=false;
+        disconnect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump0Finished()));
+        this->body->setMovie(":/image/zombie/2/PoleVaultingZombieWalk.gif");
+        speed=speed/2;
+        return ;
+    }
     disconnect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump0Finished()));
     this->body->setMovie(":/image/zombie/2/PoleVaultingZombieJump2.gif");
     connect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump1Finished()));
@@ -775,7 +851,7 @@ Clown::Clown(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, 
     int i=qrand()%10+15;
     open_box_->setInterval(i*1000);
     open_box_->start();
-    bomb_clock_->setInterval(1500);
+    bomb_clock_->setInterval(1000);
 
 
     connect(this->open_box_,SIGNAL(timeout()),this,SLOT(openBox()));
@@ -866,6 +942,14 @@ bool Throwstone::attack(double time, yard_node*** yard)
     Q_UNUSED(time);
     if(yard[position.high][(int)this->position.width]->p!=nullptr)
     {
+        if(yard[position.high][(int)position.width]->p->getName()==(string)"cherrybomb")
+        {
+            return false;
+        }
+        if(yard[position.high][(int)position.width]->p->getName()==(string)"wogua")
+        {
+            return false;
+        }
         emit(plantDie(yard[position.high][(int)this->position.width]->p));
     }
     return true;
