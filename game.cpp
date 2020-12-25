@@ -100,6 +100,9 @@ game::game():QObject(),user()
     plant_ice_action_=new QTimer(this);
     plant_ice_action_->setInterval(200);
     plant_ice_action_->stop();
+    zombie_check_=new QTimer(this);
+    zombie_check_->setInterval(2000);
+    zombie_check_->stop();
     exit_clock_=new QTimer(this);
     scene=new GameScene();
     bk_yard_size={9,5};
@@ -112,6 +115,8 @@ game::game():QObject(),user()
     connect(this->main_screen->ui->shovel,SIGNAL(clicked()),this,SLOT(shovelClicked()));
     connect(this->scene,SIGNAL(beClicked(QPoint)),this,SLOT(dealClickedRequest(QPoint)));
     connect(this->main_screen->ui->pause,SIGNAL(clicked()),this,SLOT(game_pause()));
+    connect(this->zombie_check_,SIGNAL(timeout()),this,SLOT(zombie_check_timeout()));
+    connect(this,SIGNAL(allZombieBeKilled()),this,SLOT(plantSuccess()));
 }
 
 game::~game()
@@ -124,10 +129,12 @@ game::~game()
     zombie_timer->disconnect();
     plant_ice_action_->disconnect();
     exit_clock_->disconnect();
+    zombie_check_->disconnect();
     delete exit_clock_;
     delete plant_ice_action_;
     delete sun_timer;
     delete zombie_timer;
+    delete zombie_check_;
 
     delete main_screen;
 	delete[] yard;
@@ -220,6 +227,7 @@ bool game::game_start()
     sun_timer->start();
     zombie_timer->start();
     plant_ice_action_->start();
+    zombie_check_->start();
 
 
     return true;
@@ -367,7 +375,9 @@ bool game::create_plant()
 		break;
 	case pumpkin:
 	{
-        yard[yard_pointer.high][yard_pointer.width]->p->inHealth(plant_list[pumpkin].health);
+        PumpKin* ph=new PumpKin(yard[yard_pointer.high][yard_pointer.width]->p->body->pos());
+        scene->addItem(ph);
+        yard[yard_pointer.high][yard_pointer.width]->p->setProtectHead(ph);
 		break;
 	}
 	default:
@@ -587,12 +597,36 @@ void game::shovelClicked()
 
 void game::zombieSuccess()
 {
+    this->result=false;
     game_pause();
     game_finished=true;
     screen::putResult(-1,grade);
 
     role_body* c=new role_body;
     c->setMovie(":/image/source/ZombiesWon.gif");
+    c->setTimer(new QTimer());
+    c->Timer()->setInterval(1000);
+    c->Timer()->start();
+    c->setHeight(screen::size_info.screen_high*screen::YardSize().height());
+    c->setWidth(screen::size_info.screen_width*screen::YardSize().width());
+    c->setPos({(qreal)screen::PlantBase().width()+screen::size_info.screen_width*screen::YardSize().width()/2,
+               (qreal)screen::ZombieBase().height()+screen::size_info.screen_high*screen::YardSize().height()/2});
+    scene->addItem(c);
+    c->show();
+    exit_clock_->setInterval(2000);
+    exit_clock_->start();
+    connect(exit_clock_,SIGNAL(timeout()),this,SLOT(exit_clock_timeout()));
+}
+
+void game::plantSuccess()
+{
+    this->result=true;
+    game_pause();
+    game_finished=true;
+    screen::putResult(1,grade);
+
+    role_body* c=new role_body;
+    c->setMovie(":/image/source/trophy.gif");
     c->setTimer(new QTimer());
     c->Timer()->setInterval(1000);
     c->Timer()->start();
@@ -714,6 +748,15 @@ void game::generate_sun_plant(plant *s)
     connect(this,SIGNAL(pause()),soney,SLOT(pauseSlot()));
     connect(this,SIGNAL(gameContinue()),soney,SLOT(continueSlot()));
     main_screen->ui->sun->display(user.getMoney());
+}
+
+void game::zombie_check_timeout()
+{
+    if(zombie_info::ALL_ZOMBIE==true&&numZombieOnYard==0)
+    {
+        emit(allZombieBeKilled());
+        zombie_check_->stop();
+    }
 }
 
 void game::generate_money()
@@ -990,7 +1033,7 @@ bool game::remove_plant()
 void game::dieAnimation(zombie *s)
 {
     role_body* body1=nullptr,*body2=nullptr;
-    if(s->getHealth()<-100&&s->getHealth()>-1000)
+    if(s->getHealth()<-100&&s->getHealth()>=-1000)
     {
         if(s->getName()!=static_cast<string>("throwstone"))
         {
@@ -1134,7 +1177,12 @@ void game::configToDisk()
 	outfile << "env_h" << endl << screen::size_info.screen_high << endl;
 
 	outfile << "color" << endl<<screen::env_color << endl;
-	outfile.close();
+    outfile.close();
+}
+
+bool game::Result()
+{
+    return result;
 }
 
 bool game::doMenufunc()

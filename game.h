@@ -12,6 +12,7 @@
 #include<QGraphicsScene>
 #include"gamescene.h"
 #include"sun.h"
+#include"pumpkin.h"
 /*单项菜单结构：名字，子菜单（父菜单），下一个兄弟节点，包含具体操作的函数指针*/
 struct menu_entry {
 	string name="";
@@ -55,6 +56,8 @@ public:
     window* main_screen;
 
     static yard_node*** game_yard;
+
+    bool Result();
 
 	game();
 	~game();
@@ -181,6 +184,7 @@ private:
     QTimer *zombie_timer;
     QTimer *plant_ice_action_;
     QTimer *exit_clock_;
+    QTimer *zombie_check_;
     GameScene* scene;
     /*background pix*/
     QGraphicsPixmapItem* bgItem ;
@@ -188,6 +192,7 @@ private:
     QSize bk_yard_size;
 
     int numZombieOnYard;
+    bool result=true;
 
 private:
 	void menufunc_new();
@@ -215,6 +220,7 @@ private slots:
     void shovelClicked();
 
     void zombieSuccess();
+    void plantSuccess();
 
     void plant1BeSelected();
     void plant2BeSelected();
@@ -238,10 +244,12 @@ private slots:
     void exit_clock_timeout();
 
     void generate_sun_plant(plant* s);
+    void zombie_check_timeout();
 signals:
     void plantSelectedChanged(int n);
     void onePlantPrepared(int n);
     void pause();
     void gameContinue();
+    void allZombieBeKilled();
     void die(game*);
 };

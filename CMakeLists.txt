@@ -56,6 +56,8 @@ else()
     screen.h
     toolfunc.cpp
     toolfunc.h
+    pumpkin.cpp
+    pumpkin.h
     swfunix.cpp
     swfunix.h
     role_body.cpp

@@ -32,6 +32,8 @@ role::role(const char* _name,float _health,obj_color _color,int _attack_power):n
     attack_time->setInterval(flash_time_);
     attack_time->start();
     connect(attack_time,SIGNAL(timeout()),this,SLOT(timeout_attack()));
+    fullAttackPower=_attack_power;
+    fullHealth=_health;
 }
 void role::timeout_attack()
 {
@@ -49,6 +51,11 @@ bool role::ifDead() {
 void role::setFlashTime(int n)
 {
     flash_time_=n;
+}
+
+int role::bodyLevel() const
+{
+    return level;
 }
 
 int role::FlashTime()
@@ -75,15 +82,56 @@ bool role::inHealth(float n) {
 	{
 		health += n;
 		return true;
-	}
+    }
+}
+
+float role::FullHealth() const
+{
+    return fullHealth;
+}
+
+int role::FullAttackPower() const
+{
+    return fullAttackPower;
 }
 
 plant::plant(const char* _name, float _health, obj_color _objcolor,int _attack_power,int _price,locate<int,int> p):
 	role(_name,_health,_objcolor,_attack_power),position(p){
 	price = _price;
-    this->body->setWidth(80);
-    this->body->setHeight(80);
+    protect_head_=nullptr;
+    this->body->setWidth(screen::YardSize().width());
+    this->body->setHeight(screen::YardSize().height()*4/5);
     this->body->setPos(screen::PlantBase().width()*1.15+screen::YardSize().width()*this->position.width,screen::PlantBase().height()*1.5+screen::YardSize().height()*this->position.high);
+}
+
+PumpKin *plant::ProtectHead() const
+{
+    return protect_head_;
+}
+
+void plant::setProtectHead(PumpKin *s)
+{
+    if(protect_head_)
+    {
+        protect_head_->disconnect();
+        protect_head_=nullptr;
+        delete protect_head_;
+    }
+    protect_head_=s;
+    connect(protect_head_,SIGNAL(die(PumpKin*)),this,SLOT(protectHeadDestroy(PumpKin*)));
+}
+
+bool plant::deHealth(float s)
+{
+    if(protect_head_)
+    {
+        protect_head_->deHealth(s);
+        return true;
+    }
+    else
+    {
+        return role::deHealth(s);
+    }
 }
 
 void plant::timeout_attack()
@@ -100,7 +148,22 @@ void plant::continueSlot()
 {
 
 }
-plant::~plant() = default;
+
+void plant::protectHeadDestroy(PumpKin *s)
+{
+    Q_UNUSED(s);
+    protect_head_->disconnect();
+    delete protect_head_;
+    protect_head_=nullptr;
+}
+plant::~plant(){
+    if(protect_head_)
+    {
+        protect_head_->disconnect();
+        delete protect_head_;
+    }
+    disconnect();
+}
 
 zombie::zombie(const char* _name, float _health, obj_color _objcolor,int _attack_power,float _speed):
 role(_name,_health,_objcolor,_attack_power){
@@ -111,6 +174,7 @@ role(_name,_health,_objcolor,_attack_power){
     beIced=false;
     ice_clock_=new QTimer();
     ice_clock_->setInterval(1000);
+    fullSpeed=_speed;
 }
 zombie::~zombie(){
     disconnect();
@@ -120,7 +184,7 @@ zombie::~zombie(){
 bool zombie::move(const float d,yard_node *** yard) {
     if(position.width>=0&&position.width<=screen::Size().width())
     {
-        const int pre = (int)position.width;
+        const int pre = (position.width);
         position.width -= d;
         this->body->setPosByPosition({this->position.width,(qreal)this->position.high});
         if (position.width >= 0 && ( position.width < (float)screen::size_info.screen_width))
@@ -144,12 +208,16 @@ bool zombie::move_aside(yard_node*** yard)
 	{
         yard[position.high][(int)position.width]->pop_zombie(this);
         yard[position.high - 1][(int)position.width]->push_zombie(this);
+        position.high-=1;
+        body->MoveTop(screen::YardSize().height());
 		return true;
 	}
 	else
 	{
         yard[position.high][(int)position.width]->pop_zombie(this);
         yard[position.high + 1][(int)position.width]->push_zombie(this);
+        position.high+=1;
+        this->body->MoveDown(screen::YardSize().height());
 		return true;
     }
 }
@@ -164,6 +232,8 @@ void zombie::timeout_attack()
             this->attack((double)role::FlashTime(),game::game_yard);
         }
         else{
+            if(status==zombie_status::attack)
+                emit(attackToWalk());
             this->move((float)role::FlashTime()*speed/1000,game::game_yard);
         }
     }
@@ -213,6 +283,11 @@ void zombie::beIce()
         beIced=true;
         connect(ice_clock_,SIGNAL(timeout()),this,SLOT(ice_clock_timeout()));
     }
+}
+
+float zombie::FullSpeed() const
+{
+    return fullSpeed;
 }
 
 /*植物类*/
@@ -412,6 +487,20 @@ Nut::Nut(const plant_info& src, locate<int, int> p):plant(src.name, src.health, 
     this->body->show();
 }
 
+void Nut::timeout_attack()
+{
+    if(health<(fullHealth*2/3)&&level<2)
+    {
+        this->body->setMovie(":/image/plant/4/Wallnut_cracked1.gif");
+        level=2;
+    }
+    else if(health<(fullHealth/3)&&level<3)
+    {
+        this->body->setMovie(":/image/plant/4/Wallnut_cracked2.gif");
+        level=3;
+    }
+}
+
 bool Highnut::attack(double time, yard_node*** yard)
 {
     Q_UNUSED(time);
@@ -423,6 +512,20 @@ Highnut::Highnut(const plant_info& src, locate<int, int> p) :plant(src.name, src
 {
     this->body->setMovie(":/image/plant/5/TallNut.gif");
     this->body->show();
+}
+
+void Highnut::timeout_attack()
+{
+    if(health<(fullHealth*2/3)&&level<2)
+    {
+        this->body->setMovie(":/image/plant/5/TallnutCracked1.gif");
+        level=2;
+    }
+    else if(health<(fullHealth/3)&&level<3)
+    {
+        this->body->setMovie(":/image/plant/5/TallnutCracked2.gif");
+        level=3;
+    }
 }
 
 
@@ -573,13 +676,38 @@ Garlic::Garlic(const plant_info& src, locate<int, int> p) :plant(src.name, src.h
     this->body->setMovie(":/image/plant/8/Garlic.gif");
     this->body->show();
 }
+
+void Garlic::timeout_attack()
+{
+    /*
+    if(health<fullHealth*3/4&&level<2)
+    {
+        this->body->setMovie(":/image/plant/8/Garlic_body2.gif");
+        level=2;
+    }
+    else if(health<fullHealth/2&&level<3)
+    {
+        this->body->setMovie(":/image/plant/8/Garlic_body3.gif");
+        level=3;
+    }
+    */
+    attack(100,game::game_yard);
+}
 bool Garlic::attack(double time, yard_node*** yard)
 {
-    if (skill == true && yard[position.high][position.width]->first != -1)
-	{
-        yard[position.high][position.width]->z[yard[position.high][position.width]->first]->move_aside(yard);
-		skill = false;
-	}
+    Q_UNUSED(time);
+    if(health<(fullHealth/3)&&skill==true)
+    {
+        for(auto i:yard[position.high][position.width]->z)
+        {
+            if(i)
+            {
+                i->move_aside(yard);
+                i->attackToWalk();
+            }
+            skill=false;
+        }
+    }
 	return true;
 }
 
@@ -651,6 +779,8 @@ void Conehead::timeout_attack()
             this->attack((double)role::FlashTime(),game::game_yard);
         }
         else{
+            if(status==zombie_status::attack)
+                emit(attackToWalk());
             this->move((float)role::FlashTime()*speed/1000,game::game_yard);
         }
     }
@@ -726,6 +856,8 @@ void Reading::timeout_attack()
             this->attack((double)role::FlashTime(),game::game_yard);
         }
         else{
+            if(status==zombie_status::attack)
+                emit(attackToWalk());
             this->move((float)role::FlashTime()*speed/1000,game::game_yard);
         }
     }
@@ -837,6 +969,8 @@ void Pole::timeout_attack()
             this->attack((double)role::FlashTime(),game::game_yard);
         }
         else{
+            if(status==zombie_status::attack)
+                emit(attackToWalk());
             this->move((float)role::FlashTime()*speed/1000,game::game_yard);
         }
     }
@@ -852,14 +986,13 @@ Clown::Clown(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, 
     open_box_->setInterval(i*1000);
     open_box_->start();
     bomb_clock_->setInterval(1000);
-
-
     connect(this->open_box_,SIGNAL(timeout()),this,SLOT(openBox()));
 }
 bool Clown::attack(double time, yard_node*** yard) {
     if (yard[position.high][(int)position.width]->p != nullptr)
         if (!yard[position.high][(int)position.width]->p->deHealth((float)(time / 1000) * attack_power))
 		{
+            //this->move_aside(yard);
             emit(plantDie(yard[position.high][(int)position.width]->p));
             emit(attackToWalk());
 		}
@@ -896,7 +1029,7 @@ void Clown::bomb()
     this->body->setMovie(":/image/zombie/3/Boom.gif");
     connect(this->bomb_clock_,SIGNAL(timeout()),this,SLOT(bombEnd()));
     disconnect(this->bomb_clock_,SIGNAL(timeout()),this,SLOT(bomb()));
-    this->health=-1000;
+    this->health-=1000;
     if(this->position.width-1>=0)
     {
         game::game_yard[position.high][(int)position.width-1]->kill_plant();

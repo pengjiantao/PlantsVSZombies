@@ -12,7 +12,7 @@ class role_body:public QObject,public QGraphicsItem
 {
     Q_OBJECT
 public:
-    ~role_body();
+    virtual ~role_body();
     role_body(qreal wid=100,qreal hgt=100);
     QRectF boundingRect() const;
     void paint(QPainter* painter,const QStyleOptionGraphicsItem* option=NULL,QWidget* widget=NULL);
@@ -45,16 +45,16 @@ public:
     }
     qreal FlashTime();
     void setFlashTime(qreal a);
-private:
+protected:
     qreal m_width;
     qreal m_height;
     QMovie* movie;
     QTimer* timer_=nullptr;
     QTimer* update_clock_;
     qreal flash_time_;
-private slots:
+protected slots:
     void movieEnd();
-    void updateMyself();
+    virtual void updateMyself();
 signals:
     void end(role_body* s);
 };

@@ -10,6 +10,7 @@
 #include<QTimer>
 #include"role_body.h"
 #include"PlantVSZombie.h"
+#include"pumpkin.h"
 using namespace std;
 
 class yard_node;
@@ -121,7 +122,7 @@ public:
 	/*decrease health value ,if something error happen,
 	it return false and throw an error,
 	else it will return true. */
-	bool deHealth(float n);
+    virtual bool deHealth(float n);
 
 	/*this function returns true if nothing beyond exception happen.*/
 	bool inHealth(float n);
@@ -137,17 +138,26 @@ protected:
 	/*health of role*/
 	float health;
 
+    float fullHealth;
+
 	/*color of role at this time*/
 	obj_color color;
 
 	int attack_power = 0;
 
+    int fullAttackPower;
+
     static int flash_time_;
+
+    int level=1;
 public:
+    float FullHealth() const;
+    int FullAttackPower() const;
     QTimer* attack_time;
     role_body *body;
     int FlashTime();
     void setFlashTime(int n);
+    int bodyLevel() const;
 private slots:
     virtual void timeout_attack();
 };
@@ -165,9 +175,13 @@ public:
 	{
 		return price;
 	}
+    PumpKin* ProtectHead() const;
+    void setProtectHead(PumpKin* s);
+    bool deHealth(float s);
 protected:
 	locate<int, int> position;
 	int price = 0;
+    PumpKin* protect_head_;
 signals:
     void createBullet(plant* s);
     void die(plant* s);
@@ -176,6 +190,7 @@ private slots:
     void timeout_attack();
     void pauseSlot();
     void continueSlot();
+    void protectHeadDestroy(PumpKin* s);
 };
 
 /*this is the father class of all kinds of zombies*/
@@ -198,9 +213,11 @@ public:
 	}
 	float getSpeed() const{ return speed; }
     void beIce();
+    float FullSpeed() const;
 protected:
 	locate<int,float> position;
 	float speed;
+    float fullSpeed;
     zombie_status status=zombie_status::walk;
     bool beIced=false;
     QTimer *ice_clock_;
@@ -311,6 +328,8 @@ public:
     virtual bool attack(double time, yard_node*** yard);
 	Nut(const plant_info& src, locate<int, int> p);
 	virtual ~Nut(){}
+private:
+    void timeout_attack();
 };
 
 /*highnut*/
@@ -319,6 +338,8 @@ public:
     virtual bool attack(double time, yard_node*** yard);
 	Highnut(const plant_info& src, locate<int, int> p);
 	virtual ~Highnut(){}
+private:
+    void timeout_attack();
 };
 
 /*wogua*/
@@ -366,12 +387,10 @@ public:
     virtual ~Garlic() {
         disconnect();
     };
+private slots:
+    void timeout_attack();
 };
 
-/*pumpkin*/
-class Pumpkin :public plant {
-
-};
 
 /*Conehead*/
 class Conehead :public zombie {

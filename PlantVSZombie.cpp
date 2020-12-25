@@ -6,7 +6,7 @@
 #include"swfunix.h"
 using namespace std;
 
-const char* version = "2.02";
+const char* version = "3.00";
 
 //用于描述单个空格的宽度：space_w=(5);
 int space_w = 10;

@@ -138,5 +138,6 @@
         <file>image/audio/story_board.mp4</file>
         <file>image/bullet/PB10.gif</file>
         <file>image/source/ZombiesWon.gif</file>
+        <file>image/source/trophy.gif</file>
     </qresource>
 </RCC>
