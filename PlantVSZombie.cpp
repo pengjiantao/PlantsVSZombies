@@ -6,7 +6,7 @@
 #include"swfunix.h"
 using namespace std;
 
-const char* version = "3.01";
+const char* version = "3.02";
 
 int env_w = 9;
 int env_h = 5;

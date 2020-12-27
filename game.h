@@ -83,6 +83,8 @@ private:
     int numZombieOnYard;
     bool result=true;
 
+    role_body* zombieSuccessAnimation;
+    QGraphicsPixmapItem* plantSuccessAnimation;
 
 private slots:
     void game_pause();

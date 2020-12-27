@@ -86,6 +86,20 @@ game::game():QObject(),user()
     scene=new GameScene();
     bk_yard_size={screen::Size().width(),screen::Size().height()};
 
+    zombieSuccessAnimation=new role_body;
+    zombieSuccessAnimation->setMovie(":/image/source/ZombiesWon.gif");
+    zombieSuccessAnimation->setTimer(new QTimer());
+    zombieSuccessAnimation->Timer()->setInterval(1000);
+    zombieSuccessAnimation->Timer()->start();
+    zombieSuccessAnimation->setHeight(screen::size_info.screen_high*screen::YardSize().height());
+    zombieSuccessAnimation->setWidth(screen::size_info.screen_width*screen::YardSize().width());
+    zombieSuccessAnimation->setPos({(qreal)screen::PlantBase().width()+screen::size_info.screen_width*screen::YardSize().width()/2,
+               (qreal)screen::ZombieBase().height()+screen::size_info.screen_high*screen::YardSize().height()/2});
+    plantSuccessAnimation=new QGraphicsPixmapItem();
+    plantSuccessAnimation->setPixmap(QPixmap(":/image/source/trophy.png"));
+    plantSuccessAnimation->setPos({(qreal)screen::PlantBase().width(),(qreal)screen::ZombieBase().height()});
+    plantSuccessAnimation->setScale(3);
+
     connect(this->zombie_timer,SIGNAL(timeout()),this,SLOT(create_zombie()));
     connect(this->sun_timer,SIGNAL(timeout()),this,SLOT(generate_money()));
     connect(this->plant_ice_action_,SIGNAL(timeout()),this,SLOT(plant_ice()));
@@ -119,6 +133,9 @@ game::~game()
 	delete[] yard;
 	delete[] plant_list;
 	delete[] zombie_list;
+
+    delete zombieSuccessAnimation;
+    delete plantSuccessAnimation;
 
     if(!bgItem)
         delete bgItem;
@@ -533,18 +550,8 @@ void game::zombieSuccess()
     this->result=false;
     game_pause();
     screen::putResult(-1);
-
-    role_body* c=new role_body;
-    c->setMovie(":/image/source/ZombiesWon.gif");
-    c->setTimer(new QTimer());
-    c->Timer()->setInterval(1000);
-    c->Timer()->start();
-    c->setHeight(screen::size_info.screen_high*screen::YardSize().height());
-    c->setWidth(screen::size_info.screen_width*screen::YardSize().width());
-    c->setPos({(qreal)screen::PlantBase().width()+screen::size_info.screen_width*screen::YardSize().width()/2,
-               (qreal)screen::ZombieBase().height()+screen::size_info.screen_high*screen::YardSize().height()/2});
-    scene->addItem(c);
-    c->show();
+    scene->addItem(zombieSuccessAnimation);
+    zombieSuccessAnimation->show();
     exit_clock_->setInterval(2000);
     exit_clock_->start();
     connect(exit_clock_,SIGNAL(timeout()),this,SLOT(exit_clock_timeout()));
@@ -555,18 +562,8 @@ void game::plantSuccess()
     this->result=true;
     game_pause();
     screen::putResult(1);
-
-    role_body* c=new role_body;
-    c->setMovie(":/image/source/trophy.gif");
-    c->setTimer(new QTimer());
-    c->Timer()->setInterval(1000);
-    c->Timer()->start();
-    c->setHeight(screen::size_info.screen_high*screen::YardSize().height());
-    c->setWidth(screen::size_info.screen_width*screen::YardSize().width());
-    c->setPos({(qreal)screen::PlantBase().width()+screen::size_info.screen_width*screen::YardSize().width()/2,
-               (qreal)screen::ZombieBase().height()+screen::size_info.screen_high*screen::YardSize().height()/2});
-    scene->addItem(c);
-    c->show();
+    scene->addItem(plantSuccessAnimation);
+    plantSuccessAnimation->show();
     exit_clock_->setInterval(2000);
     exit_clock_->start();
     connect(exit_clock_,SIGNAL(timeout()),this,SLOT(exit_clock_timeout()));
