@@ -59,6 +59,7 @@ void sun::update_clock_timeout()
 
 void sun::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    std::cout<<"click event"<<std::endl;
     Q_UNUSED(event);
     emit(beClicked());
 }

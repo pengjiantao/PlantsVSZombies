@@ -17,7 +17,7 @@ void GameScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         ((qint32)p.y()-(qint32)screen::PlantBase().height())/screen::YardSize().height(),
               ((qint32)p.x()-(qint32)screen::PlantBase().width())/screen::YardSize().width()
              };
-
+    QGraphicsScene::mousePressEvent(event);
     emit(beClicked(k));
 }
 
