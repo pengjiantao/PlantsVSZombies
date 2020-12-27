@@ -6,15 +6,9 @@
 #include"swfunix.h"
 using namespace std;
 
-const char* version = "3.00";
+const char* version = "3.01";
 
-//用于描述单个空格的宽度：space_w=(5);
-int space_w = 10;
-//用于描述单个空格的高度：space_h=(5);
-int space_h = 5;
-//用于描述游戏庭院宽度：env_w=(8);
-int env_w = 8;
-//用于描述游戏庭院行数：env_h=(8);
+int env_w = 9;
 int env_h = 5;
 
 
@@ -27,9 +21,5 @@ string config_path = "./image/files/";
 #error this program can not be complied in a machine which is neithor windows nor linux
 #endif
 
-//最高得分记录
-int MAX_GRADE = 0;
-
-log_entry* log_list = NULL;
 
 

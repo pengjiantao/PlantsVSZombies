@@ -41,7 +41,7 @@ void settings::gameEnd(game *s)
 void settings::mode1BeSelected()
 {
     current_mode_=1;
-    class::screen display(9,5,space_w,space_h);
+    class::screen display(9,5);
     init();
     game* g=new game();
     connect(g,SIGNAL(die(game*)),this,SLOT(gameEnd(game*)));

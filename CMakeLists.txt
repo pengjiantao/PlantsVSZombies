@@ -40,6 +40,10 @@ else()
     settings.cpp
     settings.h
     settings.ui
+    Info.cpp
+    Info.h
+    InfoRead.cpp
+    InfoRead.h
     window.cpp
     window.h
     window.ui

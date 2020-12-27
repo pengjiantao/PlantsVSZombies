@@ -17,7 +17,6 @@ bool player::deMoney(int n)
 	}
 	else
 	{
-		errlog("deMoney:lack of money");
 		screen::putMessage("阳光不够");
 		return false;
 	}

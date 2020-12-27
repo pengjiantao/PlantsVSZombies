@@ -20,14 +20,10 @@ game::game():QObject(),user()
 {
 	log("a game object be created");
 
-	exit_flag = false;
-	game_finished = true;
 
 	sunny_cycle = 2;
 	zombie_cycle = 3;
 	sunny_granularity = 50;
-
-	grade = 0;
 
 	store_pointer = 0;
 	yard_pointer.width = 0;
@@ -48,24 +44,24 @@ game::game():QObject(),user()
     game_yard=yard;
 
 	plant_list = new plant_info[10]{
-        {"shooter",100,20,green,100},
-        {"sunflower",50,0,green,50},
-        {"repeater",100,20,green,200},
-        {"iceshoot",100,30,green,300},
-        {"nut",500,0,green,100},
-        {"highnut",1000,0,green,200},
-        {"wogua",1000,500,green,100},
-        {"cherrybomb",1000,500,green,250},
-        {"garlic",100,0,green,100},
-        {"nanguatou",400,0,green,100}
-	};
+        {"shooter",100,20,100},
+        {"sunflower",50,0,50},
+        {"repeater",100,20,200},
+        {"iceshoot",100,30,300},
+        {"nut",500,0,100},
+        {"highnut",1000,0,200},
+        {"wogua",1000,500,100},
+        {"cherrybomb",1000,500,250},
+        {"garlic",100,0,100},
+        {"nanguatou",400,0,100}
+    };
 	zombie_list = new zombie_info[10]{
-        {300,50,0.3,"conehead",grey,0},
-        {150,50,0.3,"reading",grey,0},
-        {100,40,0.5,"pole",grey,0},
-        {100,30,0.3,"xiaochou",grey,0},
-        {400,70,0.2,"throwstone",grey,1},
-        {100,30,0.3,"normal",grey,0}
+        {300,50,0.3,"conehead",1},
+        {150,50,0.3,"reading",1},
+        {100,40,0.5,"pole",1},
+        {100,30,0.3,"xiaochou",1},
+        {400,70,0.2,"throwstone",1},
+        {100,30,0.3,"normal",1}
 	};
 
 
@@ -88,7 +84,7 @@ game::game():QObject(),user()
     zombie_check_->stop();
     exit_clock_=new QTimer(this);
     scene=new GameScene();
-    bk_yard_size={9,5};
+    bk_yard_size={screen::Size().width(),screen::Size().height()};
 
     connect(this->zombie_timer,SIGNAL(timeout()),this,SLOT(create_zombie()));
     connect(this->sun_timer,SIGNAL(timeout()),this,SLOT(generate_money()));
@@ -135,18 +131,7 @@ void game::game_init()
 {
 
 	log("game_init start");
-    string path = config_path + "info.txt";
-    fstream infile;
-	infile.open(path, ios::in);
-    string command = "";
-    while (!infile.eof() && command != "zombie_num_")
-		infile >> command;
-	for (int i = 0; !infile.eof() && i < 10; i++)
-	{
-		infile >> zombie_list[i].number;
-	}
-	infile.close();
-	log("game_init finished");
+
 
     screen::setSize(bk_yard_size);
     main_screen->show();
@@ -160,6 +145,7 @@ void game::game_init()
     main_screen->ui->main_screen_view->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     //main_screen->ui->main_screen_view->scale((qreal)main_screen->ui->main_screen_view->size().height()/(qreal)scene->sceneRect().height(),
                                              //(qreal)main_screen->ui->main_screen_view->size().width()/(qreal)scene->sceneRect().width());
+    log("game_init finished");
 }
 
 
@@ -169,8 +155,6 @@ bool game::game_start()
     screen::init_game_screen();
 	screen::putMessage("游戏开始！");
 	click_location = store;
-	exit_flag = false;
-	game_finished = false;
 	store_pointer = 0;
 	yard_pointer.width = 0;
 	yard_pointer.high = 0;
@@ -326,7 +310,6 @@ bool game::create_plant()
 		errlog("create_plant:try to create an plant unexisted");
 		return false;
 	}
-	grade += 50;
     if(np!=nullptr){
         scene->addItem(np->body);
         connect(np,SIGNAL(createBullet(plant*)),this,SLOT(createBullet(plant*)));
@@ -398,12 +381,12 @@ void game::createBullet(plant *s)
     Bullet* b;
     if(s->getName()==(string)"shooter"||s->getName()==(string)"repeater")
     {
-        b=new Bullet("GreenBullet",obj_color::green,30,16,{s->getPosition().high,(float)s->getPosition().width});
+        b=new Bullet("GreenBullet",30,16,{s->getPosition().high,(float)s->getPosition().width});
 
     }
     else if(s->getName()==(string)"iceshoot")
     {
-        b=new Bullet("BlueBullet",obj_color::green,30,16,{s->getPosition().high,(float)s->getPosition().width});
+        b=new Bullet("BlueBullet",30,16,{s->getPosition().high,(float)s->getPosition().width});
     }
     else if(s->getName()==(string)"sunflower")
     {
@@ -541,8 +524,7 @@ void game::zombieSuccess()
 {
     this->result=false;
     game_pause();
-    game_finished=true;
-    screen::putResult(-1,grade);
+    screen::putResult(-1);
 
     role_body* c=new role_body;
     c->setMovie(":/image/source/ZombiesWon.gif");
@@ -564,8 +546,7 @@ void game::plantSuccess()
 {
     this->result=true;
     game_pause();
-    game_finished=true;
-    screen::putResult(1,grade);
+    screen::putResult(1);
 
     role_body* c=new role_body;
     c->setMovie(":/image/source/trophy.gif");
@@ -901,12 +882,8 @@ void game::configToDisk()
 
 	string path = config_path + "env_config.txt";
 	outfile.open(path, ios::out);
-	outfile << "space_w" << endl << screen::size_info.node_width << endl;
-	outfile << "space_h" << endl << screen::size_info.node_high << endl;
 	outfile << "env_w" << endl << screen::size_info.screen_width << endl;
 	outfile << "env_h" << endl << screen::size_info.screen_high << endl;
-
-	outfile << "color" << endl<<screen::env_color << endl;
     outfile.close();
 }
 

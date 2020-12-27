@@ -14,8 +14,8 @@ template struct locate<int,float>;
 plant_info::~plant_info(){}
 
 bool zombie_info::ALL_ZOMBIE = false;
-zombie_info::zombie_info(const int _health,const int _attack_power,const float _speed,const char* _name,const obj_color _color,const int num):
-health(_health),attack_power(_attack_power),speed(_speed),name(_name),color(_color){
+zombie_info::zombie_info(const int _health,const int _attack_power,const float _speed,const char* _name,const int num):
+health(_health),attack_power(_attack_power),speed(_speed),name(_name){
 	number = num;
 }
 zombie_info::~zombie_info() {
@@ -23,9 +23,8 @@ zombie_info::~zombie_info() {
 
 
 int role::flash_time_=100;
-role::role(const char* _name,float _health,obj_color _color,int _attack_power):name((char*)_name) {
+role::role(const char* _name,float _health,int _attack_power):name((char*)_name) {
 	health = _health;
-	color = _color;
 	attack_power = _attack_power;
 	skill = true;
     body=new role_body();
@@ -98,8 +97,8 @@ int role::FullAttackPower() const
     return fullAttackPower;
 }
 
-plant::plant(const char* _name, float _health, obj_color _objcolor,int _attack_power,int _price,locate<int,int> p):
-	role(_name,_health,_objcolor,_attack_power),position(p){
+plant::plant(const char* _name, float _health, int _attack_power,int _price,locate<int,int> p):
+    role(_name,_health,_attack_power),position(p){
 	price = _price;
     protect_head_=nullptr;
     this->body->setWidth(screen::YardSize().width());
@@ -168,8 +167,8 @@ plant::~plant(){
     disconnect();
 }
 
-zombie::zombie(const char* _name, float _health, obj_color _objcolor,int _attack_power,float _speed):
-role(_name,_health,_objcolor,_attack_power){
+zombie::zombie(const char* _name, float _health,int _attack_power,float _speed):
+role(_name,_health,_attack_power){
     position = { (int)(clock()%screen::size_info.screen_high),(float)(screen::size_info.screen_width-0.1) };
 	speed = _speed;
     status=zombie_status::walk;
@@ -294,7 +293,7 @@ float zombie::FullSpeed() const
 }
 
 /*植物类*/
-Sunflower::Sunflower(const plant_info& src,locate<int,int> p):plant(src.name,src.health,src.color,src.attack_power,src.price,p)
+Sunflower::Sunflower(const plant_info& src,locate<int,int> p):plant(src.name,src.health,src.attack_power,src.price,p)
 {
     ice_timer_=4;
     sun_timer_=new QTimer();
@@ -328,7 +327,7 @@ bool Sunflower::attack(double time,yard_node *** yard)
     return true;
 }
 
-Shoot::Shoot(const plant_info& src,locate<int,int> p):plant(src.name, src.health, src.color, src.attack_power, src.price, p)
+Shoot::Shoot(const plant_info& src,locate<int,int> p):plant(src.name, src.health, src.attack_power, src.price, p)
 {
     this->body->setMovie(":/image/plant/0/Peashooter.gif");
     this->body->show();
@@ -360,7 +359,7 @@ bool Shoot::attack(double time, yard_node*** yard) {
     return true;
 }
 
-Doubleshoot::Doubleshoot(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.color, src.attack_power, src.price, p)
+Doubleshoot::Doubleshoot(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.attack_power, src.price, p)
 {
     ice_timer_=1.5;
     this->body->setMovie(":/image/plant/2/Repeater.gif");
@@ -404,7 +403,7 @@ bool Doubleshoot::attack(double time, yard_node*** yard) {
     return true;
 }
 
-Iceshoot::Iceshoot(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.color, src.attack_power, src.price, p)
+Iceshoot::Iceshoot(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.attack_power, src.price, p)
 {
     ice_time_ = 1.5;
     attack_clock_=new QTimer();
@@ -438,7 +437,7 @@ bool Iceshoot::attack(double time, yard_node*** yard) {
 
 
 
-Normal::Normal(zombie_info& k):zombie(k.name,k.health,k.color,k.attack_power,k.speed) {
+Normal::Normal(zombie_info& k):zombie(k.name,k.health,k.attack_power,k.speed) {
     this->body->setMovie(":/image/zombie/5/Zombie2.gif");
     this->body->show();
 
@@ -486,7 +485,7 @@ bool Nut::attack(double time, yard_node*** yard)
     Q_UNUSED(yard);
 	return true;
 }
-Nut::Nut(const plant_info& src, locate<int, int> p):plant(src.name, src.health, src.color, src.attack_power, src.price, p)
+Nut::Nut(const plant_info& src, locate<int, int> p):plant(src.name, src.health, src.attack_power, src.price, p)
 {
     this->body->setMovie(":/image/plant/4/WallNut.gif");
     this->body->show();
@@ -513,7 +512,7 @@ bool Highnut::attack(double time, yard_node*** yard)
 	return true;
 }
 
-Highnut::Highnut(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.color, src.attack_power, src.price, p)
+Highnut::Highnut(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.attack_power, src.price, p)
 {
     this->body->setMovie(":/image/plant/5/TallNut.gif");
     this->body->show();
@@ -576,7 +575,7 @@ void yard_node::find_first(double time)
 }
 
 
-Wogua::Wogua(const plant_info& src,locate<int,int> p):plant(src.name, src.health, src.color, src.attack_power, src.price, p)
+Wogua::Wogua(const plant_info& src,locate<int,int> p):plant(src.name, src.health, src.attack_power, src.price, p)
 {
     this->body->setMovie(":/image/plant/6/Squash.gif");
     this->body->show();
@@ -630,7 +629,7 @@ bool Wogua::attack(double time, yard_node*** yard)
 	return true;
 }
 
-Cherrybomb::Cherrybomb(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.color, src.attack_power, src.price, p)
+Cherrybomb::Cherrybomb(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.attack_power, src.price, p)
 {
     this->body->setMovie(":/image/plant/7/CherryBomb.gif");
     this->body->show();
@@ -675,7 +674,7 @@ bool Cherrybomb::attack(double time, yard_node*** yard)
     return true;
 }
 
-Garlic::Garlic(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.color, src.attack_power, src.price, p)
+Garlic::Garlic(const plant_info& src, locate<int, int> p) :plant(src.name, src.health, src.attack_power, src.price, p)
 {
 	skill = true;
     this->body->setMovie(":/image/plant/8/Garlic.gif");
@@ -716,7 +715,7 @@ bool Garlic::attack(double time, yard_node*** yard)
 	return true;
 }
 
-Conehead::Conehead(zombie_info& k):zombie(k.name, k.health, k.color, k.attack_power, k.speed)
+Conehead::Conehead(zombie_info& k):zombie(k.name, k.health, k.attack_power, k.speed)
 {
     this->body->setMovie(":/image/zombie/0/ConeheadZombie.gif");
     this->body->show();
@@ -790,7 +789,7 @@ void Conehead::timeout_attack()
         }
     }
 }
-Reading::Reading(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
+Reading::Reading(zombie_info& k) :zombie(k.name, k.health, k.attack_power, k.speed)
 {
     this->body->setMovie(":/image/zombie/1/HeadWalk1.gif");
     this->body->show();
@@ -867,7 +866,7 @@ void Reading::timeout_attack()
         }
     }
 }
-Pole::Pole(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
+Pole::Pole(zombie_info& k) :zombie(k.name, k.health, k.attack_power, k.speed)
 {
 	skill = true;
     this->body->setMovie(":/image/zombie/2/PoleVaultingZombie.gif");
@@ -981,7 +980,7 @@ void Pole::timeout_attack()
     }
 }
 
-Clown::Clown(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
+Clown::Clown(zombie_info& k) :zombie(k.name, k.health, k.attack_power, k.speed)
 {
     this->body->setMovie(":/image/zombie/3/Walk.gif");
     this->body->show();
@@ -1071,7 +1070,7 @@ void Clown::bombEnd()
     emit(die(this));
 }
 
-Throwstone::Throwstone(zombie_info& k) :zombie(k.name, k.health, k.color, k.attack_power, k.speed)
+Throwstone::Throwstone(zombie_info& k) :zombie(k.name, k.health, k.attack_power, k.speed)
 {
     this->body->setWidth(200);
     this->body->setHeight(200);
@@ -1118,8 +1117,8 @@ void Throwstone::pauseToRunSlot()
     this->body->setMovie(":/image/zombie/4/2.gif");
 }
 
-Bullet::Bullet(const char* _name, obj_color _color, int _attack_power, float _speed,locate<int,float> p):
-    role(_name,1000,_color,_attack_power),position(p),speed_(_speed)
+Bullet::Bullet(const char* _name, int _attack_power, float _speed,locate<int,float> p):
+    role(_name,1000,_attack_power),position(p),speed_(_speed)
 {
 	position.high = p.high;
 	position.width = p.width;

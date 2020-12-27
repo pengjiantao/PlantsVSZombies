@@ -13,21 +13,17 @@ QSize screen::zombie_base_={211,126};
 QSize screen::plant_base_={255,83};
 QSize screen::yard_size_={83,100};
 
-screen::size screen::size_info = { 8,5,10,5 };/*screen_width,screen_high,space_w,space_h*/
-
-obj_color screen::env_color = blue;
+screen::size screen::size_info = { 9,5};
 
 void screen::flash_money(int money)
 {
     Q_UNUSED(money);
 }
-screen::screen(int env_w,int env_h,int node_w,int node_h)
+screen::screen(int env_w,int env_h)
 {
 	log("init a new screen config");
 	size_info.screen_high = env_h;
 	size_info.screen_width = env_w;
-	size_info.node_high = node_h;
-	size_info.node_width = node_w;
 }
 screen::~screen()
 {
@@ -57,7 +53,7 @@ void screen::setYardSize(const QSize &n)
 
 QSize screen::Size()
 {
-    return {size_info.node_width,size_info.screen_high};
+    return {size_info.screen_width,size_info.screen_high};
 }
 
 QSize screen::ZombieBase()
@@ -82,14 +78,12 @@ void screen::init_game_screen()
 }
 
 
-
-
 void screen::putMessage(string s)
 {
     cout<<"Message"<<s<<endl;
 }
 
-void screen::putResult(int n,int grade)
+void screen::putResult(int n)
 {
 	if (n > 0)
 	{
@@ -104,24 +98,6 @@ void screen::putResult(int n,int grade)
 		printf("******************************\n");
 	}
 	putchar('\n');
-	printf("Your grade is: %d\n", grade);
-}
-
-void screen::flash_grade(int grade)
-{
-    cout<<"Your grade: "<<grade<<endl;
 }
 
 
-coord screen::get_position(const locate<int, int>& p)
-{
-    coord res = { 0,0 };
-	res.Y = 2 + (p.high) * (size_info.node_high + 1);
-	res.X = 1 + (p.width) * (size_info.node_width + 1);
-	return res;
-}
-
-coord screen::get_position(const locate<int, float>& p) {
-	locate<int, int> tmp = { p.high,(int)p.width };
-	return get_position(tmp);
-}

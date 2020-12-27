@@ -29,7 +29,6 @@ public:
 
 	void game_init();
 
-
 	void configToDisk();
 
     window* main_screen;
@@ -53,10 +52,6 @@ private:
 private:
 	pointer_location click_location;
 
-	bool exit_flag;
-
-	bool game_finished;
-
 	int store_pointer;
 
 	locate<int, int> yard_pointer;
@@ -74,8 +69,6 @@ private:
 	float zombie_cycle = 3;
 
 	bool chooseToRemove = false;
-
-	int grade = 0;
 
     QTimer *sun_timer;
     QTimer *zombie_timer;
