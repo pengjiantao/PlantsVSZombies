@@ -1,7 +1,9 @@
 #pragma once
 #include<string>
+#include<QObject>
 using namespace std;
-class player {
+class player :public QObject{
+    Q_OBJECT
 public:
 	bool deMoney(int n);
 
@@ -15,4 +17,6 @@ public:
 private:
 	string name;
 	int money;
+signals:
+    void sunChanged(int);
 };

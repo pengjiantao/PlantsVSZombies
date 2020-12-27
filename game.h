@@ -102,6 +102,7 @@ private slots:
     void changePlantSelected(int n);
     void plantPrepared(int n);
     void shovelClicked();
+    void sunChangedSlot(int n);
 
     void zombieSuccess();
     void plantSuccess();

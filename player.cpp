@@ -13,6 +13,7 @@ bool player::deMoney(int n)
 	{
 		money -= n;
 		screen::flash_money(money);
+        emit(sunChanged(money));
 		return true;
 	}
 	else
@@ -25,6 +26,7 @@ bool player::inMoney(int n)
 {
 	money += n;
 	screen::flash_money(money);
+    emit(sunChanged(money));
 	return true;
 }
 int player::getMoney() const

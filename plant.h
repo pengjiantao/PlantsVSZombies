@@ -44,6 +44,7 @@ public:
     }
 	~plant_info();
 public:
+    bool prepared=false;
     qreal wait;
 	const int price;
 	const double ice_time;
