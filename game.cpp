@@ -430,6 +430,8 @@ void game::changePlantSelected(int n)
         case 9:this->main_screen->ui->groupBox_10->setStyleSheet("background-color: lightgreen");break;
         default:break;
         }
+        QCursor s;
+        this->main_screen->setCursor(s);
         click_location=pointer_location::store;
         return ;
     }
@@ -438,6 +440,8 @@ void game::changePlantSelected(int n)
         this->main_screen->ui->shovel->setStyleSheet("border-image: url(:/image/source/Shovel.png)");
         chooseToRemove=false;
         click_location=pointer_location::store;
+        QCursor s;
+        this->main_screen->setCursor(s);
     }
     switch(store_pointer)
     {
@@ -506,6 +510,8 @@ void game::shovelClicked()
         this->main_screen->ui->shovel->setStyleSheet("border-image: url(:/image/source/Shovel.png)");
         chooseToRemove=false;
         click_location=pointer_location::store;
+        QCursor s;
+        this->main_screen->setCursor(s);
     }
     else
     {
@@ -516,6 +522,8 @@ void game::shovelClicked()
         this->main_screen->ui->shovel->setStyleSheet("background-color: lightblue");
         click_location=pointer_location::onyard;
         chooseToRemove=true;
+        QCursor s(QPixmap(":/image/source/Shovel.png"));
+        this->main_screen->setCursor(s);
 
     }
 }
@@ -566,42 +574,62 @@ void game::plantSuccess()
 
 void game::plant1BeSelected()
 {
+    QCursor s(QPixmap(":/image/plant/0/0.gif"));
+    this->main_screen->setCursor(s);
     emit(plantSelectedChanged(0));
 }
 void game::plant2BeSelected()
 {
+    QCursor s(QPixmap(":/image/plant/1/0.gif"));
+    this->main_screen->setCursor(s);
     emit(plantSelectedChanged(1));
 }
 void game::plant3BeSelected()
 {
+    QCursor s(QPixmap(":/image/plant/2/0.gif"));
+    this->main_screen->setCursor(s);
     emit(plantSelectedChanged(2));
 }
 void game::plant4BeSelected()
 {
+    QCursor s(QPixmap(":/image/plant/3/0.gif"));
+    this->main_screen->setCursor(s);
     emit(plantSelectedChanged(3));
 }
 void game::plant5BeSelected()
 {
+    QCursor s(QPixmap(":/image/plant/4/0.gif"));
+    this->main_screen->setCursor(s);
     emit(plantSelectedChanged(4));
 }
 void game::plant6BeSelected()
 {
+    QCursor s(QPixmap(":/image/plant/5/0.gif"));
+    this->main_screen->setCursor(s);
     emit(plantSelectedChanged(5));
 }
 void game::plant7BeSelected()
 {
+    QCursor s(QPixmap(":/image/plant/6/0.gif"));
+    this->main_screen->setCursor(s);
     emit(plantSelectedChanged(6));
 }
 void game::plant8BeSelected()
 {
+    QCursor s(QPixmap(":/image/plant/7/0.gif"));
+    this->main_screen->setCursor(s);
     emit(plantSelectedChanged(7));
 }
 void game::plant9BeSelected()
 {
+    QCursor s(QPixmap(":/image/plant/8/0.gif"));
+    this->main_screen->setCursor(s);
     emit(plantSelectedChanged(8));
 }
 void game::plant10BeSelected()
 {
+    QCursor s(QPixmap(":/image/plant/9/0.gif"));
+    this->main_screen->setCursor(s);
     emit(plantSelectedChanged(9));
 }
 
