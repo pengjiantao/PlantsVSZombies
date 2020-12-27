@@ -917,8 +917,9 @@ void game::plant6BeSelected()
 void game::plant7BeSelected()
 {
     if(!plant_list[6].prepared)
-        return;
-    QCursor s(QPixmap(":/image/plant/6/0.gif"));
+    {return;}
+    QPixmap a(":/image/plant/6/0.png");
+    QCursor s(a);
     this->main_screen->setCursor(s);
     emit(plantSelectedChanged(6));
 }

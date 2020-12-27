@@ -139,5 +139,6 @@
         <file>image/bullet/PB10.gif</file>
         <file>image/source/ZombiesWon.gif</file>
         <file>image/source/trophy.gif</file>
+        <file>image/plant/6/0.png</file>
     </qresource>
 </RCC>

@@ -579,8 +579,7 @@ Wogua::Wogua(const plant_info& src,locate<int,int> p):plant(src.name, src.health
 {
     this->body->setMovie(":/image/plant/6/Squash.gif");
     this->body->show();
-    this->body->setHeight(screen::YardSize().height()*3/2);
-    this->body->setWidth(screen::YardSize().width()*3/2);
+    this->body->setScale(1.5);
     this->body->MoveTop(screen::YardSize().height()/5);
     this->body->MoveHead(screen::YardSize().width()/8);
     attacking=false;
