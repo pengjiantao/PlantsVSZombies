@@ -5,5 +5,6 @@
 <zombie_num_|list|5 5 5 5 5 5>
 <bgItem|single|:/image/environment/1/haidaowan.png>
 <sceneRec|list|1000 720>
-<zombie_scale_|single|1.3>
-<plant_scale_|single|0.7>
+<zombie_scale_|single|1.2>
+<plant_scale_|single|0.6>
+<main_screen_fixed_size_|list|1320 1330>

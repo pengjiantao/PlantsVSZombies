@@ -4,5 +4,7 @@
 < size_info_ | list | 9 5 >
 <zombie_num_|list|1000 1000 1000 1000 1000 1000>
 <bgItem|single|:/image/environment/nonstop/Background.jpg>
-<sceneRec|list|1000 800>
-
+<sceneRec|list|900 580>
+<plant_scale_|single|0.9>
+<zombie_scale_|single|1.1>
+<main_screen_fixed_size_|list|1420 1195>
