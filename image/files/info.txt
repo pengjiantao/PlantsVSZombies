@@ -1,4 +1,0 @@
-MAX_GRADE
-250
-zombie_num_
-1 0 0 0 0 0 0 0 0 0 

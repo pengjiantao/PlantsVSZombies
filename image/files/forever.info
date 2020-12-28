@@ -1,0 +1,8 @@
+< yard_size_ | list | 83 100 >
+< plant_base_ | list | 255 83 >
+< zombie_base_ | list | 211 126 >
+< size_info_ | list | 9 5 >
+<zombie_num_|list|1000 1000 1000 1000 1000 1000>
+<bgItem|single|:/image/environment/nonstop/Background.jpg>
+<sceneRec|list|1000 800>
+

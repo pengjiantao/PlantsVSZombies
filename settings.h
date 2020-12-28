@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include<game.h>
+#include<QtMultimedia/QSound>
 namespace Ui {
 class settings;
 }
@@ -23,7 +24,7 @@ private:
     int pass_num_;
     bool background_music_=true;
     int current_num_=1;
-
+    QSound* back_music_=nullptr;
     void initScreen(int n);
     void playStartMovie();
     void playBackMusic();

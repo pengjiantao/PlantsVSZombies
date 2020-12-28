@@ -1,0 +1,9 @@
+<yard_size_|list|111 161>
+<plant_base_|list|124 130>
+<zombie_base_|list|64 190>
+<size_info_|list|10 3>
+<zombie_num_|list|5 20 20 5 5 5>
+<bgItem|single|:/image/environment/2/kuangyexibu.png>
+<sceneRec|list|1000 720>
+<zombie_scale_|single|1.3>
+<plant_scale_|single|0.7>

@@ -7,6 +7,7 @@
 #include"Info.h"
 #include"InfoRead.h"
 #include<vector>
+#include<QtMultimedia/QSound>
 settings::settings(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::settings)
@@ -27,8 +28,11 @@ settings::settings(QWidget *parent) :
     connect(this->ui->mode2,SIGNAL(destroyed()),this,SLOT(mode2BeSelected()));
 }
 
-settings::~settings()
-{
+settings::~settings(){
+    if(back_music_!=nullptr)
+    {
+        delete back_music_;
+    }
     delete ui;
 }
 
@@ -90,6 +94,8 @@ void settings::initProgram()
             start_movie_=stoi(i.Value());
         }
     }
+    if(background_music_)
+        playBackMusic();
 }
 
 string settings::getConfigPath()
@@ -114,8 +120,14 @@ void settings::playStartMovie()
 
 void settings::playBackMusic()
 {
-
+#ifdef _WIN32
+    if(back_music_!=nullptr)
+        delete back_music_;
+    back_music_=new QSound(":/image/audio/Grazy Dave.wav");
+    back_music_->play();
+#endif
 }
+
 
 void settings::gameEnd(game *s)
 {
