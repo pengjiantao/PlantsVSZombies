@@ -37,10 +37,11 @@ enum class zombie_status{
 
 class plant_info {
 public:
-    plant_info():name("NULL"),health(0),ice_time(0),attack_power(0),price(0),wait(0) {};
-    plant_info(const char* _name, int _health, int _attack_power,int _price) :
+    plant_info():name("NULL"),health(0),ice_time(0),attack_power(0),price(0),wait(0),store_card_(nullptr) {};
+    plant_info(const char* _name, int _health, int _attack_power,int _price,QWidget* card) :
         name(_name),health(_health),attack_power(_attack_power),price(_price),ice_time(_price/50){
         wait=ice_time;
+        store_card_=card;
     }
 	~plant_info();
 public:
@@ -51,6 +52,7 @@ public:
 	const char* name;
     const int health;
 	const int attack_power;
+    QWidget* store_card_;
 };
 
 

@@ -42,17 +42,22 @@ game::game() : QObject(), user()
 
     game_yard = yard;
 
+    chooseToRemove = false;
+    zombie_info::ALL_ZOMBIE = false;
+    numZombieOnYard = 0;
+    main_screen = new window;
+
     plant_list = new plant_info[10]{
-        {"shooter", 100, 20, 100},
-        {"sunflower", 50, 0, 50},
-        {"repeater", 100, 20, 200},
-        {"iceshoot", 100, 30, 300},
-        {"nut", 500, 0, 100},
-        {"highnut", 1000, 0, 200},
-        {"wogua", 1000, 500, 100},
-        {"cherrybomb", 1000, 500, 250},
-        {"garlic", 100, 0, 100},
-        {"nanguatou", 400, 0, 100}};
+        {"shooter", 100, 20, 100,this->main_screen->ui->groupBox},
+        {"sunflower", 50, 0, 50,this->main_screen->ui->groupBox_2},
+        {"repeater", 100, 20, 200,this->main_screen->ui->groupBox_3},
+        {"iceshoot", 100, 30, 300,this->main_screen->ui->groupBox_4},
+        {"nut", 500, 0, 100,this->main_screen->ui->groupBox_5},
+        {"highnut", 1000, 0, 200,this->main_screen->ui->groupBox_6},
+        {"wogua", 1000, 500, 100,this->main_screen->ui->groupBox_7},
+        {"cherrybomb", 1000, 500, 250,this->main_screen->ui->groupBox_8},
+        {"garlic", 100, 0, 100,this->main_screen->ui->groupBox_9},
+        {"nanguatou", 400, 0, 100,this->main_screen->ui->groupBox_10}};
     zombie_list = new zombie_info[10]{
         {300, 50, 0.3, "conehead", 1},
         {150, 50, 0.3, "reading", 1},
@@ -61,11 +66,6 @@ game::game() : QObject(), user()
         {400, 70, 0.2, "throwstone", 1},
         {100, 30, 0.3, "normal", 1}};
 
-    chooseToRemove = false;
-    zombie_info::ALL_ZOMBIE = false;
-    numZombieOnYard = 0;
-
-    main_screen = new window;
     sun_timer = new QTimer(this);
     sun_timer->setInterval(sunny_cycle * 1000);
     sun_timer->stop();
@@ -247,51 +247,8 @@ bool game::purchase_plant()
             plant_list[store_pointer].wait = plant_list[store_pointer].ice_time;
             create_plant();
             changePlantSelected(store_pointer);
-            switch (store_pointer)
-            {
-            case 0:
-                this->main_screen->ui->groupBox->setStyleSheet("background-color: grey");
-                plant_list[0].prepared=false;
-                break;
-            case 1:
-                this->main_screen->ui->groupBox_2->setStyleSheet("background-color: grey");
-                plant_list[1].prepared=false;
-                break;
-            case 2:
-                this->main_screen->ui->groupBox_3->setStyleSheet("background-color: grey");
-                plant_list[2].prepared=false;
-                break;
-            case 3:
-                this->main_screen->ui->groupBox_4->setStyleSheet("background-color: grey");
-                plant_list[3].prepared=false;
-                break;
-            case 4:
-                this->main_screen->ui->groupBox_5->setStyleSheet("background-color: grey");
-                plant_list[4].prepared=false;
-                break;
-            case 5:
-                this->main_screen->ui->groupBox_6->setStyleSheet("background-color: grey");
-                plant_list[5].prepared=false;
-                break;
-            case 6:
-                this->main_screen->ui->groupBox_7->setStyleSheet("background-color: grey");
-                plant_list[6].prepared=false;
-                break;
-            case 7:
-                this->main_screen->ui->groupBox_8->setStyleSheet("background-color: grey");
-                plant_list[7].prepared=false;
-                break;
-            case 8:
-                this->main_screen->ui->groupBox_9->setStyleSheet("background-color: grey");
-                plant_list[8].prepared=false;
-                break;
-            case 9:
-                this->main_screen->ui->groupBox_10->setStyleSheet("background-color: grey");
-                plant_list[9].prepared=false;
-                break;
-            default:
-                break;
-            }
+            this->plant_list[store_pointer].store_card_->setStyleSheet("background-color:grey");
+            plant_list[store_pointer].prepared=false;
             log("you purchase a plant successfully");
             return true;
         }
@@ -462,41 +419,7 @@ void game::changePlantSelected(int n)
 {
     if (n == store_pointer && click_location == pointer_location::onyard && chooseToRemove == false)
     {
-        switch (store_pointer)
-        {
-        case 0:
-            this->main_screen->ui->groupBox->setStyleSheet("background-color: lightgreen");
-            break;
-        case 1:
-            this->main_screen->ui->groupBox_2->setStyleSheet("background-color: lightgreen");
-            break;
-        case 2:
-            this->main_screen->ui->groupBox_3->setStyleSheet("background-color: lightgreen");
-            break;
-        case 3:
-            this->main_screen->ui->groupBox_4->setStyleSheet("background-color: lightgreen");
-            break;
-        case 4:
-            this->main_screen->ui->groupBox_5->setStyleSheet("background-color: lightgreen");
-            break;
-        case 5:
-            this->main_screen->ui->groupBox_6->setStyleSheet("background-color: lightgreen");
-            break;
-        case 6:
-            this->main_screen->ui->groupBox_7->setStyleSheet("background-color: lightgreen");
-            break;
-        case 7:
-            this->main_screen->ui->groupBox_8->setStyleSheet("background-color: lightgreen");
-            break;
-        case 8:
-            this->main_screen->ui->groupBox_9->setStyleSheet("background-color: lightgreen");
-            break;
-        case 9:
-            this->main_screen->ui->groupBox_10->setStyleSheet("background-color: lightgreen");
-            break;
-        default:
-            break;
-        }
+        this->plant_list[store_pointer].store_card_->setStyleSheet("background-color: lightgreen");
         QCursor s;
         this->main_screen->setCursor(s);
         click_location = pointer_location::store;
@@ -510,206 +433,21 @@ void game::changePlantSelected(int n)
         QCursor s;
         this->main_screen->setCursor(s);
     }
-    switch (store_pointer)
-    {
-    case 0:
-        this->main_screen->ui->groupBox->setStyleSheet("background-color: lightgreen");
-        break;
-    case 1:
-        this->main_screen->ui->groupBox_2->setStyleSheet("background-color: lightgreen");
-        break;
-    case 2:
-        this->main_screen->ui->groupBox_3->setStyleSheet("background-color: lightgreen");
-        break;
-    case 3:
-        this->main_screen->ui->groupBox_4->setStyleSheet("background-color: lightgreen");
-        break;
-    case 4:
-        this->main_screen->ui->groupBox_5->setStyleSheet("background-color: lightgreen");
-        break;
-    case 5:
-        this->main_screen->ui->groupBox_6->setStyleSheet("background-color: lightgreen");
-        break;
-    case 6:
-        this->main_screen->ui->groupBox_7->setStyleSheet("background-color: lightgreen");
-        break;
-    case 7:
-        this->main_screen->ui->groupBox_8->setStyleSheet("background-color: lightgreen");
-        break;
-    case 8:
-        this->main_screen->ui->groupBox_9->setStyleSheet("background-color: lightgreen");
-        break;
-    case 9:
-        this->main_screen->ui->groupBox_10->setStyleSheet("background-color: lightgreen");
-        break;
-    default:
-        break;
-    }
+    this->plant_list[store_pointer].store_card_->setStyleSheet("background-color: lightgreen");
     store_pointer = n;
-    switch (n)
-    {
-    case 0:
-        this->main_screen->ui->groupBox->setStyleSheet("background-color: lightblue");
-        break;
-    case 1:
-        this->main_screen->ui->groupBox_2->setStyleSheet("background-color: lightblue");
-        break;
-    case 2:
-        this->main_screen->ui->groupBox_3->setStyleSheet("background-color: lightblue");
-        break;
-    case 3:
-        this->main_screen->ui->groupBox_4->setStyleSheet("background-color: lightblue");
-        break;
-    case 4:
-        this->main_screen->ui->groupBox_5->setStyleSheet("background-color: lightblue");
-        break;
-    case 5:
-        this->main_screen->ui->groupBox_6->setStyleSheet("background-color: lightblue");
-        break;
-    case 6:
-        this->main_screen->ui->groupBox_7->setStyleSheet("background-color: lightblue");
-        break;
-    case 7:
-        this->main_screen->ui->groupBox_8->setStyleSheet("background-color: lightblue");
-        break;
-    case 8:
-        this->main_screen->ui->groupBox_9->setStyleSheet("background-color: lightblue");
-        break;
-    case 9:
-        this->main_screen->ui->groupBox_10->setStyleSheet("background-color: lightblue");
-        break;
-    default:
-        break;
-    }
+    this->plant_list[n].store_card_->setStyleSheet("background-color: lightgreen");
     click_location = pointer_location::onyard;
 }
 
 void game::plantPrepared(int n)
 {
-    switch (n)
+    if(this->user.getMoney()>=plant_list[n].price){
+        this->plant_list[n].store_card_->setStyleSheet("background-color: lightgreen");
+        plant_list[n].prepared=true;
+    }
+    else
     {
-    case 0:
-        if (this->user.getMoney() >= plant_list[0].price)
-        {
-            this->main_screen->ui->groupBox->setStyleSheet("background-color: lightgreen");
-            plant_list[0].prepared=true;
-            break;
-        }
-        else
-        {
-            this->main_screen->ui->groupBox->setStyleSheet("background-color: red");
-            break;
-        }
-    case 1:
-        if (this->user.getMoney() >= plant_list[1].price)
-        {
-            this->main_screen->ui->groupBox_2->setStyleSheet("background-color: lightgreen");
-            plant_list[1].prepared=true;
-            break;
-        }
-        else
-        {
-            this->main_screen->ui->groupBox_2->setStyleSheet("background-color: red");
-            break;
-        }
-    case 2:
-        if (this->user.getMoney() >= plant_list[2].price)
-        {
-            this->main_screen->ui->groupBox_3->setStyleSheet("background-color: lightgreen");
-            plant_list[2].prepared=true;
-            break;
-        }
-        else
-        {
-            this->main_screen->ui->groupBox_3->setStyleSheet("background-color: red");
-            break;
-        }
-    case 3:
-        if (this->user.getMoney() >= plant_list[3].price)
-        {
-            this->main_screen->ui->groupBox_4->setStyleSheet("background-color: lightgreen");
-            plant_list[3].prepared=true;
-            break;
-        }
-        else
-        {
-            this->main_screen->ui->groupBox_4->setStyleSheet("background-color: red");
-            break;
-        }
-    case 4:
-        if (this->user.getMoney() >= plant_list[4].price)
-        {
-            this->main_screen->ui->groupBox_5->setStyleSheet("background-color: lightgreen");
-            plant_list[4].prepared=true;
-            break;
-        }
-        else
-        {
-            this->main_screen->ui->groupBox_5->setStyleSheet("background-color: red");
-            break;
-        }
-    case 5:
-        if (this->user.getMoney() >= plant_list[5].price)
-        {
-            this->main_screen->ui->groupBox_6->setStyleSheet("background-color: lightgreen");
-            plant_list[5].prepared=true;
-            break;
-        }
-        else
-        {
-            this->main_screen->ui->groupBox_6->setStyleSheet("background-color: red");
-            break;
-        }
-    case 6:
-        if (this->user.getMoney() >= plant_list[6].price)
-        {
-            this->main_screen->ui->groupBox_7->setStyleSheet("background-color: lightgreen");
-            plant_list[6].prepared=true;
-            break;
-        }
-        else
-        {
-            this->main_screen->ui->groupBox_7->setStyleSheet("background-color: red");
-            break;
-        }
-    case 7:
-        if (this->user.getMoney() >= plant_list[7].price)
-        {
-            this->main_screen->ui->groupBox_8->setStyleSheet("background-color: lightgreen");
-            plant_list[7].prepared=true;
-            break;
-        }
-        else
-        {
-            this->main_screen->ui->groupBox_8->setStyleSheet("background-color: red");
-            break;
-        }
-    case 8:
-        if (this->user.getMoney() >= plant_list[8].price)
-        {
-            this->main_screen->ui->groupBox_9->setStyleSheet("background-color: lightgreen");
-            plant_list[8].prepared=true;
-            break;
-        }
-        else
-        {
-            this->main_screen->ui->groupBox_9->setStyleSheet("background-color: red");
-            break;
-        }
-    case 9:
-        if (this->user.getMoney() >= plant_list[9].price)
-        {
-            this->main_screen->ui->groupBox_10->setStyleSheet("background-color: lightgreen");
-            plant_list[9].prepared=true;
-            break;
-        }
-        else
-        {
-            this->main_screen->ui->groupBox_10->setStyleSheet("background-color: red");
-            break;
-        }
-    default:
-        break;
+        this->plant_list[n].store_card_->setStyleSheet("background-color: red");
     }
 }
 
@@ -740,105 +478,18 @@ void game::shovelClicked()
 void game::sunChangedSlot(int n)
 {
     Q_UNUSED(n);
-    if (this->user.getMoney() >= plant_list[0].price && this->plant_list[0].wait < 0.2&&plant_list[0].prepared==false)
+    for(int i=0;i<10;i++)
     {
-        this->main_screen->ui->groupBox->setStyleSheet("background-color: lightgreen");
-        plant_list[0].prepared=true;
-    }
-    else if(this->user.getMoney()<plant_list[0].price&&plant_list[0].prepared==true)
-    {
-        this->main_screen->ui->groupBox->setStyleSheet("background-color: red");
-        plant_list[0].prepared=false;
-    }
-    if (this->user.getMoney() >= plant_list[1].price && this->plant_list[1].wait < 0.2&&plant_list[1].prepared==false)
-    {
-        this->main_screen->ui->groupBox_2->setStyleSheet("background-color: lightgreen");
-        plant_list[1].prepared=true;
-    }
-    else if(this->user.getMoney()<plant_list[1].price&&plant_list[1].prepared==true)
-    {
-        this->main_screen->ui->groupBox_2->setStyleSheet("background-color: red");
-        plant_list[1].prepared=false;
-    }
-    if (this->user.getMoney() >= plant_list[2].price && this->plant_list[2].wait < 0.2&&plant_list[2].prepared==false)
-    {
-        this->main_screen->ui->groupBox_3->setStyleSheet("background-color: lightgreen");
-        plant_list[2].prepared=true;
-    }
-    else if(this->user.getMoney()<plant_list[2].price&&plant_list[2].prepared==true)
-    {
-        this->main_screen->ui->groupBox_3->setStyleSheet("background-color: red");
-        plant_list[2].prepared=false;
-    }
-    if (this->user.getMoney() >= plant_list[3].price && this->plant_list[3].wait < 0.2&&plant_list[3].prepared==false)
-    {
-        this->main_screen->ui->groupBox_4->setStyleSheet("background-color: lightgreen");
-        plant_list[3].prepared=true;
-    }
-    else if(this->user.getMoney()<plant_list[3].price&&plant_list[3].prepared==true)
-    {
-        this->main_screen->ui->groupBox_4->setStyleSheet("background-color: red");
-        plant_list[3].prepared=false;
-    }
-    if (this->user.getMoney() >= plant_list[4].price && this->plant_list[4].wait < 0.2&&plant_list[4].prepared==false)
-    {
-        this->main_screen->ui->groupBox_5->setStyleSheet("background-color: lightgreen");
-        plant_list[4].prepared=true;
-    }
-    else if(this->user.getMoney()<plant_list[4].price&&plant_list[4].prepared==true)
-    {
-        this->main_screen->ui->groupBox_5->setStyleSheet("background-color: red");
-        plant_list[4].prepared=false;
-    }
-    if (this->user.getMoney() >= plant_list[5].price && this->plant_list[5].wait < 0.2&&plant_list[5].prepared==false)
-    {
-        this->main_screen->ui->groupBox_6->setStyleSheet("background-color: lightgreen");
-        plant_list[5].prepared=true;
-    }
-    else if(this->user.getMoney()<plant_list[5].price&&plant_list[5].prepared==true)
-    {
-        this->main_screen->ui->groupBox_6->setStyleSheet("background-color: red");
-        plant_list[5].prepared=false;
-    }
-    if (this->user.getMoney() >= plant_list[6].price && this->plant_list[6].wait < 0.2&&plant_list[6].prepared==false)
-    {
-        this->main_screen->ui->groupBox_7->setStyleSheet("background-color: lightgreen");
-        plant_list[6].prepared=true;
-    }
-    else if(this->user.getMoney()<plant_list[6].price&&plant_list[6].prepared==true)
-    {
-        this->main_screen->ui->groupBox_7->setStyleSheet("background-color: red");
-        plant_list[6].prepared=false;
-    }
-    if (this->user.getMoney() >= plant_list[7].price && this->plant_list[7].wait < 0.2&&plant_list[7].prepared==false)
-    {
-        this->main_screen->ui->groupBox_8->setStyleSheet("background-color: lightgreen");
-        plant_list[7].prepared=true;
-    }
-    else if(this->user.getMoney()<plant_list[7].price&&plant_list[7].prepared==true)
-    {
-        this->main_screen->ui->groupBox_8->setStyleSheet("background-color: red");
-        plant_list[7].prepared=false;
-    }
-    if (this->user.getMoney() >= plant_list[8].price && this->plant_list[8].wait < 0.2&&plant_list[8].prepared==false)
-    {
-        this->main_screen->ui->groupBox_9->setStyleSheet("background-color: lightgreen");
-        plant_list[8].prepared=true;
-    }
-    else if(this->user.getMoney()<plant_list[8].price&&plant_list[8].prepared==true)
-    {
-        this->main_screen->ui->groupBox_9->setStyleSheet("background-color: red");
-        plant_list[8].prepared=false;
-    }
-    if (this->user.getMoney() >= plant_list[9].price && this->plant_list[9].wait < 0.2&&plant_list[9].prepared==false)
-    {
-        this->main_screen->ui->groupBox_10->setStyleSheet("background-color: lightgreen");
-        plant_list[9].prepared=true;
-    }
-    else if(this->user.getMoney()<plant_list[9].price&&plant_list[9].prepared==true)
-    {
-        this->main_screen->ui->groupBox_10->setStyleSheet("background-color: red");
-        plant_list[9].prepared=false;
+        if(this->user.getMoney()>=plant_list[i].price&&this->plant_list[i].wait<0.2&&plant_list[i].prepared==false)
+        {
+            this->plant_list[i].store_card_->setStyleSheet("background-color: lightgreen");
+            plant_list[i].prepared=true;
+        }
+        else if(this->user.getMoney()<plant_list[i].price&&plant_list[i].prepared==true)
+        {
+            this->plant_list[i].store_card_->setStyleSheet("background-color: red");
+            plant_list[i].prepared=false;
+        }
     }
 }
 
