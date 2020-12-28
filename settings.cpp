@@ -15,6 +15,7 @@ settings::settings(QWidget *parent) :
     current_mode_=0;
     pass_num_=0;
     ui->setupUi(this);
+    this->setWindowIcon(QIcon(":/image/Icon-144.png"));
     this->setWindowTitle("PlantsVSZombies");
     this->setFixedSize(800,600);
     this->setStyleSheet("background-color: lightgrey");

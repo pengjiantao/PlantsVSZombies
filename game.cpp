@@ -169,8 +169,7 @@ void game::game_init()
     bgItem = new QGraphicsPixmapItem(QPixmap(bgItem_path_.c_str()));
     scene->addItem(bgItem);
     main_screen->ui->main_screen_view->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-    //main_screen->ui->main_screen_view->scale((qreal)main_screen->ui->main_screen_view->size().height()/(qreal)scene->sceneRect().height(),
-    //(qreal)main_screen->ui->main_screen_view->size().width()/(qreal)scene->sceneRect().width());
+    main_screen->setFixedSize(main_screen_fixed_size_);
     log("game_init finished");
 }
 
@@ -204,6 +203,10 @@ void game::readConfig()
         {
             plant_scale_=stof(i.Value());
         }
+        else if(i.Name()=="main_screen_fixed_size_")
+        {
+            main_screen_fixed_size_={stoi(i.ValueList()[0]),stoi(i.ValueList()[1])};
+        }
     }
 }
 
@@ -211,7 +214,7 @@ bool game::game_start()
 {
     log("a game start now!");
     screen::init_game_screen();
-    screen::putMessage("游戏开始！");
+    screen::putMessage("Game start now!");
     click_location = store;
     store_pointer = 0;
     yard_pointer.width = 0;

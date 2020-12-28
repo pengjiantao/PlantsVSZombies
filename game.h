@@ -54,6 +54,7 @@ private:
     QSize sceneRec;
     float plant_scale_=1;
     float zombie_scale_=1;
+    QSize main_screen_fixed_size_ {1420,1195};
 	pointer_location click_location;
 
 	int store_pointer;
