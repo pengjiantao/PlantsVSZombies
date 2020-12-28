@@ -92,6 +92,9 @@ public:
 		return attack_power;
 	}
 	void changeName(char* new_name) { name = new_name; }
+    void setScale(float s){
+        this->body->setScale(s);
+    }
 protected:
 	char* name;
 

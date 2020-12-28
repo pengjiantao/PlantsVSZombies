@@ -116,8 +116,8 @@ void InfoRead::writeInfos(const std::vector<Info> &s) {
 Info InfoRead::understandInfo(const std::string &s) {
     Info res;
     bool head=false;
-    bool end=false;
     bool name=false;
+    bool end=false;
     bool mode=false;
     bool value=false;
     std::string str="";
@@ -126,11 +126,13 @@ Info InfoRead::understandInfo(const std::string &s) {
         return Info();
     for(auto i:s)
     {
+        if(end==true)
+            break;
         if(i=='<')
         {
             head=true;
         }
-        else if(i=='/')
+        else if(i=='|')
         {
             if(!head)
             {
@@ -147,9 +149,7 @@ Info InfoRead::understandInfo(const std::string &s) {
         }
         else if(i=='>')
         {
-            if(!name||!mode||!value)
-                return Info();
-            end=true;
+            end_of_str=true;
         }
         else {
             end_of_str = false;
@@ -175,5 +175,7 @@ Info InfoRead::understandInfo(const std::string &s) {
             str="";
         }
     }
+    if(!name||!mode||!value)
+        return Info();
     return res;
 }

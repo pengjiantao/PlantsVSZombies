@@ -29,7 +29,7 @@ public:
 
 	void game_init();
 
-	void configToDisk();
+    void readConfig();
 
     window* main_screen;
 
@@ -37,7 +37,7 @@ public:
 
     bool Result();
 
-	game();
+    game(const string& c_path_);
 	~game();
 private:
 	player user;
@@ -50,6 +50,10 @@ private:
 
     void dieAnimation(zombie* s);
 private:
+    string config_path_;
+    QSize sceneRec;
+    float plant_scale_=1;
+    float zombie_scale_=1;
 	pointer_location click_location;
 
 	int store_pointer;
@@ -78,6 +82,7 @@ private:
     GameScene* scene;
 
     QGraphicsPixmapItem* bgItem ;
+    string bgItem_path_;
     QSize bk_yard_size;
 
     int numZombieOnYard;

@@ -14,6 +14,7 @@ int main(int argc,char *argv[])
 {
     QApplication a(argc, argv);
     settings* menu=new settings();
+    menu->initProgram();
     menu->show();
     return a.exec();
 }

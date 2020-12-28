@@ -9,5 +9,3 @@ void log(string log);
 /*error log*/
 void errlog(string log);
 
-/*game init,read config file*/
-bool init();

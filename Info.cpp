@@ -135,9 +135,9 @@ std::ostream& operator<<(std::ostream& ostream,const Info& s)
 {
     ostream<<"< "<<s.Name();
     if(s.Style()==infoStyle::single)
-        ostream<<" / "<<"single"<<" / "<<s.Value()<<" >";
+        ostream<<" | "<<"single"<<" | "<<s.Value()<<" >";
     else {
-        ostream << " / " << "list"<<" /";
+        ostream << " | " << "list"<<" |";
         for(auto& i :s.ValueList())
         {
             ostream<<" "<<i.data();

@@ -10,13 +10,15 @@
 #include <QTimer>
 #include <QRandomGenerator>
 #include "sun.h"
+#include"Info.h"
+#include"InfoRead.h"
 using namespace std;
 
 template struct locate<int, int>;
 template struct locate<int, float>;
 
 yard_node ***game::game_yard = nullptr;
-game::game() : QObject(), user()
+game::game(const string& c_path) : QObject(), user(),config_path_(c_path)
 {
     log("a game object be created");
 
@@ -123,7 +125,6 @@ game::game() : QObject(), user()
 
 game::~game()
 {
-    configToDisk();
     log("a game object be killed");
     for (int i = 0; i < screen::size_info.screen_high; i++)
         delete[] yard[i];
@@ -157,20 +158,53 @@ void game::game_init()
 {
 
     log("game_init start");
-
+    readConfig();
     screen::setSize(bk_yard_size);
     main_screen->show();
     main_screen->ui->main_screen_view->setScene(scene);
-    scene->setSceneRect(0, 0, 1000, 800);
+    scene->setSceneRect(0, 0, sceneRec.width(), sceneRec.height());
     main_screen->ui->main_screen_view->setCacheMode(QGraphicsView::CacheBackground);
     main_screen->ui->main_screen_view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
     main_screen->ui->main_screen_view->scale(1, 1.1);
-    bgItem = new QGraphicsPixmapItem(QPixmap(":/image/environment/nonstop/Background.jpg"));
+    bgItem = new QGraphicsPixmapItem(QPixmap(bgItem_path_.c_str()));
     scene->addItem(bgItem);
     main_screen->ui->main_screen_view->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     //main_screen->ui->main_screen_view->scale((qreal)main_screen->ui->main_screen_view->size().height()/(qreal)scene->sceneRect().height(),
     //(qreal)main_screen->ui->main_screen_view->size().width()/(qreal)scene->sceneRect().width());
     log("game_init finished");
+}
+
+void game::readConfig()
+{
+    InfoRead in(config_path_,"r");
+    vector<Info> infos=in.getInfos();
+    for(auto i:infos)
+    {
+        if(i.Name()=="zombie_num_")
+        {
+            cout<<i<<endl;
+            for(int j=0;j<6;j++)
+            {
+                zombie_list[j].number= stoi(i.ValueList()[j]);
+            }
+        }
+        else if(i.Name()=="bgItem")
+        {
+            bgItem_path_=i.Value();
+        }
+        else if(i.Name()=="sceneRec")
+        {
+            sceneRec={stoi(i.ValueList()[0]),stoi(i.ValueList()[1])};
+        }
+        else if(i.Name()=="zombie_scale_")
+        {
+            zombie_scale_=stof(i.Value());
+        }
+        else if(i.Name()=="plant_scale_")
+        {
+            plant_scale_=stof(i.Value());
+        }
+    }
 }
 
 bool game::game_start()
@@ -315,6 +349,7 @@ bool game::create_plant()
     }
     if (np != nullptr)
     {
+        np->setScale(plant_scale_);
         scene->addItem(np->body);
         connect(np, SIGNAL(createBullet(plant *)), this, SLOT(createBullet(plant *)));
         connect(this, SIGNAL(pause()), np, SLOT(pauseSlot()));
@@ -363,6 +398,7 @@ bool game::create_zombie()
                 errlog("try to create an unexisted zombie");
                 return false;
             }
+            nz->setScale(zombie_scale_);
             scene->addItem(nz->body);
             zombie_list[(i + index) % 10].number--;
             connect(nz, SIGNAL(success()), this, SLOT(zombieSuccess()));
@@ -867,18 +903,6 @@ void game::dieAnimation(zombie *s)
         return;
 }
 
-void game::configToDisk()
-{
-    fstream outfile;
-
-    string path = config_path + "env_config.txt";
-    outfile.open(path, ios::out);
-    outfile << "env_w" << endl
-            << screen::size_info.screen_width << endl;
-    outfile << "env_h" << endl
-            << screen::size_info.screen_high << endl;
-    outfile.close();
-}
 
 bool game::Result()
 {

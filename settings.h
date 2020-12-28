@@ -14,10 +14,19 @@ class settings : public QMainWindow
 public:
     explicit settings(QWidget *parent = nullptr);
     ~settings();
-
+    void initProgram();
+    string getConfigPath();
 private:
     Ui::settings *ui;
     int current_mode_;
+    bool start_movie_=true;
+    int pass_num_;
+    bool background_music_=true;
+    int current_num_=1;
+
+    void initScreen(int n);
+    void playStartMovie();
+    void playBackMusic();
 private slots:
     void gameEnd(game* s);
     void mode1BeSelected();

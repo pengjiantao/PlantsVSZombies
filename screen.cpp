@@ -9,11 +9,11 @@
 #include"PlantVSZombie.h"
 using namespace std;
 
-QSize screen::zombie_base_={211,126};
-QSize screen::plant_base_={255,83};
-QSize screen::yard_size_={83,100};
+QSize screen::zombie_base_={2110,126};
+QSize screen::plant_base_={2550,83};
+QSize screen::yard_size_={830,100};
 
-screen::size screen::size_info = { 9,5};
+screen::size screen::size_info = { 90,5};
 
 void screen::flash_money(int money)
 {
