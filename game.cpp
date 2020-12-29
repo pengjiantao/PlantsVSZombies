@@ -50,23 +50,23 @@ game::game(const string& c_path) : QObject(), user(),config_path_(c_path)
     main_screen = new window;
 
     plant_list = new plant_info[10]{
-        {"shooter", 100, 20, 100,this->main_screen->ui->groupBox},
-        {"sunflower", 50, 0, 50,this->main_screen->ui->groupBox_2},
-        {"repeater", 100, 20, 200,this->main_screen->ui->groupBox_3},
-        {"iceshoot", 100, 30, 300,this->main_screen->ui->groupBox_4},
-        {"nut", 500, 0, 100,this->main_screen->ui->groupBox_5},
-        {"highnut", 1000, 0, 200,this->main_screen->ui->groupBox_6},
+        {"shooter", 200, 25, 100,this->main_screen->ui->groupBox},
+        {"sunflower", 100, 0, 50,this->main_screen->ui->groupBox_2},
+        {"repeater", 250, 25, 200,this->main_screen->ui->groupBox_3},
+        {"iceshoot", 300, 30, 300,this->main_screen->ui->groupBox_4},
+        {"nut", 1000, 0, 100,this->main_screen->ui->groupBox_5},
+        {"highnut", 2000, 0, 200,this->main_screen->ui->groupBox_6},
         {"wogua", 1000, 500, 100,this->main_screen->ui->groupBox_7},
         {"cherrybomb", 1000, 500, 250,this->main_screen->ui->groupBox_8},
-        {"garlic", 100, 0, 100,this->main_screen->ui->groupBox_9},
-        {"nanguatou", 400, 0, 100,this->main_screen->ui->groupBox_10}};
+        {"garlic", 300, 0, 100,this->main_screen->ui->groupBox_9},
+        {"nanguatou", 1000, 0, 100,this->main_screen->ui->groupBox_10}};
     zombie_list = new zombie_info[10]{
-        {300, 50, 0.3, "conehead", 1},
-        {150, 50, 0.3, "reading", 1},
-        {100, 40, 0.5, "pole", 1},
-        {100, 30, 0.3, "xiaochou", 1},
-        {400, 70, 0.2, "throwstone", 1},
-        {100, 30, 0.3, "normal", 1}};
+        {400, 25, 0.2, "conehead", 1},
+        {350, 30, 0.2, "reading", 1},
+        {200, 10, 0.4, "pole", 1},
+        {300, 15, 0.2, "xiaochou", 1},
+        {800, 70, 0.15, "throwstone", 1},
+        {200, 20, 0.2, "normal", 1}};
 
     sun_timer = new QTimer(this);
     sun_timer->setInterval(sunny_cycle * 1000);
@@ -120,6 +120,7 @@ game::game(const string& c_path) : QObject(), user(),config_path_(c_path)
     connect(this->main_screen->ui->plant7,SIGNAL(clicked()),this,SLOT(plant8BeSelected()));
     connect(this->main_screen->ui->plant8,SIGNAL(clicked()),this,SLOT(plant9BeSelected()));
     connect(this->main_screen->ui->plant9,SIGNAL(clicked()),this,SLOT(plant10BeSelected()));
+    connect(this->main_screen,SIGNAL(closed()),this,SLOT(main_screen_closed()));
 
 }
 
@@ -156,9 +157,12 @@ game::~game()
 
 void game::game_init()
 {
-
     log("game_init start");
     readConfig();
+    this->main_screen->setWindowTitle(game_name_.c_str());
+    zombie_cycle=max_zombie_cycle;
+    zombie_timer->setInterval(zombie_cycle*1000);
+    sun_timer->setInterval(sunny_cycle*1000);
     screen::setSize(bk_yard_size);
     main_screen->show();
     main_screen->ui->main_screen_view->setScene(scene);
@@ -181,9 +185,10 @@ void game::readConfig()
     {
         if(i.Name()=="zombie_num_")
         {
-            cout<<i<<endl;
+            zombie_info::ZOMBIE_NUM=0;
             for(int j=0;j<6;j++)
             {
+                zombie_info::ZOMBIE_NUM+=stoi(i.ValueList()[j]);
                 zombie_list[j].number= stoi(i.ValueList()[j]);
             }
         }
@@ -206,6 +211,54 @@ void game::readConfig()
         else if(i.Name()=="main_screen_fixed_size_")
         {
             main_screen_fixed_size_={stoi(i.ValueList()[0]),stoi(i.ValueList()[1])};
+        }
+        else if(i.Name()=="min_zombie_cycle_")
+        {
+            min_zombie_cycle_=stof(i.Value());
+        }
+        else if(i.Name()=="max_zombie_cycle_")
+        {
+            max_zombie_cycle=stof(i.Value());
+        }
+        else if(i.Name()=="sun_cycle_")
+        {
+            sunny_cycle=stof(i.Value());
+        }
+        else if(i.Name()=="sun_granularity_")
+        {
+            sunny_granularity=stoi(i.Value());
+        }
+        else if(i.Name()=="origin_sun_")
+        {
+            this->user.deMoney(100-stoi(i.Value()));
+        }
+        else if(i.Name()=="zombie_cycle_change_speed_")
+        {
+            this->zombie_cycle_change_speed_=stoi(i.Value());
+        }
+        else if(i.Name()=="zombie_stronger_start_")
+        {
+            zombie_stronger_start_=stof(i.Value());
+        }
+        else if(i.Name()=="zombie_stronger_data_")
+        {
+            zombie_stronger_data_=stof(i.Value());
+        }
+        else if(i.Name()=="zombie_scale_plus_")
+        {
+            zombie_scale_plus_=stof(i.Value());
+        }
+        else if(i.Name()=="role_flash_time_")
+        {
+            role_flash_time_=stoi(i.Value());
+        }
+        else if(i.Name()=="plant_zombie_flash")
+        {
+            role::setFlashTime(stoi(i.Value()));
+        }
+        else if(i.Name()=="name")
+        {
+            this->game_name_=i.Value();
         }
     }
 }
@@ -342,6 +395,8 @@ bool game::create_plant()
     case pumpkin:
     {
         PumpKin *ph = new PumpKin(yard[yard_pointer.high][yard_pointer.width]->p->body->pos());
+        ph->setFlashTime(role_flash_time_);
+        ph->setScale(plant_scale_);
         scene->addItem(ph);
         yard[yard_pointer.high][yard_pointer.width]->p->setProtectHead(ph);
         break;
@@ -352,6 +407,7 @@ bool game::create_plant()
     }
     if (np != nullptr)
     {
+        np->setBodyFlashTime(role_flash_time_);
         np->setScale(plant_scale_);
         scene->addItem(np->body);
         connect(np, SIGNAL(createBullet(plant *)), this, SLOT(createBullet(plant *)));
@@ -365,6 +421,22 @@ bool game::create_plant()
 
 bool game::create_zombie()
 {
+    if(zombie_cycle>min_zombie_cycle_)
+    {
+        zombie_cycle-=((float)zombie_cycle_change_speed_/1000);
+        zombie_timer->setInterval(zombie_cycle*1000);
+        zombie_timer->start();
+    }
+    if(!zombie_stronged&&((float)created_zombie_/(zombie_info::ZOMBIE_NUM))>zombie_stronger_start_)
+    {
+        for(int i=0;i<6;i++)
+        {
+            zombie_list[i].health=zombie_list[i].health*zombie_stronger_data_;
+            zombie_list[i].attack_power=zombie_list[i].attack_power*zombie_stronger_data_;
+        }
+        zombie_scale_=zombie_scale_plus_;
+        zombie_stronged=true;
+    }
     zombie *nz = nullptr;
     int index = QRandomGenerator::global()->bounded(10);
     for (int i = 0; i < 10; i++)
@@ -401,6 +473,7 @@ bool game::create_zombie()
                 errlog("try to create an unexisted zombie");
                 return false;
             }
+            nz->setBodyFlashTime(role_flash_time_);
             nz->setScale(zombie_scale_);
             scene->addItem(nz->body);
             zombie_list[(i + index) % 10].number--;
@@ -412,6 +485,7 @@ bool game::create_zombie()
             connect(nz, SIGNAL(attackToWalk()), nz, SLOT(attackToWalkSlot()));
             connect(nz, SIGNAL(die(zombie *)), this, SLOT(dealZombieDead(zombie *)));
             this->numZombieOnYard++;
+            this->created_zombie_++;
             return true;
         }
     }
@@ -424,11 +498,11 @@ void game::createBullet(plant *s)
     Bullet *b;
     if (s->getName() == (string) "shooter" || s->getName() == (string) "repeater")
     {
-        b = new Bullet("GreenBullet", 30, 16, {s->getPosition().high, (float)s->getPosition().width});
+        b = new Bullet("GreenBullet", s->get_attack_power(), 4, {s->getPosition().high, (float)s->getPosition().width});
     }
     else if (s->getName() == (string) "iceshoot")
     {
-        b = new Bullet("BlueBullet", 30, 16, {s->getPosition().high, (float)s->getPosition().width});
+        b = new Bullet("BlueBullet", s->get_attack_power(), 4, {s->getPosition().high, (float)s->getPosition().width});
     }
     else if (s->getName() == (string) "sunflower")
     {
@@ -437,6 +511,8 @@ void game::createBullet(plant *s)
     }
     else
         return;
+    b->setBodyFlashTime(role_flash_time_);
+    b->setScale(plant_scale_);
     connect(this, SIGNAL(pause()), b, SLOT(runToPauseSlot()));
     connect(this, SIGNAL(gameContinue()), b, SLOT(pauseToRunSlot()));
     connect(b, SIGNAL(die(Bullet *)), this, SLOT(dealBulletDead(Bullet *)));
@@ -649,8 +725,8 @@ void game::dealZombieDead(zombie *s)
 {
     yard[s->get_position().high][(int)s->get_position().width]->pop_zombie(s);
     numZombieOnYard--;
-    s->disconnect();
     this->dieAnimation(s);
+    s->disconnect();
     delete s;
 }
 
@@ -690,13 +766,14 @@ void game::dieAnimationEnd(role_body *s)
 
 void game::exit_clock_timeout()
 {
-    cout << "game will exit" << endl;
     emit(die(this));
 }
 
 void game::generate_sun_plant(plant *s)
 {
     sun *soney = new sun;
+    soney->setFlashTime(role_flash_time_);
+    soney->setValue(sunny_granularity);
     soney->setBotton(s->body->pos().y() + (qreal)screen::YardSize().height() / 2);
     soney->setPos({s->body->pos().x() + (qreal)screen::YardSize().width() / 2 - QRandomGenerator::global()->bounded(screen::YardSize().width()), s->body->pos().y()});
     scene->addItem(soney);
@@ -718,6 +795,8 @@ void game::zombie_check_timeout()
 void game::generate_money()
 {
     sun *soney = new sun;
+    soney->setFlashTime(role_flash_time_);
+    soney->setValue(sunny_granularity);
     soney->setPos(screen::PlantBase().width() + QRandomGenerator::global()->bounded(screen::size_info.screen_width * screen::YardSize().width()), screen::PlantBase().height());
     scene->addItem(soney);
     connect(soney, SIGNAL(beCollected(sun *)), this, SLOT(sunBeCollected(sun *)));
@@ -779,6 +858,7 @@ void game::dieAnimation(zombie *s)
         if (s->getName() != static_cast<string>("throwstone"))
         {
             body1 = new role_body();
+            body1->setScale(s->body->scale());
             body1->setMovie(":/image/zombie/5/BoomDie.gif");
             body1->setTimer(new QTimer());
             body1->Timer()->setInterval(1500);
@@ -792,6 +872,7 @@ void game::dieAnimation(zombie *s)
         else
         {
             body1 = new role_body();
+            body1->setScale(s->body->scale());
             body1->setMovie(":/image/zombie/4/BoomDie.gif");
             body1->setTimer(new QTimer());
             body1->Timer()->setInterval(1500);
@@ -808,6 +889,7 @@ void game::dieAnimation(zombie *s)
         if (s->getName() == static_cast<string>("normal") || s->getName() == static_cast<string>("conehead"))
         {
             body1 = new role_body();
+            body1->setScale(s->body->scale());
             body1->setMovie(":/image/zombie/5/ZombieDie.gif");
             body1->setTimer(new QTimer());
             body1->Timer()->setInterval(1500);
@@ -817,6 +899,7 @@ void game::dieAnimation(zombie *s)
             body1->show();
             connect(body1, SIGNAL(end(role_body *)), this, SLOT(dieAnimationEnd(role_body *)));
             body2 = new role_body();
+            body2->setScale(s->body->scale());
             body2->setMovie(":/image/zombie/5/ZombieHead.gif");
             body2->setTimer(new QTimer());
             body2->Timer()->setInterval(1500);
@@ -829,6 +912,7 @@ void game::dieAnimation(zombie *s)
         else if (s->getName() == static_cast<string>("reading"))
         {
             body1 = new role_body();
+            body1->setScale(s->body->scale());
             body1->setMovie(":/image/zombie/1/Die.gif");
             body1->setTimer(new QTimer());
             body1->Timer()->setInterval(1500);
@@ -838,6 +922,7 @@ void game::dieAnimation(zombie *s)
             body1->show();
             connect(body1, SIGNAL(end(role_body *)), this, SLOT(dieAnimationEnd(role_body *)));
             body2 = new role_body();
+            body2->setScale(s->body->scale());
             body2->setMovie(":/image/zombie/1/Head.gif");
             body2->setTimer(new QTimer());
             body2->Timer()->setInterval(1500);
@@ -850,6 +935,7 @@ void game::dieAnimation(zombie *s)
         else if (s->getName() == static_cast<string>("throwstone"))
         {
             body1 = new role_body();
+            body1->setScale(s->body->scale());
             body1->setMovie(":/image/zombie/4/5.gif");
             body1->setTimer(new QTimer());
             body1->Timer()->setInterval(1500);
@@ -862,6 +948,7 @@ void game::dieAnimation(zombie *s)
         else if (s->getName() == static_cast<string>("xiaochou"))
         {
             body1 = new role_body();
+            body1->setScale(s->body->scale());
             body1->setMovie(":/image/zombie/3/Die.gif");
             body1->setTimer(new QTimer());
             body1->Timer()->setInterval(1500);
@@ -871,6 +958,7 @@ void game::dieAnimation(zombie *s)
             body1->show();
             connect(body1, SIGNAL(end(role_body *)), this, SLOT(dieAnimationEnd(role_body *)));
             body2 = new role_body();
+            body2->setScale(s->body->scale());
             body2->setMovie(":/image/zombie/5/ZombieHead.gif");
             body2->setTimer(new QTimer());
             body2->Timer()->setInterval(1500);
@@ -883,6 +971,7 @@ void game::dieAnimation(zombie *s)
         else if (s->getName() == static_cast<string>("pole"))
         {
             body1 = new role_body();
+            body1->setScale(s->body->scale());
             body1->setMovie(":/image/zombie/2/PoleVaultingZombieDie.gif");
             body1->setTimer(new QTimer());
             body1->Timer()->setInterval(1500);
@@ -892,6 +981,7 @@ void game::dieAnimation(zombie *s)
             body1->show();
             connect(body1, SIGNAL(end(role_body *)), this, SLOT(dieAnimationEnd(role_body *)));
             body2 = new role_body();
+            body2->setScale(s->body->scale());
             body2->setMovie(":/image/zombie/2/PoleVaultingZombieHead.gif");
             body2->setTimer(new QTimer());
             body2->Timer()->setInterval(1500);
@@ -904,6 +994,13 @@ void game::dieAnimation(zombie *s)
     }
     else
         return;
+}
+
+void game::main_screen_closed()
+{
+    result=false;
+    game_pause();
+    emit(die(this));
 }
 
 

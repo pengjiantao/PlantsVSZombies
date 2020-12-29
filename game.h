@@ -50,6 +50,18 @@ private:
 
     void dieAnimation(zombie* s);
 private:
+    float min_zombie_cycle_=0.3;
+    float max_zombie_cycle=4;
+    int origin_sun_=50;
+    int zombie_cycle_change_speed_=100;
+    float zombie_stronger_start_=0.5;
+    float zombie_stronger_data_=2;
+    float zombie_scale_plus_=1.2;
+    int role_flash_time_=100;
+    int created_zombie_=0;
+    bool zombie_stronged=false;
+    string game_name_="";
+
     string config_path_;
     QSize sceneRec;
     float plant_scale_=1;
@@ -87,12 +99,14 @@ private:
     QSize bk_yard_size;
 
     int numZombieOnYard;
-    bool result=true;
+    bool result=false;
 
     role_body* zombieSuccessAnimation;
     QGraphicsPixmapItem* plantSuccessAnimation;
 
 private slots:
+    void main_screen_closed();
+
     void game_pause();
 
     bool game_continue();

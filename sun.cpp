@@ -37,6 +37,14 @@ void sun::setValue(int n)
     this->value_=n;
 }
 
+void sun::setFlashTime(qreal n)
+{
+    //update_clock_->stop();
+    //update_clock_->setInterval(n);
+    //update_clock_->start();
+    role_body::setFlashTime(n);
+}
+
 void sun::update_clock_timeout()
 {
     QPointF p=this->pos();

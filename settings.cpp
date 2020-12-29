@@ -18,15 +18,10 @@ settings::settings(QWidget *parent) :
     this->setWindowIcon(QIcon(":/image/Icon-144.png"));
     this->setWindowTitle("PlantsVSZombies");
     this->setFixedSize(800,600);
-    this->setStyleSheet("background-color: lightgrey");
     this->ui->mode1->setFixedSize(750,250);
     this->ui->mode2->setFixedSize(750,250);
-    this->ui->mode1->setStyleSheet("background-color: grey");
-    this->ui->mode2->setStyleSheet("background-color: grey");
     connect(this->ui->mode1,SIGNAL(clicked()),this,SLOT(mode1BeSelected()));
-    connect(this->ui->mode1,SIGNAL(destroyed()),this,SLOT(mode1BeSelected()));
     connect(this->ui->mode2,SIGNAL(clicked()),this,SLOT(mode2BeSelected()));
-    connect(this->ui->mode2,SIGNAL(destroyed()),this,SLOT(mode2BeSelected()));
 }
 
 settings::~settings(){
@@ -121,44 +116,52 @@ void settings::playStartMovie()
 
 void settings::playBackMusic()
 {
-#ifdef _WIN32
     if(back_music_!=nullptr)
         delete back_music_;
     back_music_=new QSound(":/image/audio/Grazy Dave.wav");
     back_music_->play();
-#endif
 }
 
 
-void settings::gameEnd(game *s)
+void settings::gameEnd()
 {
-    bool result=s->Result();
-    s->disconnect();
-    delete s;
+    bool result=current_game_->Result();
+    current_game_->disconnect();
+    delete current_game_;
+    current_game_=nullptr;
     if(result==true&&current_mode_==2)
     {
         current_num_++;
         if(current_mode_<=pass_num_)
             mode2BeSelected();
     }
+    this->show();
 }
 
 void settings::mode1BeSelected()
 {
+    if(current_game_)
+        gameEnd();
     current_mode_=1;
     initScreen(0);
     game* g=new game(getConfigPath());
-    connect(g,SIGNAL(die(game*)),this,SLOT(gameEnd(game*)));
+    current_game_=g;
+    connect(g,SIGNAL(die(game*)),this,SLOT(gameEnd()));
     g->game_init();
     g->game_start();
+    this->hide();
 }
 
 void settings::mode2BeSelected()
 {
+    if(current_game_)
+        gameEnd();
     current_mode_=2;
     initScreen(current_num_);
     game* g=new game(getConfigPath());
-    connect(g,SIGNAL(die(game*)),this,SLOT(gameEnd(game*)));
+    current_game_=g;
+    connect(g,SIGNAL(die(game*)),this,SLOT(gameEnd()));
     g->game_init();
     g->game_start();
+    this->hide();
 }

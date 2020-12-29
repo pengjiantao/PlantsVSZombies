@@ -14,6 +14,7 @@ template struct locate<int,float>;
 plant_info::~plant_info(){}
 
 bool zombie_info::ALL_ZOMBIE = false;
+int zombie_info::ZOMBIE_NUM=6;
 zombie_info::zombie_info(const int _health,const int _attack_power,const float _speed,const char* _name,const int num):
 health(_health),attack_power(_attack_power),speed(_speed),name(_name){
 	number = num;
@@ -53,6 +54,11 @@ bool role::ifDead() {
 void role::setFlashTime(int n)
 {
     flash_time_=n;
+}
+
+void role::setBodyFlashTime(int n)
+{
+    this->body->setFlashTime(n);
 }
 
 int role::bodyLevel() const
@@ -369,20 +375,20 @@ Doubleshoot::Doubleshoot(const plant_info& src, locate<int, int> p) :plant(src.n
     attack_clock_->start();
     second_shoot_=new QTimer();
     second_shoot_->setInterval(200);
+    second_shoot_->start();
     connect(attack_clock_,SIGNAL(timeout()),this,SLOT(attack_clock_timeout()));
 }
 
 void Doubleshoot::attack_clock_timeout()
 {
     attack(100,game::game_yard);
-    second_shoot_->start();
     connect(second_shoot_,SIGNAL(timeout()),this,SLOT(second_shoot_timeout()));
 }
 
 void Doubleshoot::second_shoot_timeout()
 {
-    second_shoot_->stop();
     attack(100,game::game_yard);
+    disconnect(second_shoot_,SIGNAL(timeout()),this,SLOT(second_shoot_timeout()));
 }
 
 void Doubleshoot::pauseSlot()
@@ -682,18 +688,6 @@ Garlic::Garlic(const plant_info& src, locate<int, int> p) :plant(src.name, src.h
 
 void Garlic::timeout_attack()
 {
-    /*
-    if(health<fullHealth*3/4&&level<2)
-    {
-        this->body->setMovie(":/image/plant/8/Garlic_body2.gif");
-        level=2;
-    }
-    else if(health<fullHealth/2&&level<3)
-    {
-        this->body->setMovie(":/image/plant/8/Garlic_body3.gif");
-        level=3;
-    }
-    */
     attack(100,game::game_yard);
 }
 bool Garlic::attack(double time, yard_node*** yard)
@@ -769,10 +763,10 @@ void Conehead::pauseToRunSlot()
 
 void Conehead::timeout_attack()
 {
-    if (health <= 100&&name!=(string)"normal")
+    if ((health <= fullHealth/3)&&name!=(string)"normal")
     {
         name = (char*)"normal";
-        this->body->setMovie(":/image/zombie/5/Zombie.gif");
+        attackToWalk();
     }
     if(this->status!=zombie_status::wait){
         if(game::game_yard[position.high][(int)position.width]->p!=nullptr)
@@ -809,7 +803,7 @@ bool Reading::attack(double time, yard_node*** yard)
 void Reading::walkToAttackSlot()
 {
     status=zombie_status::attack;
-    if(speed>0.4)
+    if(speed>fullSpeed*1.2)
         this->body->setMovie(":/image/zombie/1/HeadAttack0.gif");
     else
         this->body->setMovie(":/image/zombie/1/HeadAttack1.gif");
@@ -818,7 +812,7 @@ void Reading::walkToAttackSlot()
 void Reading::attackToWalkSlot()
 {
     status=zombie_status::walk;
-    if(speed>0.4)
+    if(speed>fullSpeed*1.2)
         this->body->setMovie(":/image/zombie/1/HeadWalk0.gif");
     else
         this->body->setMovie(":/image/zombie/1/HeadWalk1.gif");
@@ -827,7 +821,7 @@ void Reading::attackToWalkSlot()
 void Reading::runToPauseSlot()
 {
     status=zombie_status::wait;
-    if(speed>0.4)
+    if(speed>fullSpeed*1.2)
         this->body->setMovie(":/image/zombie/1/1.gif");
     else
         //there is no source of zombie wait with no newspaper...
@@ -837,7 +831,7 @@ void Reading::runToPauseSlot()
 void Reading::pauseToRunSlot()
 {
     status=zombie_status::walk;
-    if(speed>0.4)
+    if(speed>fullSpeed*1.2)
         this->body->setMovie(":/image/zombie/1/HeadWalk0.gif");
     else
         this->body->setMovie(":/image/zombie/1/HeadWalk1.gif");
@@ -845,11 +839,11 @@ void Reading::pauseToRunSlot()
 
 void Reading::timeout_attack()
 {
-    if (health <= 100&&loseNewspaper==false)
+    if ((health <= fullHealth*2/3)&&loseNewspaper==false)
     {
-        speed = 0.45;
+        speed = fullSpeed*3/2;
         loseNewspaper=true;
-        this->body->setMovie(":/image/zombie/1/HeadWalk0.gif");
+        attackToWalk();
     }
     if(this->status!=zombie_status::wait){
         if(game::game_yard[position.high][(int)position.width]->p!=nullptr)
@@ -942,7 +936,7 @@ void Pole::dealJump0Finished()
         jumping=false;
         disconnect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump0Finished()));
         this->body->setMovie(":/image/zombie/2/PoleVaultingZombieWalk.gif");
-        speed=speed/2;
+        speed=fullSpeed/2;
         return ;
     }
     disconnect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump0Finished()));
@@ -957,7 +951,7 @@ void Pole::dealJump1Finished()
     game::game_yard[position.high][(int)position.width]->push_zombie(this);
     this->body->setMovie(":/image/zombie/2/PoleVaultingZombieWalk.gif");
     disconnect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump1Finished()));
-    speed=speed/2;
+    speed=fullSpeed/2;
     jumping=false;
     skill=false;
 }
@@ -1147,9 +1141,9 @@ bool Bullet::attack(double time, yard_node*** yard)
     }
     else{
         QPointF p=this->body->pos();
-        p.setX(p.x()+this->speed_*this->body->FlashTime()/1000*screen::YardSize().width());
+        p.setX(p.x()+this->speed_*this->FlashTime()/1000*screen::YardSize().width());
         this->body->setPos(p);
-        this->position.width+=this->speed_*this->body->FlashTime()/1000;
+        this->position.width+=this->speed_*this->FlashTime()/1000;
         if(this->position.width<0||this->position.width>=screen::size_info.screen_width)
             emit(die(this));
     }

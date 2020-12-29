@@ -55,3 +55,9 @@ window::~window()
 {
     delete ui;
 }
+
+void window::closeEvent(QCloseEvent *event)
+{
+    Q_UNUSED(event);
+    emit(closed());
+}

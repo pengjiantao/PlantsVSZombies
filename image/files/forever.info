@@ -1,3 +1,4 @@
+<name|single|EndlessMode>
 < yard_size_ | list | 83 100 >
 < plant_base_ | list | 255 83 >
 < zombie_base_ | list | 211 126 >
@@ -8,3 +9,15 @@
 <plant_scale_|single|0.9>
 <zombie_scale_|single|1.1>
 <main_screen_fixed_size_|list|1420 1195>
+<min_zombie_cycle_|single|0.3>
+<max_zombie_cycle_|single|4>
+<sun_cycle_|single|4>
+<sun_granularity_|single|25>
+<origin_sun_|single|500>
+<zombie_cycle_change_speed_|single|100>
+<zombie_stronger_start_|single|0.1>
+<zombie_stronger_data_|single|2>
+<zombie_scale_plus_|single|1.5>
+<role_flash_time_|single|100>
+<plant_zombie_flash|single|100>
+

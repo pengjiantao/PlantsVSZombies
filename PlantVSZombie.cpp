@@ -6,7 +6,7 @@
 #include"swfunix.h"
 using namespace std;
 
-const char* version = "3.02";
+const char* version = "3.10";
 
 int env_w = 9;
 int env_h = 5;
@@ -14,7 +14,7 @@ int env_h = 5;
 
 //游戏配置文件主目录
 #if _WIN32
-string config_path = "C://.plantvszombie/";
+string config_path = "./image/files/";
 #elif __linux__
 string config_path = "./image/files/";
 #else

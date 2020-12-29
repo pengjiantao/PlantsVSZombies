@@ -20,21 +20,21 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">background-color: rgb(43, 31, 4);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QPushButton" name="mode1">
       <property name="text">
-       <string>Forever</string>
+       <string>Endless Mode</string>
       </property>
      </widget>
     </item>
     <item>
      <widget class="QPushButton" name="mode2">
       <property name="text">
-       <string>mode2</string>
+       <string>Breakthrough Mode</string>
       </property>
      </widget>
     </item>

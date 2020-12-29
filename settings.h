@@ -28,8 +28,9 @@ private:
     void initScreen(int n);
     void playStartMovie();
     void playBackMusic();
+    game* current_game_=nullptr;
 private slots:
-    void gameEnd(game* s);
+    void gameEnd();
     void mode1BeSelected();
     void mode2BeSelected();
 };

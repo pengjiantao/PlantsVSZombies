@@ -59,15 +59,16 @@ public:
 class zombie_info {
 public:
 	static bool ALL_ZOMBIE;
+    static int ZOMBIE_NUM;
     zombie_info():health(0),name("NULL"),speed(0),attack_power(0),number(0){}
     zombie_info(const int _health,const int _attack_power,const float _speed,const char* _name,const int num);
 	~zombie_info();
 public:
 	int number = 0;
-	const int health;
-	const int attack_power;
-	const float speed;
-	const char* name;
+    int health;
+    int attack_power;
+    float speed;
+    const char* name;
 };
 
 
@@ -114,8 +115,9 @@ public:
     int FullAttackPower() const;
     QTimer* attack_time;
     role_body *body;
-    int FlashTime();
-    void setFlashTime(int n);
+    static int FlashTime();
+    static void setFlashTime(int n);
+    void setBodyFlashTime(int n);
     int bodyLevel() const;
 private slots:
     virtual void timeout_attack();

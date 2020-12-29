@@ -18,6 +18,7 @@ public:
     void setBotton(int n);
     int Value();
     void setValue(int n);
+    void setFlashTime(qreal n);
 private:
     int value_;
     QTimer* update_clock_;

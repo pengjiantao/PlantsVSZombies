@@ -1,10 +1,22 @@
+<name|single|meiguoxiaozhen>
 <yard_size_|list|111 161>
 <plant_base_|list|124 130>
 <zombie_base_|list|64 190>
 <size_info_|list|10 3>
-<zombie_num_|list|5 5 5 5 5 5>
+<zombie_num_|list|5 0 0 0 0 0>
 <bgItem|single|:/image/environment/0/meiguoxiaozhen.png>
 <sceneRec|list|1000 720>
 <zombie_scale_|single|1.2>
 <plant_scale_|single|0.6>
-<main_screen_fixed_size_|list|1320 1330>
+<main_screen_fixed_size_|list|1320 1335>
+<min_zombie_cycle_|single|0.3>
+<max_zombie_cycle_|single|6>
+<sun_cycle_|single|4>
+<sun_granularity_|single|50>
+<origin_sun_|single|50>
+<zombie_cycle_change_speed_|single|100>
+<zombie_stronger_start_|single|0.5>
+<zombie_stronger_data_|single|2>
+<zombie_scale_plus_|single|1.5>
+<role_flash_time_|single|100>
+<plant_zombie_flash|single|100>
