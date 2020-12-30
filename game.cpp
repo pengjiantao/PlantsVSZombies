@@ -288,6 +288,7 @@ void game::game_pause()
     sun_timer->stop();
     plant_ice_action_->stop();
     emit(pause());
+    pausing_=true;
     disconnect(this->main_screen->ui->pause, SIGNAL(clicked()), this, SLOT(game_pause()));
     this->main_screen->ui->pause->setStyleSheet("background-color: green");
     connect(this->main_screen->ui->pause, SIGNAL(clicked()), this, SLOT(game_continue()));
@@ -299,6 +300,7 @@ bool game::game_continue()
     sun_timer->start();
     plant_ice_action_->start();
     emit(gameContinue());
+    pausing_=false;
     disconnect(this->main_screen->ui->pause, SIGNAL(clicked()), this, SLOT(game_continue()));
     this->main_screen->ui->pause->setStyleSheet("background-color: red");
     connect(this->main_screen->ui->pause, SIGNAL(clicked()), this, SLOT(game_pause()));
@@ -307,6 +309,10 @@ bool game::game_continue()
 
 bool game::purchase_plant()
 {
+    if(pausing_){
+        screen::putMessage("please don't try to bug plant when game pausing!");
+        return false;
+    }
     if ((int)store_pointer >= 10 || plant_list[store_pointer].name == (string) "NULL")
     {
         errlog("purchase_plant:you try to purchase a plant unexisted!");
@@ -333,7 +339,7 @@ bool game::purchase_plant()
             screen::putMessage("请注意冷却时间");
             return false;
         }
-        else if (user.deMoney(plant_list[store_pointer].price))
+        else if (dec_sun_(plant_list[store_pointer].price))
         {
             plant_list[store_pointer].wait = plant_list[store_pointer].ice_time;
             create_plant();
@@ -741,8 +747,7 @@ void game::dealBulletDead(Bullet *s)
 
 void game::sunBeCollected(sun *s)
 {
-    user.inMoney(s->Value());
-    this->main_screen->ui->sun->display(user.getMoney());
+    add_sun_(s->Value());
     s->disconnect();
     delete s;
 }
@@ -998,6 +1003,20 @@ void game::dieAnimation(zombie *s)
     }
     else
         return;
+}
+
+bool game::add_sun_(int n)
+{
+    bool res=user.inMoney(n);
+    this->main_screen->ui->sun->display(user.getMoney());
+    return res;
+}
+
+bool game::dec_sun_(int n)
+{
+    bool res=user.deMoney(n);
+    this->main_screen->ui->sun->display(user.getMoney());
+    return res;
 }
 
 void game::main_screen_closed()

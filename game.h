@@ -49,7 +49,11 @@ private:
 	bool remove_plant();
 
     void dieAnimation(zombie* s);
+
+    bool add_sun_(int n);
+    bool dec_sun_(int n);
 private:
+    bool pausing_=false;
     float min_zombie_cycle_=0.3;
     float max_zombie_cycle=4;
     int origin_sun_=50;

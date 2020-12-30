@@ -930,7 +930,8 @@ void Pole::pauseToRunSlot()
 
 void Pole::dealJump0Finished()
 {
-    if(game::game_yard[position.high][(int)position.width]->p->getName()==(string)"highnut")
+    if(game::game_yard[position.high][(int)position.width]->p!=nullptr &&
+            game::game_yard[position.high][(int)position.width]->p->getName()==(string)"highnut")
     {
         skill=false;
         jumping=false;
@@ -947,13 +948,12 @@ void Pole::dealJump0Finished()
 
 void Pole::dealJump1Finished()
 {
-    this->move(1,game::game_yard);
-    game::game_yard[position.high][(int)position.width]->push_zombie(this);
     this->body->setMovie(":/image/zombie/2/PoleVaultingZombieWalk.gif");
     disconnect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump1Finished()));
     speed=fullSpeed/2;
     jumping=false;
     skill=false;
+    this->move(1,game::game_yard);
 }
 
 void Pole::timeout_attack()
