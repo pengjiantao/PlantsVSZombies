@@ -179,6 +179,7 @@ void game::game_init()
 
 void game::readConfig()
 {
+    cout<<"Read config from disk..."<<endl;
     InfoRead in(config_path_,"r");
     vector<Info> infos=in.getInfos();
     for(auto i:infos)
@@ -277,7 +278,7 @@ bool game::game_start()
     zombie_timer->start();
     plant_ice_action_->start();
     zombie_check_->start();
-
+    this->main_screen->ui->sun->display(user.getMoney());
     return true;
 }
 
@@ -535,6 +536,7 @@ void game::changePlantSelected(int n)
     if (n == store_pointer && click_location == pointer_location::onyard && chooseToRemove == false)
     {
         this->plant_list[store_pointer].store_card_->setStyleSheet("background-color: lightgreen");
+        this->plant_list[store_pointer].prepared=true;
         QCursor s;
         this->main_screen->setCursor(s);
         click_location = pointer_location::store;
@@ -549,6 +551,7 @@ void game::changePlantSelected(int n)
         this->main_screen->setCursor(s);
     }
     this->plant_list[store_pointer].store_card_->setStyleSheet("background-color: lightgreen");
+    this->plant_list[store_pointer].prepared=true;
     store_pointer = n;
     this->plant_list[n].store_card_->setStyleSheet("background-color: lightgreen");
     click_location = pointer_location::onyard;
@@ -739,6 +742,7 @@ void game::dealBulletDead(Bullet *s)
 void game::sunBeCollected(sun *s)
 {
     user.inMoney(s->Value());
+    this->main_screen->ui->sun->display(user.getMoney());
     s->disconnect();
     delete s;
 }

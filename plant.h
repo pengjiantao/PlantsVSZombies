@@ -148,8 +148,8 @@ signals:
     void zombieDie(zombie* s);
 private slots:
     void timeout_attack();
-    void pauseSlot();
-    void continueSlot();
+    virtual void pauseSlot();
+    virtual void continueSlot();
     void protectHeadDestroy(PumpKin* s);
 };
 
@@ -181,10 +181,10 @@ protected:
     QTimer *ice_clock_;
 protected slots:
     void timeout_attack();
-    void walkToAttackSlot();
-    void attackToWalkSlot();
-    void runToPauseSlot();
-    void pauseToRunSlot();
+    virtual void walkToAttackSlot();
+    virtual void attackToWalkSlot();
+    virtual void runToPauseSlot();
+    virtual void pauseToRunSlot();
     void ice_clock_timeout();
 
 signals:

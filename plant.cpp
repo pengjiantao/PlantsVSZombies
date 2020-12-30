@@ -947,7 +947,7 @@ void Pole::dealJump0Finished()
 
 void Pole::dealJump1Finished()
 {
-    this->position.width-=1;
+    this->move(1,game::game_yard);
     game::game_yard[position.high][(int)position.width]->push_zombie(this);
     this->body->setMovie(":/image/zombie/2/PoleVaultingZombieWalk.gif");
     disconnect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump1Finished()));

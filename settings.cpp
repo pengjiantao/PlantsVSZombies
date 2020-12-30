@@ -135,7 +135,8 @@ void settings::gameEnd()
         if(current_mode_<=pass_num_)
             mode2BeSelected();
     }
-    this->show();
+    else
+        this->show();
 }
 
 void settings::mode1BeSelected()
