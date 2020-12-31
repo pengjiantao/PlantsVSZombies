@@ -266,7 +266,7 @@ void game::readConfig()
 
 bool game::game_start()
 {
-    log("a game start now!");
+    log("game start now!");
     screen::init_game_screen();
     screen::putMessage("Game start now!");
     click_location = store;
@@ -323,19 +323,16 @@ bool game::purchase_plant()
     {
         if (yard[yard_pointer.high][yard_pointer.width]->p != NULL && store_pointer != 9)
         {
-            errlog("try to create an plant on a unblank grace!");
-            screen::putMessage("不能在非空的草地上种植物");
+            screen::putMessage("try to create an plant on a unblank grace!");
             return false;
         }
         else if (store_pointer == 9 && yard[yard_pointer.high][yard_pointer.width]->p == NULL)
         {
-            errlog("try to create an pumpkin at a blank grace");
             screen::putMessage("请在植物上种植南瓜头");
             return false;
         }
         else if (plant_list[store_pointer].wait > 0)
         {
-            errlog("ice_time!");
             screen::putMessage("请注意冷却时间");
             return false;
         }
@@ -346,12 +343,11 @@ bool game::purchase_plant()
             changePlantSelected(store_pointer);
             this->plant_list[store_pointer].store_card_->setStyleSheet("background-color:grey");
             plant_list[store_pointer].prepared=false;
-            log("you purchase a plant successfully");
             return true;
         }
         else
         {
-            errlog("purchase_plant:purchase failed,you may don't have enough money!");
+            screen::putMessage("purchase_plant:purchase failed,you may don't have enough money!");
             plantSelectedChanged(this->store_pointer);
             return false;
         }

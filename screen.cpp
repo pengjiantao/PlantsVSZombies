@@ -80,7 +80,7 @@ void screen::init_game_screen()
 
 void screen::putMessage(string s)
 {
-    cout<<"Message"<<s<<endl;
+    cout<<"Message: "<<s<<endl;
 }
 
 void screen::putResult(int n)

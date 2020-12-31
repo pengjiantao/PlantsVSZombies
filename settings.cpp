@@ -22,6 +22,9 @@ settings::settings(QWidget *parent) :
     this->ui->mode2->setFixedSize(750,250);
     connect(this->ui->mode1,SIGNAL(clicked()),this,SLOT(mode1BeSelected()));
     connect(this->ui->mode2,SIGNAL(clicked()),this,SLOT(mode2BeSelected()));
+    back_music_=new QSound(":/image/audio/Grazy Dave.wav");
+    back_music_listener_=new QTimer(this);
+    back_music_listener_->setInterval(5000);
 }
 
 settings::~settings(){
@@ -91,7 +94,11 @@ void settings::initProgram()
         }
     }
     if(background_music_)
+    {
         playBackMusic();
+        back_music_listener_->start();
+        connect(back_music_listener_,SIGNAL(timeout()),SLOT(back_music_listener_slot_()));
+    }
 }
 
 string settings::getConfigPath()
@@ -116,9 +123,6 @@ void settings::playStartMovie()
 
 void settings::playBackMusic()
 {
-    if(back_music_!=nullptr)
-        delete back_music_;
-    back_music_=new QSound(":/image/audio/Grazy Dave.wav");
     back_music_->play();
 }
 
@@ -165,4 +169,12 @@ void settings::mode2BeSelected()
     g->game_init();
     g->game_start();
     this->hide();
+}
+
+void settings::back_music_listener_slot_()
+{
+    if(back_music_->isFinished())
+    {
+        playBackMusic();
+    }
 }
