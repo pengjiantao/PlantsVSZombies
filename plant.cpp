@@ -875,7 +875,6 @@ bool Pole::attack(double time, yard_node*** yard)
 	{
         if (yard[position.high][(int)position.width]->p != nullptr)
 		{
-            yard[position.high][(int)position.width]->pop_zombie(this);
             this->body->setMovie(":/image/zombie/2/PoleVaultingZombieJump.gif");
             connect(this->body->Movie(),SIGNAL(finished()),this,SLOT(dealJump0Finished()));
             jumping=true;

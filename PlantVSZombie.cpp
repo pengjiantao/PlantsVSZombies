@@ -6,10 +6,7 @@
 #include"swfunix.h"
 using namespace std;
 
-const char* version = "3.10";
-
-int env_w = 9;
-int env_h = 5;
+const char* version = "3.12";
 
 
 //游戏配置文件主目录
