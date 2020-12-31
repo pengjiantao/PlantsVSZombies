@@ -493,11 +493,11 @@ class yard_node:public QObject {
     Q_OBJECT
 public:
 	plant* p;
-	zombie* z[10];
+    zombie* z[50];
 	int first = -1;
 public:
     yard_node() :p(nullptr){
-		for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 50; i++)
             z[i] = nullptr;
 		first = -1;
 	}

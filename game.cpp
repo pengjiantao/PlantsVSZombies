@@ -816,11 +816,14 @@ void game::generate_money()
 
 bool yard_node::push_zombie(zombie *zom)
 {
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 50; i++)
     {
         if (z[i] == nullptr)
         {
             z[i] = zom;
+            if(first==-1){
+                first=i;
+            }
             return true;
         }
     }
@@ -830,11 +833,15 @@ bool yard_node::push_zombie(zombie *zom)
 
 bool yard_node::pop_zombie(zombie *zom)
 {
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 50; i++)
     {
         if (z[i] == zom)
         {
             z[i] = nullptr;
+            if(i==first)
+            {
+                find_first(0);
+            }
             return true;
         }
     }

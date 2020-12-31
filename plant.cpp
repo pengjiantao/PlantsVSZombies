@@ -541,14 +541,13 @@ void Highnut::timeout_attack()
 
 void yard_node::kii_all_zombie()
 {
-    find_first(0);
 	if (first == -1)
 	{
 		return;
 	}
 	else
 	{
-		for(int i=0;i<10;i++)
+        for(int i=0;i<50;i++)
             if (z[i] != nullptr)
 			{
                 z[i]->deHealth(1000);
@@ -570,12 +569,13 @@ void yard_node::find_first(double time)
 {
 	float min = 100;
 	int _first = -1;
-	for (int j = 0; j < 10; j++)
+    for (int j = 0; j < 50; j++){
         if (z[j] != nullptr && z[j]->get_position().width < min)
 		{
 			min = z[j]->get_position().width;
 			_first = j;
 		}
+    }
 	first = _first;
     Q_UNUSED(time);
 }
@@ -623,7 +623,6 @@ bool Wogua::attack(double time, yard_node*** yard)
     Q_UNUSED(time);
     if(!attacking)
     {
-        yard[position.high][position.width]->find_first(0);
         if (yard[position.high][position.width]->first != -1)
         {
             this->body->setMovie(":/image/plant/6/SquashAttack.gif");
@@ -1127,7 +1126,6 @@ Bullet::Bullet(const char* _name, int _attack_power, float _speed,locate<int,flo
 bool Bullet::attack(double time, yard_node*** yard)
 {
     Q_UNUSED(time);
-    yard[position.high][(int)position.width]->find_first(0);
     int index=yard[this->position.high][(int)this->position.width]->first;
     if(index!=-1)
     {
