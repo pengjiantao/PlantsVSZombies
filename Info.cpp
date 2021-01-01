@@ -124,6 +124,20 @@ void Info::setName(const std::string& s) {
     name_=s;
 }
 
+std::string Info::operator[](int i)
+{
+    if(this->Style()==infoStyle::single)
+    {
+        return value_;
+    }
+    else
+    {
+        if(i>=static_cast<int>(value_list_.size()))
+            return std::string();
+        return value_list_[i];
+    }
+}
+
 std::string Info::Name() const {
     return name_;
 }

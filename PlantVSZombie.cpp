@@ -6,7 +6,7 @@
 #include"swfunix.h"
 using namespace std;
 
-const char* version = "3.12";
+const char* version = "3.20";
 
 
 //游戏配置文件主目录

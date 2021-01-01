@@ -93,6 +93,24 @@ void settings::initProgram()
             start_movie_=stoi(i.Value());
         }
     }
+    path=config_path+"history.info";
+    in.setFile(path,"r");
+    if(!in.empty())
+    {
+        Info info=in.getInfo();
+        for(int i=0;i<=pass_num_;i++)
+        {
+            max_grade_.emplace_back(stoi(info[i]));
+        }
+    }
+    else
+    {
+        for(int i=0;i<=pass_num_;i++)
+        {
+            max_grade_.emplace_back(0);
+        }
+        in.closeFile();
+    }
     if(background_music_)
     {
         playBackMusic();
@@ -126,13 +144,36 @@ void settings::playBackMusic()
     back_music_->play();
 }
 
-
-void settings::gameEnd()
+void settings::writeConfig()
 {
+    InfoRead out(config_path+"history.info","w");
+    Info outinfo;
+    outinfo.setName("max_grade_");
+    for(auto i:max_grade_)
+    {
+        outinfo.addValue(QString::asprintf("%d",i).toStdString());
+    }
+    out.writeInfo(outinfo);
+    out.closeFile();
+}
+
+void settings::closeEvent(QCloseEvent *event)
+{
+    Q_UNUSED(event);
+    writeConfig();
+}
+
+
+void settings::gameEnd(game* g,int grade)
+{
+    Q_UNUSED(g);
+    if(max_grade_[current_num_]<grade)
+        max_grade_[current_num_]=grade;
     bool result=current_game_->Result();
     current_game_->disconnect();
     delete current_game_;
     current_game_=nullptr;
+    writeConfig();
     if(result==true&&current_mode_==2)
     {
         current_num_++;
@@ -146,12 +187,14 @@ void settings::gameEnd()
 void settings::mode1BeSelected()
 {
     if(current_game_)
-        gameEnd();
+        gameEnd(current_game_,0);
     current_mode_=1;
     initScreen(0);
+    current_num_=0;
     game* g=new game(getConfigPath());
+    g->setMaxGrade(max_grade_[current_num_]);
     current_game_=g;
-    connect(g,SIGNAL(die(game*)),this,SLOT(gameEnd()));
+    connect(g,SIGNAL(die(game*,int)),this,SLOT(gameEnd(game*,int)));
     g->game_init();
     g->game_start();
     this->hide();
@@ -159,13 +202,16 @@ void settings::mode1BeSelected()
 
 void settings::mode2BeSelected()
 {
+    if(current_num_==0)
+        current_num_=1;
     if(current_game_)
-        gameEnd();
+        gameEnd(current_game_,0);
     current_mode_=2;
     initScreen(current_num_);
     game* g=new game(getConfigPath());
+    g->setMaxGrade(max_grade_[current_num_]);
     current_game_=g;
-    connect(g,SIGNAL(die(game*)),this,SLOT(gameEnd()));
+    connect(g,SIGNAL(die(game*,int)),this,SLOT(gameEnd(game*,int)));
     g->game_init();
     g->game_start();
     this->hide();

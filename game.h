@@ -13,7 +13,7 @@
 #include"gamescene.h"
 #include"sun.h"
 #include"pumpkin.h"
-
+#include<QGraphicsSimpleTextItem>
 
 
 enum pointer_location {
@@ -37,6 +37,11 @@ public:
 
     bool Result();
 
+    int maxGrade();
+    void setMaxGrade(int n);
+    int Grade() const;
+    void inGrade(int n);
+
     game(const string& c_path_);
 	~game();
 private:
@@ -52,6 +57,10 @@ private:
 
     bool add_sun_(int n);
     bool dec_sun_(int n);
+
+    void putMessage(const string& s);
+    void updateZombieInfoOnScreen();
+    void updateGradeInfoOnScreen();
 private:
     bool pausing_=false;
     float min_zombie_cycle_=0.3;
@@ -97,6 +106,13 @@ private:
     QTimer *exit_clock_;
     QTimer *zombie_check_;
     GameScene* scene;
+    QGraphicsSimpleTextItem* grade_message_;
+    QGraphicsSimpleTextItem* history_grade_;
+    QGraphicsSimpleTextItem* zombie_current_info_;
+    QGraphicsSimpleTextItem* message_;
+
+    int grade_=0;
+    int max_grade_=0;
 
     QGraphicsPixmapItem* bgItem ;
     string bgItem_path_;
@@ -160,5 +176,5 @@ signals:
     void pause();
     void gameContinue();
     void allZombieBeKilled();
-    void die(game*);
+    void die(game*,int);
 };

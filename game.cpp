@@ -12,6 +12,7 @@
 #include "sun.h"
 #include"Info.h"
 #include"InfoRead.h"
+#include<QGraphicsSimpleTextItem>
 using namespace std;
 
 template struct locate<int, int>;
@@ -84,6 +85,31 @@ game::game(const string& c_path) : QObject(), user(),config_path_(c_path)
     scene = new GameScene();
     bk_yard_size = {screen::Size().width(), screen::Size().height()};
 
+    grade_message_=new QGraphicsSimpleTextItem();
+    grade_message_->setText("Your grade: 0");
+    grade_message_->setFont(QFont("Consolas",12));
+    grade_message_->setPos(0,0);
+    grade_message_->setBrush(Qt::blue);
+    grade_message_->show();
+    history_grade_=new QGraphicsSimpleTextItem();
+    history_grade_->setFont({"Consolas",12});
+    history_grade_->setPos(0,25);
+    history_grade_->setBrush(Qt::yellow);
+    history_grade_->setText("Max grade on history: 0");
+    history_grade_->show();
+    zombie_current_info_=new QGraphicsSimpleTextItem();
+    zombie_current_info_->setText((QString)"current zombies/created/all: "+QString::asprintf("%d/%d/%d",numZombieOnYard,created_zombie_,zombie_info::ZOMBIE_NUM));
+    zombie_current_info_->setBrush(Qt::red);
+    zombie_current_info_->setFont({"Consolas",12});
+    zombie_current_info_->setPos(0,50);
+    zombie_current_info_->show();
+    message_=new QGraphicsSimpleTextItem();
+    message_->setFont({"Consolas",12});
+    message_->setBrush(Qt::green);
+    message_->setPos(0,75);
+    message_->setText("Message: Welcome to PlantsVSZombies!");
+    message_->show();
+
     zombieSuccessAnimation = new role_body;
     zombieSuccessAnimation->setMovie(":/image/source/ZombiesWon.gif");
     zombieSuccessAnimation->setTimer(new QTimer());
@@ -127,6 +153,9 @@ game::game(const string& c_path) : QObject(), user(),config_path_(c_path)
 game::~game()
 {
     log("a game object be killed");
+    for(int i=0;i<screen::size_info.screen_high;i++)
+        for(int j=0;j<screen::size_info.screen_width;j++)
+            delete yard[i][j];
     for (int i = 0; i < screen::size_info.screen_high; i++)
         delete[] yard[i];
     sun_timer->disconnect();
@@ -139,7 +168,10 @@ game::~game()
     delete sun_timer;
     delete zombie_timer;
     delete zombie_check_;
-
+    delete grade_message_;
+    delete history_grade_;
+    delete zombie_current_info_;
+    delete message_;
     delete main_screen;
     delete[] yard;
     delete[] plant_list;
@@ -268,7 +300,11 @@ bool game::game_start()
 {
     log("game start now!");
     screen::init_game_screen();
-    screen::putMessage("Game start now!");
+    putMessage("Game start now!");
+    this->scene->addItem(grade_message_);
+    this->scene->addItem(history_grade_);
+    this->scene->addItem(zombie_current_info_);
+    this->scene->addItem(message_);
     click_location = store;
     store_pointer = 0;
     yard_pointer.width = 0;
@@ -310,7 +346,7 @@ bool game::game_continue()
 bool game::purchase_plant()
 {
     if(pausing_){
-        screen::putMessage("please don't try to bug plant when game pausing!");
+        putMessage("please don't try to bug plant when game pausing!");
         return false;
     }
     if ((int)store_pointer >= 10 || plant_list[store_pointer].name == (string) "NULL")
@@ -323,17 +359,17 @@ bool game::purchase_plant()
     {
         if (yard[yard_pointer.high][yard_pointer.width]->p != NULL && store_pointer != 9)
         {
-            screen::putMessage("try to create an plant on a unblank grace!");
+            putMessage("try to create an plant on a unblank grace!");
             return false;
         }
         else if (store_pointer == 9 && yard[yard_pointer.high][yard_pointer.width]->p == NULL)
         {
-            screen::putMessage("请在植物上种植南瓜头");
+            putMessage("请在植物上种植南瓜头");
             return false;
         }
         else if (plant_list[store_pointer].wait > 0)
         {
-            screen::putMessage("请注意冷却时间");
+            putMessage("请注意冷却时间");
             return false;
         }
         else if (dec_sun_(plant_list[store_pointer].price))
@@ -347,7 +383,7 @@ bool game::purchase_plant()
         }
         else
         {
-            screen::putMessage("purchase_plant:purchase failed,you may don't have enough money!");
+            putMessage("purchase_plant:purchase failed,you may don't have enough money!");
             plantSelectedChanged(this->store_pointer);
             return false;
         }
@@ -489,6 +525,7 @@ bool game::create_zombie()
             connect(nz, SIGNAL(die(zombie *)), this, SLOT(dealZombieDead(zombie *)));
             this->numZombieOnYard++;
             this->created_zombie_++;
+            updateZombieInfoOnScreen();
             return true;
         }
     }
@@ -728,11 +765,13 @@ void game::dealPlantDead(plant *s)
 
 void game::dealZombieDead(zombie *s)
 {
+    inGrade(static_cast<int>(s->FullHealth()));
     yard[s->get_position().high][(int)s->get_position().width]->pop_zombie(s);
     numZombieOnYard--;
     this->dieAnimation(s);
     s->disconnect();
     delete s;
+    updateZombieInfoOnScreen();
 }
 
 void game::dealBulletDead(Bullet *s)
@@ -771,7 +810,7 @@ void game::dieAnimationEnd(role_body *s)
 
 void game::exit_clock_timeout()
 {
-    emit(die(this));
+    emit(die(this,Grade()));
 }
 
 void game::generate_sun_plant(plant *s)
@@ -1010,6 +1049,7 @@ void game::dieAnimation(zombie *s)
 
 bool game::add_sun_(int n)
 {
+    inGrade(n);
     bool res=user.inMoney(n);
     this->main_screen->ui->sun->display(user.getMoney());
     return res;
@@ -1018,19 +1058,60 @@ bool game::add_sun_(int n)
 bool game::dec_sun_(int n)
 {
     bool res=user.deMoney(n);
+    if(res){
+        inGrade(n);
+    }
     this->main_screen->ui->sun->display(user.getMoney());
     return res;
+}
+
+void game::putMessage(const string &s)
+{
+    screen::putMessage(s);
+    message_->setText((QString)"Message: "+s.c_str());
+}
+
+void game::updateZombieInfoOnScreen()
+{
+    zombie_current_info_->setText((QString)"current zombies/created/all: "+QString::asprintf("%d/%d/%d",numZombieOnYard,created_zombie_,zombie_info::ZOMBIE_NUM));
+}
+
+void game::updateGradeInfoOnScreen()
+{
+    grade_message_->setText((QString)"Your grade: "+QString::asprintf("%d",Grade()));
 }
 
 void game::main_screen_closed()
 {
     result=false;
     game_pause();
-    emit(die(this));
+    emit(die(this,Grade()));
 }
 
 
 bool game::Result()
 {
     return result;
+}
+
+int game::maxGrade()
+{
+    return max_grade_;
+}
+
+void game::setMaxGrade(int n)
+{
+    max_grade_=n;
+    history_grade_->setText((QString)"Max grade on history: "+QString::asprintf("%d",maxGrade()));
+}
+
+int game::Grade() const
+{
+    return grade_;
+}
+
+void game::inGrade(int n)
+{
+    grade_+=n;
+    updateGradeInfoOnScreen();
 }

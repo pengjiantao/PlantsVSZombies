@@ -19,6 +19,7 @@ private:
     std::vector<std::string> value_list_;
     std::string name_;
 public:
+    std::string operator[](int i);
     std::string Name() const;
     void setName( const std::string& s);
     infoStyle Style() const;
