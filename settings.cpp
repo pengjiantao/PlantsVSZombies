@@ -176,9 +176,16 @@ void settings::gameEnd(game* g,int grade)
     writeConfig();
     if(result==true&&current_mode_==2)
     {
-        current_num_++;
-        if(current_mode_<=pass_num_)
+        if(current_num_==6)
+        {
+            screen::putMessage("all pass have been break through!");
+            current_num_=0;
+        }
+        else
+        {
+            current_num_++;
             mode2BeSelected();
+        }
     }
     else
         this->show();
