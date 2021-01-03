@@ -122,8 +122,8 @@ void plant::setProtectHead(PumpKin *s)
     if(protect_head_)
     {
         protect_head_->disconnect();
-        protect_head_=nullptr;
         delete protect_head_;
+        protect_head_=nullptr;
     }
     protect_head_=s;
     connect(protect_head_,SIGNAL(die(PumpKin*)),this,SLOT(protectHeadDestroy(PumpKin*)));
